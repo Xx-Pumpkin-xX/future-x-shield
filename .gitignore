@@ -1,0 +1,30 @@
+# Viết trước commit đầu tiên. Đã commit một lần là nằm trong lịch sử mãi mãi.
+# Thư viện và bản build
+node_modules/
+dist/
+# Mọi file môi trường (chỉ .env.example được commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+# Dữ liệu, tải lên, file nén, log
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.log
+# Rác của máy
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
+# Kết quả test e2e
+tests/out/

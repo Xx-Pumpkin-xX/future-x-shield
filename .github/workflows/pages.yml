@@ -1,0 +1,67 @@
+# Mỗi lần push lên main: chạy test, build, kiểm trong trình duyệt.
+# Chỉ đưa lên GitHub Pages khi biến repo DEPLOY_PAGES = true (đặt sau khi Leader đồng ý công khai).
+# Sau khi đưa lên: kiểm lại chính địa chỉ thật và in commit đang chạy.
+name: Kiem va dua len Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - name: Build
+        run: node build.js
+      - name: Ban build phai sach (khong +dirty)
+        run: grep -q '"dirty":false' dist/index.html || { echo "Ban build co thay doi chua commit"; exit 1; }
+      - name: Kiem trong trinh duyet
+        run: node tests/e2e.js
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: test-build
+    if: vars.DEPLOY_PAGES == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+  verify-live:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Kiem dia chi that, dung commit vua day
+        env:
+          E2E_URL: ${{ needs.deploy.outputs.url }}
+          EXPECT_COMMIT: ${{ github.sha }}
+        run: |
+          sleep 20
+          node tests/e2e.js
+          echo "Ban dang chay: ${GITHUB_SHA::12} tai ${E2E_URL}"
