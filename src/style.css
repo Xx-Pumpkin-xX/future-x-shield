@@ -44,9 +44,9 @@ b, strong { font-weight: 700; }
 .bar-in { max-width: calc(var(--wide) + 48px); margin: 0 auto; padding: 0 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; }
 .bar > .bar-in { max-width: 1328px; min-height: 68px; gap: 0 28px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; padding: 12px 0; flex-shrink: 0; }
-.mark { width: 30px; height: 33px; flex-shrink: 0; }
+.mark { width: 30px; height: auto; flex-shrink: 0; display: block; }
 .wordmark { font-weight: 800; font-size: 19px; letter-spacing: -0.015em; white-space: nowrap; color: #1A1D21; }
-.wordmark b { color: var(--brand); font-weight: 800; }
+.wm-x { display: inline-block; width: 0.98em; height: 1.1em; margin: 0 0.16em 0 0.2em; vertical-align: -0.2em; }
 .tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
 .tabs::-webkit-scrollbar { display: none; }
 .tabs a { padding: 22px 10px 19px; color: var(--ink2); text-decoration: none; white-space: nowrap; border-bottom: 3px solid transparent; font-size: 15px; font-weight: 600; }
@@ -83,7 +83,7 @@ main:focus-visible { outline: none; }
 @media (max-width: 640px) {
   .bar > .bar-in { padding: 0 16px; gap: 0 12px; min-height: 60px; }
   .wordmark { font-size: 16px; }
-  .mark { width: 26px; height: 29px; }
+    .mark { width: 26px; }
   .actions { gap: 8px; }
   .lang-name, .login { display: none; }
   .btn-open { min-height: 38px; padding: 0 14px; font-size: 14px; }
