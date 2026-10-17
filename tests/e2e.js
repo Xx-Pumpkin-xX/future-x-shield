@@ -135,7 +135,7 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'problem'], ['#/san-pham', 'pro
   pg = await openPage(1280, '#/demo/atl');
   const viText = await pg.evaluate(() => document.body.innerText);
   ok('đối chứng âm: trang tiếng Việt bị bộ dò chữ Việt bắt', VIET.test(viText));
-  await pg.click('[data-lang="en"]');
+  await pg.click('#lang-toggle'); await pg.click('[data-lang="en"]');
   ok('EN: <html lang="en">', (await pg.$eval('html', h => h.lang)) === 'en');
   for (const [hash] of ROUTES) {
     await pg.evaluate(h => { location.hash = h; }, hash);
@@ -149,7 +149,7 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'problem'], ['#/san-pham', 'pro
   ok('EN: số theo kiểu en-US (25.4%, 2.3%)', card.includes(p1('en', GOLD.atlBefore)) && card.includes(p1('en', GOLD.atlAfterDown)), card);
   await pg.reload(); await pg.waitForSelector('body[data-ready="1"]');
   ok('EN: tải lại vẫn nhớ tiếng Anh', (await pg.$eval('html', h => h.lang)) === 'en');
-  await pg.click('[data-lang="vi"]');
+  await pg.click('#lang-toggle'); await pg.click('[data-lang="vi"]');
   ok('VI: bấm VI trở lại tiếng Việt', VIET.test(await pg.evaluate(() => document.body.innerText)));
   const empty = await pg.$$eval('[data-i18n]', els => els.filter(e => !e.innerHTML.trim()).length);
   ok('VI: không phần tử data-i18n nào rỗng', empty === 0, empty);
