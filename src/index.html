@@ -20,10 +20,23 @@
 <header class="bar">
   <div class="bar-in">
     <a class="brand" href="#/" aria-label="Future X Shield">
-      <svg class="mark" viewBox="0 0 28 28" aria-hidden="true"><path d="M14 2 25 6v8c0 6.5-4.6 10.6-11 12C7.6 24.6 3 20.5 3 14V6z" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8 14h12" stroke="var(--ref)" stroke-width="2.6" stroke-linecap="round"/></svg>
-      <span>Future X Shield</span>
+      <svg class="mark" viewBox="0 0 40 44" aria-hidden="true">
+        <defs>
+          <linearGradient id="fxs-g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#A51C24"/><stop offset="1" stop-color="#7A0F15"/>
+          </linearGradient>
+          <clipPath id="fxs-c"><path d="M20 1C26 4 32 5.5 38 6v14c0 11-8 19-18 23C10 39 2 31 2 20V6c6-.5 12-2 18-5z"/></clipPath>
+        </defs>
+        <path d="M20 1C26 4 32 5.5 38 6v14c0 11-8 19-18 23C10 39 2 31 2 20V6c6-.5 12-2 18-5z" fill="url(#fxs-g)"/>
+        <path d="M20 1C26 4 32 5.5 38 6v14c0 11-8 19-18 23z" fill="#000" opacity=".14"/>
+        <g clip-path="url(#fxs-c)" stroke-linecap="square">
+          <path d="M9 10 31 34" stroke="#fff" stroke-width="6.5"/>
+          <path d="M31 10 9 34" stroke="#8E141B" stroke-width="9.5"/>
+          <path d="M31 10 9 34" stroke="#fff" stroke-width="4.5"/>
+        </g>
+      </svg>
+      <span class="wordmark">Future <b>X</b> Shield</span>
     </a>
-    <span class="badge" data-i18n="badge"></span>
     <nav class="tabs" data-i18n-attr="aria-label:nav.label">
       <a href="#/" data-tab="overview" data-i18n="tab.overview"></a>
       <a href="#/van-de" data-tab="problem" data-i18n="tab.problem"></a>
@@ -32,11 +45,30 @@
       <a href="#/luat" data-tab="rules" data-i18n="tab.rules"></a>
       <a href="#/diem-yeu" data-tab="limits" data-i18n="tab.limits"></a>
     </nav>
-    <div class="lang" role="group" data-i18n-attr="aria-label:lang.label">
-      <button type="button" data-lang="vi" lang="vi">VI</button>
-      <button type="button" data-lang="en" lang="en">EN</button>
+    <div class="actions">
+      <div class="lang" id="lang">
+        <button type="button" class="lang-toggle" id="lang-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu" data-i18n-attr="aria-label:lang.label">
+          <svg class="flag flag-vi" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#DA251D"/><polygon fill="#FFCD00" points="15,4 16.41,8.06 20.71,8.15 17.28,10.74 18.53,14.85 15,12.4 11.47,14.85 12.72,10.74 9.29,8.15 13.59,8.06"/></svg>
+          <svg class="flag flag-en" viewBox="0 0 60 30" aria-hidden="true"><rect width="60" height="30" fill="#012169"/><path d="M0 0l60 30M60 0L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0l60 30M60 0L0 30" stroke="#C8102E" stroke-width="2"/><path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg>
+          <span class="lang-name" data-i18n="lang.current"></span>
+          <svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="lang-menu" id="lang-menu" hidden>
+          <button type="button" data-lang="vi" lang="vi">
+            <svg class="flag" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#DA251D"/><polygon fill="#FFCD00" points="15,4 16.41,8.06 20.71,8.15 17.28,10.74 18.53,14.85 15,12.4 11.47,14.85 12.72,10.74 9.29,8.15 13.59,8.06"/></svg>
+            Tiếng Việt
+          </button>
+          <button type="button" data-lang="en" lang="en">
+            <svg class="flag" viewBox="0 0 60 30" aria-hidden="true"><rect width="60" height="30" fill="#012169"/><path d="M0 0l60 30M60 0L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0l60 30M60 0L0 30" stroke="#C8102E" stroke-width="2"/><path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg>
+            English
+          </button>
+        </div>
+      </div>
+      <a class="login" href="#/demo/atl" data-i18n="act.login"></a>
+      <a class="btn-open" href="#/demo/atl" data-i18n="act.open"></a>
     </div>
   </div>
+  
   <div class="subbar" hidden>
     <div class="bar-in sub-in">
       <span class="sub-label" data-i18n="sub.label"></span>
