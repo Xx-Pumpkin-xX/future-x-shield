@@ -1,6 +1,7 @@
 /* Kiểm dist/index.html trong Chromium thật, ở bề ngang laptop và điện thoại.
    Số mong đợi lấy từ HAI nơi: số vàng của demo_calc.py (viết tay) và engine.js chạy trong Node.
    Chạy: npm run e2e   (cần: npm ci && npx playwright install chromium)
+   Không tải Chromium được: đặt E2E_CHANNEL=msedge (Edge có sẵn trên Windows) hoặc chrome.
    Mặc định mở file:// ; đặt E2E_URL để kiểm bản đã đưa lên (vd. https://<user>.github.io/future-x-shield/). */
 'use strict';
 const path = require('path');
@@ -33,7 +34,9 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'problem'], ['#/san-pham', 'pro
   ['#/demo/shield', 'demo/shield'], ['#/demo/vien-canh', 'demo/scen'], ['#/luat', 'rules'], ['#/diem-yeu', 'limits']];
 
 (async () => {
-  const browser = await chromium.launch();
+  const channel = process.env.E2E_CHANNEL || undefined;
+  const browser = await chromium.launch(channel ? { channel } : {});
+  console.log('trình duyệt:', channel || 'chromium (Playwright)', browser.version());
   const errors = [];
   async function openPage(width, hash, lang) {
     const ctx = await browser.newContext({ viewport: { width, height: 900 } });
