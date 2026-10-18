@@ -234,7 +234,7 @@ var I18N = {
     'ov.inst.acc': 'Example account: 2 long VN30F1M Deals at 2,000, 80 million VND of margin outside the Deals. [M]',
     'ov.inst.now': 'Now', 'ov.inst.after': 'After a 2-contract long',
     'ov.inst.note': 'The coloured band is how far VN30F can move before the first Deal is liquidated. Ticks at 5% and 3% are the colour boundaries [A].',
-    'ov.cta.demo': 'Try placing an order', 'ov.cta.limits': 'Read the limitations first',
+    'ov.cta.demo': 'Try an order', 'ov.cta.limits': 'See the limitations',
     'ov.eyebrow': 'Not a new stop-loss tool',
     'ov.h1.a': 'See what each position is doing to your whole account,',
     'ov.h1.b': 'before the margin call does.',
