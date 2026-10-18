@@ -49,7 +49,7 @@ b, strong { font-weight: 700; }
 .mark { width: 30px; height: auto; flex-shrink: 0; display: block; }
 .wordmark { font-weight: 800; font-size: 19px; letter-spacing: -0.015em; white-space: nowrap; color: #1A1D21; }
 .wm-x { display: inline-block; width: 0.98em; height: 1.1em; margin: 0 0.16em 0 0.2em; vertical-align: -0.2em; }
-.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+.tabs { margin-left: auto; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
 .tabs::-webkit-scrollbar { display: none; }
 .tabs a { padding: 22px 10px 19px; color: var(--ink2); text-decoration: none; white-space: nowrap; border-bottom: 3px solid transparent; font-size: 15px; font-weight: 600; }
 .tabs a:hover { color: var(--brand); }
@@ -64,7 +64,7 @@ b, strong { font-weight: 700; }
 .lang-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
 .flag { width: 22px; height: 15px; border-radius: 2px; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
 html:not([lang="en"]) .lang-toggle .flag-en, html[lang="en"] .lang-toggle .flag-vi { display: none; }
-.lang-menu { position: absolute; left: 0; top: calc(100% + 8px); min-width: 180px; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; box-shadow: 0 12px 32px rgba(14, 26, 43, .14); padding: 6px; display: flex; flex-direction: column; gap: 2px; z-index: 6; }
+.lang-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 180px; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; box-shadow: 0 12px 32px rgba(14, 26, 43, .14); padding: 6px; display: flex; flex-direction: column; gap: 2px; z-index: 6; }
 .lang-menu button { display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; font-size: 15px; text-align: left; color: var(--ink); }
 .lang-menu button:hover { background: var(--brand-50); }
 .lang-menu button[aria-pressed="true"] { background: var(--brand-100); color: var(--brand); font-weight: 600; }
@@ -83,6 +83,7 @@ main:focus-visible { outline: none; }
 
 /* màn vừa: tab xuống hàng hai */
 @media (max-width: 900px) {
+  .actions { margin-left: auto; }
   .tabs { order: 3; flex-basis: 100%; border-top: 1px solid var(--soft); }
   .tabs a { padding: 12px 10px 10px; }
 }
@@ -309,7 +310,7 @@ legend { font-size: 13px; color: var(--ink2); padding: 0; margin-bottom: 6px; }
   .bar-in { padding: 0 16px; gap: 0 10px; }
   .tabs { order: 3; width: 100%; margin-left: -8px; flex-wrap: wrap; overflow: visible; }
   .tabs a { padding: 10px 8px 9px; font-size: 14px; }
-  .actions { margin-left: 0; }
+  .actions { margin-left: auto; }
   .lang-menu { left: auto; right: 0; }
   .badge { font-size: 11px; padding: 1px 8px; }
   main { padding: 28px 16px 44px; }
