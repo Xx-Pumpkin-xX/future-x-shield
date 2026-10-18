@@ -133,6 +133,7 @@ function build(opts) {
   html = put(html, '/*__FONTS__*/', fontsCSS());
   html = put(html, '/*__STYLE__*/', rd('src/style.css'));
   html = put(html, '__LOGO__', 'data:image/png;base64,' + fs.readFileSync(path.join(ROOT, 'assets', 'logo-icon.png')).toString('base64'));
+  html = put(html, '__HERO__', 'data:image/jpeg;base64,' + fs.readFileSync(path.join(ROOT, 'assets', 'hero.jpg')).toString('base64'));
   html = put(html, '__FAVICON__', 'data:image/png;base64,' + fs.readFileSync(path.join(ROOT, 'assets', 'favicon.png')).toString('base64'));
   html = put(html, '__CSP__', cspFor(script));
   html = put(html, '__BUILD_JSON__', JSON.stringify(buildInfo).replace(/&/g, '&amp;').replace(/"/g, '&quot;'));
