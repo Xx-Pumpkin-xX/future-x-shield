@@ -5,7 +5,11 @@ var I18N = {
     'doc.title': 'Future X Shield · đề xuất sản phẩm, đội thi FBA 2026',
     'doc.desc': 'Shield cho trader VN30F thấy từng Deal đang làm gì với cả tài khoản phái sinh, trước khi bị gọi ký quỹ. Concept của đội thi FBA 2026.',
     'skip': 'Bỏ qua, tới nội dung',
-    'badge': 'Concept của đội thi FBA 2026',
+     
+    'lang.current': 'Tiếng Việt',
+    'act.login': 'Đăng nhập',
+    'act.open': 'Mở tài khoản',
+     
     'nav.label': 'Các phần của đề xuất',
     'lang.label': 'Ngôn ngữ',
     'tab.overview': 'Tổng quan', 'tab.problem': 'Vấn đề', 'tab.product': 'Sản phẩm', 'tab.demo': 'Demo',
@@ -173,7 +177,9 @@ var I18N = {
     'doc.title': 'Future X Shield · product proposal, FBA 2026 team',
     'doc.desc': 'Shield shows VN30F traders what each Deal is doing to their whole derivatives account, before the margin call does. A concept by an FBA 2026 team.',
     'skip': 'Skip to content',
-    'badge': 'Concept by an FBA 2026 team',
+    'lang.current': 'English',
+    'act.login': 'Log in',
+    'act.open': 'Open an account',
     'nav.label': 'Proposal sections',
     'lang.label': 'Language',
     'tab.overview': 'Overview', 'tab.problem': 'Problem', 'tab.product': 'Product', 'tab.demo': 'Demo',

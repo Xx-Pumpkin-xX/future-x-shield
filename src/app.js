@@ -311,12 +311,23 @@
     $$('[data-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === lang)); });
   }
 
+   /* ---------- menu ngôn ngữ ---------- */
+  function setLangMenu(open) {
+    $('#lang-menu').hidden = !open;
+    $('#lang-toggle').setAttribute('aria-expanded', String(open));
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !$('#lang-menu').hidden) { setLangMenu(false); $('#lang-toggle').focus(); }
+  });
+
   /* ---------- sự kiện ---------- */
   document.addEventListener('click', function (e) {
+    if (!e.target.closest('#lang')) setLangMenu(false);
     var b = e.target.closest('button');
     if (!b) return;
     var ds = b.dataset;
-    if (ds.lang) { lang = ds.lang; try { localStorage.setItem('fxs-lang', lang); } catch (err) { /* bỏ qua */ } applyLang(); show(false); }
+    if (b.id === 'lang-toggle') { setLangMenu($('#lang-menu').hidden); }
+    else if (ds.lang) { setLangMenu(false); lang = ds.lang; try { localStorage.setItem('fxs-lang', lang); } catch (err) { /* bỏ qua */ } applyLang(); show(false); }
     else if (ds.hero) { hero.view = ds.hero; renderHero(); }
     else if (ds.code) { atl.code = ds.code; renderATL(); }
     else if (ds.side) { atl.side = +ds.side; renderATL(); }

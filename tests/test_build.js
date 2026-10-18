@@ -81,7 +81,7 @@ ok('mỗi mẫu secret có một chuỗi cài thử', SECRET_PATTERNS.every(p =>
 
 /* Build thật phải TỪ CHỐI và không ghi file khi nguồn có secret (chạy trên bản sao). */
 function copyRepo(dest) {
-  for (const p of ['build.js', 'src', 'engine', 'fonts']) fs.cpSync(path.join(ROOT, p), path.join(dest, p), { recursive: true });
+  for (const p of ['build.js', 'src', 'engine', 'fonts', 'assets']) fs.cpSync(path.join(ROOT, p), path.join(dest, p), { recursive: true });
 }
 const sand = fs.mkdtempSync(path.join(os.tmpdir(), 'fxs-sand-'));
 const repoCopy = path.join(sand, 'future-x-shield');
