@@ -16,7 +16,8 @@ Trang có 6 tab: Tổng quan, Vấn đề, Sản phẩm, Demo, Luật và dữ l
 | `src/index.html` | Khung trang, có 7 chỗ chèn script, 2 chỗ chèn CSS. |
 | `src/app.js` | Hiển thị: định tuyến tab, ngôn ngữ, 4 demo. Không tự tính số. |
 | `src/cube3d.js` | Khối A × B × C 3D vẽ bằng SVG: kéo để xoay, mỗi Deal là một hình cầu theo tỷ lệ cọc. |
-| `assets/logo-icon.png` | Logo khiên. (`assets/logo` là file rỗng, có thể xoá.) |
+| `assets/logo-icon.png` | Logo khiên ở đầu trang. |
+| `assets/favicon.png` | Cùng logo, cắt vuông 64×64, làm biểu tượng tab trình duyệt. Cả hai được nhúng thẳng vào file build. |
 | `src/i18n.js` | Toàn bộ chữ trên trang, mỗi khoá có cả `vi` và `en`. |
 | `src/style.css` | Giao diện. |
 | `fonts/` | Font Be Vietnam Pro (OFL, xem `fonts/OFL.txt`), nhúng vào file build để không phải tải từ Google. |
@@ -38,7 +39,7 @@ Cần Node 18 trở lên.
 
 ```
 npm ci                          # cài playwright (chỉ để chạy e2e)
-npm test                        # "47 pass", "17 pass", rồi "55 pass", đều 0 fail
+npm test                        # "47 pass", "17 pass", rồi "56 pass", đều 0 fail
 node build.js                   # ra dist/index.html và dist/_headers, in commit đã đóng dấu
 npx playwright install chromium # lần đầu; không tải được thì đặt E2E_CHANNEL=msedge
 npm run e2e                     # "115 pass, 0 fail"

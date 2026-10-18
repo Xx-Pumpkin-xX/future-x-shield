@@ -23,7 +23,7 @@ cd "$HOME\OneDrive\Documents\FBA\future-x-shield"
 npm ci
 npm test
 ```
-Phải thấy `47 pass, 0 fail`, rồi `17 pass, 0 fail`, rồi `55 pass, 0 fail`.
+Phải thấy `47 pass, 0 fail`, rồi `17 pass, 0 fail`, rồi `56 pass, 0 fail`.
 
 Kiểm cả trình duyệt. Máy này không tải được Chromium của Playwright nên dùng Edge có sẵn:
 ```powershell
@@ -64,7 +64,7 @@ Trên dash.cloudflare.com → **Workers & Pages** → Worker **future-x-shield**
 6. Lưu. Vào tab **Deployments**, bấm build lại commit mới nhất, hoặc push một commit mới.
 
 Phải thấy trong log build:
-- `47 pass, 0 fail`, `17 pass, 0 fail`, `55 pass, 0 fail`;
+- `47 pass, 0 fail`, `17 pass, 0 fail`, `56 pass, 0 fail`;
 - `bản build: <12 ký tự commit> main …`, **không** có `+dirty`;
 - dòng báo deploy thành công của `wrangler`.
 

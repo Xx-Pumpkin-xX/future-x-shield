@@ -53,6 +53,7 @@ const hashOf = s => "'sha256-" + crypto.createHash('sha256').update(s, 'utf8').d
 ok('CSP: hash trong CSP khớp đúng đoạn script trong file', csp.includes(hashOf(scriptInFile)));
 ok('đối chứng âm: sửa 1 ký tự trong script thì hash không còn khớp', !csp.includes(hashOf(scriptInFile + ' ')));
 ok('CSP: default-src none, không cho script ngoài', csp.startsWith("default-src 'none'") && !/script-src[^;]*(https?:|'unsafe-inline'|\*)/.test(csp));
+ok('build: biểu tượng tab là logo khiên, nhúng sẵn (data:image/png)', /<link rel="icon" type="image\/png" sizes="64x64" href="data:image\/png;base64,iVBOR/.test(out) && /img-src data:/.test(csp));
 ok('build: chỉ 1 thẻ <script>', (out.match(/<script/g) || []).length === 1);
 ok('build: không còn chỗ chèn', !/\/\*__[A-Z]+__\*\//.test(out.replace(scriptInFile, '')) && !out.includes('__CSP__'));
 
@@ -152,7 +153,7 @@ for (const pat of ['node_modules/', 'dist/', '.env', '*.log', '*.zip', '*.tar.gz
 ok('.gitignore vẫn cho commit .env.example', gi.split(/\r?\n/).includes('!.env.example'));
 
 fs.rmSync(tmp, { recursive: true, force: true }); fs.rmSync(sand, { recursive: true, force: true }); fs.rmSync(sand2, { recursive: true, force: true });
-const MIN = 53;
+const MIN = 54;
 console.log('\n' + pass + ' pass, ' + fail + ' fail');
 if (pass + fail < MIN) { console.log('FAIL: chỉ chạy ' + (pass + fail) + ' kiểm, cần ít nhất ' + MIN + ' (có đoạn bị bỏ qua?)'); process.exit(1); }
 process.exit(fail ? 1 : 0);
