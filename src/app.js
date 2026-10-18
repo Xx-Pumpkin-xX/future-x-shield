@@ -78,17 +78,6 @@
     slot.setAttribute('data-up', sc.up == null ? 'null' : sc.up.toFixed(4));
   }
 
-  /* ---------- Tổng quan: thước của ví dụ 4.4 ---------- */
-  var hero = { view: 'now' };
-  var heroScore = memo(function (v) {
-    var a = SE.atlAccount();
-    return SE.score(v === 'after' ? SE.order(a, 1, 2, 'VN30F1M').acc : a);
-  });
-  function renderHero() {
-    $$('[data-hero]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.hero === hero.view)); });
-    updateRuler($('[data-ruler="hero"]'), heroScore(hero.view));
-  }
-
   /* ---------- Demo: lúc đặt lệnh ---------- */
   var atl = { code: 'VN30F1M', side: 1, qty: 2 };
   var atlCalc = memo(function (key) {
@@ -439,15 +428,15 @@
   /* ---------- định tuyến ---------- */
   var ROUTES = [
     { hash: '#/', view: 'overview', tab: 'overview', label: 'tab.overview' },
-    { hash: '#/van-de', view: 'problem', tab: 'problem', label: 'tab.problem' },
-    { hash: '#/san-pham', view: 'product', tab: 'product', label: 'tab.product' },
+    { hash: '#/van-de', view: 'overview', tab: 'problem', anchor: 'van-de', label: 'tab.problem' },
+    { hash: '#/san-pham', view: 'overview', tab: 'product', anchor: 'san-pham', label: 'tab.product' },
+    { hash: '#/luat', view: 'overview', tab: 'rules', anchor: 'luat', label: 'tab.rules' },
     { hash: '#/demo/atl', view: 'demo/atl', tab: 'demo', sub: 'atl', label: 'sub.atl' },
     { hash: '#/demo/shield', view: 'demo/shield', tab: 'demo', sub: 'shield', label: 'sub.shield' },
     { hash: '#/demo/vien-canh', view: 'demo/scen', tab: 'demo', sub: 'scen', label: 'sub.scen' },
-    { hash: '#/demo/danh-muc', view: 'demo/port', tab: 'demo', sub: 'port', label: 'sub.port' },
-    { hash: '#/luat', view: 'rules', tab: 'rules', label: 'tab.rules' },
-    { hash: '#/diem-yeu', view: 'limits', tab: 'limits', label: 'tab.limits' }
+    { hash: '#/demo/danh-muc', view: 'demo/port', tab: 'demo', sub: 'port', label: 'sub.port' }
   ];
+  var PAGES = ROUTES.filter(function (r) { return !r.anchor; });
   function current() {
     var h = location.hash || '#/';
     if (h === '#/demo') h = '#/demo/atl';
@@ -455,23 +444,51 @@
     return 0;
   }
   function routeLabel(r) { return r.sub ? t('tab.demo') + ': ' + t(r.label) : t(r.label); }
-  var RENDER = { 'overview': renderHero, 'demo/atl': renderATL, 'demo/shield': renderShield, 'demo/scen': renderScenario, 'demo/port': renderPortfolio };
+  var RENDER = { 'demo/atl': renderATL, 'demo/shield': renderShield, 'demo/scen': renderScenario, 'demo/port': renderPortfolio };
 
+    function setTab(tab) {
+    $$('[data-tab]').forEach(function (a) { if (a.dataset.tab === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  }
   function show(focus) {
     var i = current(), r = ROUTES[i];
     $$('.view').forEach(function (v) { v.hidden = v.dataset.view !== r.view; });
-    $$('[data-tab]').forEach(function (a) { if (a.dataset.tab === r.tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    setTab(r.tab);
     $('.subbar').hidden = r.tab !== 'demo';
     $$('[data-sub]').forEach(function (a) { if (a.dataset.sub === r.sub) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    var pi = 0;
+    for (var k = 0; k < PAGES.length; k++) if (PAGES[k].view === r.view) pi = k;
     var p = '';
-    if (i > 0) p += '<a class="btn prev" href="' + ROUTES[i - 1].hash + '"><small>' + t('pager.prev') + '</small>' + routeLabel(ROUTES[i - 1]) + '</a>';
-    if (i < ROUTES.length - 1) p += '<a class="btn primary next" href="' + ROUTES[i + 1].hash + '"><small>' + t('pager.next') + '</small>' + routeLabel(ROUTES[i + 1]) + '</a>';
+    if (pi > 0) p += '<a class="btn prev" href="' + PAGES[pi - 1].hash + '"><small>' + t('pager.prev') + '</small>' + routeLabel(PAGES[pi - 1]) + '</a>';
+    if (pi < PAGES.length - 1) p += '<a class="btn primary next" href="' + PAGES[pi + 1].hash + '"><small>' + t('pager.next') + '</small>' + routeLabel(PAGES[pi + 1]) + '</a>';
     $('#pager').innerHTML = p;
     document.title = (i === 0 ? '' : routeLabel(r) + ' | ') + t('doc.title');
     if (RENDER[r.view]) RENDER[r.view]();
     document.body.setAttribute('data-route', r.view);
-    if (focus) { window.scrollTo(0, 0); $('#main').focus({ preventScroll: true }); }
+    measureBar();
+    if (focus) {
+      var smooth = focus === true && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (r.anchor) $('#' + r.anchor).scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' });
+      else window.scrollTo({ top: 0, behavior: smooth && r.view === 'overview' ? 'smooth' : 'auto' });
+      if (focus === true) $('#main').focus({ preventScroll: true });
+    }
+    onScroll();
   }
+
+  /* thanh trên: trong suốt ở đầu trang Tổng quan; tab tự đổi theo phần đang xem */
+  function measureBar() { document.documentElement.style.setProperty('--bar-h', $('.bar').offsetHeight + 'px'); }
+  function onScroll() {
+    var onOverview = document.body.getAttribute('data-route') === 'overview';
+    $('.bar').classList.toggle('clear', onOverview && window.scrollY < 8);
+    if (!onOverview) return;
+    var line = window.innerHeight * 0.35, cur = 'overview';
+    $$('[data-section]').forEach(function (s) { if (s.getBoundingClientRect().top <= line) cur = s.dataset.section; });
+    setTab(cur);
+  }
+  var scrollT = 0;
+  window.addEventListener('scroll', function () {
+    if (!scrollT) scrollT = requestAnimationFrame(function () { scrollT = 0; onScroll(); });
+  }, { passive: true });
+  window.addEventListener('resize', function () { measureBar(); onScroll(); });
 
   /* ---------- ngôn ngữ ---------- */
   function applyLang() {
@@ -496,12 +513,13 @@
   /* ---------- sự kiện ---------- */
   document.addEventListener('click', function (e) {
     if (!e.target.closest('#lang')) setLangMenu(false);
+    var link = e.target.closest('a[href^="#/"]');
+    if (link && link.getAttribute('href') === (location.hash || '#/')) { e.preventDefault(); show(true); return; }
     var b = e.target.closest('button');
     if (!b) return;
     var ds = b.dataset;
     if (b.id === 'lang-toggle') { setLangMenu($('#lang-menu').hidden); }
     else if (ds.lang) { setLangMenu(false); lang = ds.lang; try { localStorage.setItem('fxs-lang', lang); } catch (err) { /* bỏ qua */ } applyLang(); show(false); }
-    else if (ds.hero) { hero.view = ds.hero; renderHero(); }
     else if (ds.code) { atl.code = ds.code; renderATL(); }
     else if (ds.side) { atl.side = +ds.side; renderATL(); }
     else if (ds.step) { atl.qty = Math.max(1, Math.min(6, atl.qty + +ds.step)); renderATL(); }
@@ -531,6 +549,6 @@
   console.info('[fxs] build', JSON.stringify(B));
 
   applyLang();
-  show(false);
+  show('init');
   document.body.setAttribute('data-ready', '1');
 })();
