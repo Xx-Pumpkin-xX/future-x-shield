@@ -20,20 +20,16 @@
 
 <header class="bar">
   <div class="bar-in">
-    <div class="brand-wrap">
     <a class="brand" href="#/" aria-label="Future X Shield">
       <img class="mark" src="__LOGO__" alt="" width="30" height="34">
       <span class="wordmark">Future<svg class="wm-x" viewBox="0 0 100 112" aria-hidden="true"><defs><linearGradient id="wm-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B0202A"/><stop offset="1" stop-color="#7A0F15"/></linearGradient></defs><polygon fill="url(#wm-g)" points="0,0 31,0 100,112 69,112"/><polygon fill="url(#wm-g)" points="74,0 100,0 26,112 0,112"/></svg>Shield</span>
     </a>
-    <span class="badge" data-i18n="badge"></span>
-    </div>
     <nav class="tabs" data-i18n-attr="aria-label:nav.label">
       <a href="#/" data-tab="overview" data-i18n="tab.overview"></a>
       <a href="#/van-de" data-tab="problem" data-i18n="tab.problem"></a>
       <a href="#/san-pham" data-tab="product" data-i18n="tab.product"></a>
-      <a href="#/demo/atl" data-tab="demo" data-i18n="tab.demo"></a>
       <a href="#/luat" data-tab="rules" data-i18n="tab.rules"></a>
-      <a href="#/diem-yeu" data-tab="limits" data-i18n="tab.limits"></a>
+      <a href="#/demo/atl" data-tab="demo" data-i18n="tab.demo"></a>
     </nav>
     <div class="actions">
       <div class="lang" id="lang">
@@ -83,55 +79,14 @@
         <p class="lede" data-i18n="ov.lede"></p>
         <div class="cta-row">
           <a class="btn primary" href="#/demo/atl" data-i18n="ov.cta.demo"></a>
-          <a class="btn" href="#/diem-yeu" data-i18n="ov.cta.limits"></a>
+          <a class="btn" href="#/van-de" data-i18n="ov.cta.problem"></a>
         </div>
         <p class="hero-note" data-i18n="ov.hero.note"></p>
       </div>
     </div>
   </div>
-  
-  <figure class="instrument" id="hero-inst">
-    <figcaption>
-      <h2 data-i18n="ov.inst.title"></h2>
-      <p class="muted" data-i18n="ov.inst.acc"></p>
-    </figcaption>
-    <div class="seg" role="group">
-      <button type="button" data-hero="now" data-i18n="ov.inst.now"></button>
-      <button type="button" data-hero="after" data-i18n="ov.inst.after"></button>
-    </div>
-    <div class="ruler-slot" data-ruler="hero"></div>
-    <p class="note" data-i18n="ov.inst.note"></p>
-  </figure>
-
-  <div class="block">
-    <h2 data-i18n="ov.labels.title"></h2>
-    <ul class="chips">
-      <li data-i18n="ov.label.f"></li><li data-i18n="ov.label.a"></li><li data-i18n="ov.label.m"></li>
-    </ul>
-  </div>
-
-  <div class="block">
-    <h2 data-i18n="ov.who.title"></h2>
-    <ol class="years">
-      <li data-i18n="ov.who.y1"></li><li data-i18n="ov.who.y2"></li><li data-i18n="ov.who.y3"></li>
-    </ol>
-  </div>
-
-  <div class="block">
-    <h2 data-i18n="ov.next.title"></h2>
-    <ul class="next-list">
-      <li><a href="#/van-de"><b data-i18n="tab.problem"></b><span data-i18n="ov.next.problem"></span></a></li>
-      <li><a href="#/san-pham"><b data-i18n="tab.product"></b><span data-i18n="ov.next.product"></span></a></li>
-      <li><a href="#/demo/atl"><b data-i18n="tab.demo"></b><span data-i18n="ov.next.demo"></span></a></li>
-      <li><a href="#/luat"><b data-i18n="tab.rules"></b><span data-i18n="ov.next.rules"></span></a></li>
-      <li><a href="#/diem-yeu"><b data-i18n="tab.limits"></b><span data-i18n="ov.next.limits"></span></a></li>
-    </ul>
-  </div>
-</section>
-
-<!-- ============ Vấn đề ============ -->
-<section class="view" data-view="problem" hidden>
-  <h1 data-i18n="pb.title"></h1>
+  <section class="sec" id="van-de" data-section="problem">
+  <h2 class="sec-title" data-i18n="pb.title"></h2>
   <div class="split">
     <div>
       <h2 data-i18n="pb.mech.title"></h2>
@@ -170,8 +125,8 @@
 </section>
 
 <!-- ============ Sản phẩm ============ -->
-<section class="view" data-view="product" hidden>
-  <h1 data-i18n="pd.title"></h1>
+  <section class="sec" id="san-pham" data-section="product">
+  <h2 class="sec-title" data-i18n="pd.title"></h2>
   <div class="split">
     <div>
       <h2 data-i18n="pd.score.title"></h2>
@@ -202,6 +157,33 @@
     <div><p class="k">A × C</p><ul><li data-i18n="cell.out"></li><li data-i18n="cell.next"></li><li data-i18n="cell.old"></li><li data-i18n="cell.main"></li></ul></div>
   </div>
   <p class="note" data-i18n="pd.axes.cells"></p>
+  <div class="block">
+    <h2 data-i18n="ov.who.title"></h2>
+    <ol class="years">
+      <li data-i18n="ov.who.y1"></li><li data-i18n="ov.who.y2"></li><li data-i18n="ov.who.y3"></li>
+    </ol>
+  </div>
+  </section>
+
+  <section class="sec" id="luat" data-section="rules">
+  <h2 class="sec-title" data-i18n="ru.title"></h2>
+  <dl class="rules">
+    <div><dt data-i18n="ru.1.t"></dt><dd data-i18n="ru.1.b"></dd></div>
+    <div><dt data-i18n="ru.2.t"></dt><dd data-i18n="ru.2.b"></dd></div>
+    <div><dt data-i18n="ru.3.t"></dt><dd data-i18n="ru.3.b"></dd></div>
+    <div><dt data-i18n="ru.4.t"></dt><dd data-i18n="ru.4.b"></dd></div>
+  </dl>
+  <h2 data-i18n="da.title"></h2>
+  <p class="measure" data-i18n="da.body"></p>
+  <p class="measure note" data-i18n="da.thr"></p>
+  <p class="measure note" data-i18n="da.site"></p>
+  <div class="block">
+    <h2 data-i18n="ov.labels.title"></h2>
+    <ul class="chips">
+      <li data-i18n="ov.label.f"></li><li data-i18n="ov.label.a"></li><li data-i18n="ov.label.m"></li>
+    </ul>
+  </div>
+  </section>
 </section>
 
 <!-- ============ Demo: lúc đặt lệnh ============ -->
@@ -364,29 +346,6 @@
     </div>
   </div>
   <p class="note" data-i18n="pt.src"></p>
-</section>
-
-<!-- ============ Luật và dữ liệu ============ -->
-<section class="view" data-view="rules" hidden>
-  <h1 data-i18n="ru.title"></h1>
-  <dl class="rules">
-    <div><dt data-i18n="ru.1.t"></dt><dd data-i18n="ru.1.b"></dd></div>
-    <div><dt data-i18n="ru.2.t"></dt><dd data-i18n="ru.2.b"></dd></div>
-    <div><dt data-i18n="ru.3.t"></dt><dd data-i18n="ru.3.b"></dd></div>
-    <div><dt data-i18n="ru.4.t"></dt><dd data-i18n="ru.4.b"></dd></div>
-  </dl>
-  <h2 data-i18n="da.title"></h2>
-  <p class="measure" data-i18n="da.body"></p>
-  <p class="measure note" data-i18n="da.thr"></p>
-  <p class="measure note" data-i18n="da.site"></p>
-</section>
-
-<!-- ============ Điểm yếu ============ -->
-<section class="view" data-view="limits" hidden>
-  <h1 data-i18n="li.title"></h1>
-  <ul class="limits">
-    <li data-i18n="li.1"></li><li data-i18n="li.2"></li><li data-i18n="li.3"></li><li data-i18n="li.4"></li><li data-i18n="li.5"></li>
-  </ul>
 </section>
 
 <nav class="pager" id="pager"></nav>
