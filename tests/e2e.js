@@ -30,9 +30,8 @@ const engAtlAfter = SE.score(SE.order(atl, 1, 2, 'VN30F1M').acc), engDemo = SE.s
 ok('nguồn 2 khớp nguồn 1: ATL sau lệnh', Math.abs(engAtlAfter.down - GOLD.atlAfterDown) < 1e-9 && Math.abs(engAtlAfter.up - GOLD.atlAfterUp) < 1e-9);
 ok('nguồn 2 khớp nguồn 1: danh mục demo', Math.abs(engDemo.down - GOLD.demoDown) < 1e-9 && Math.abs(engDemo.up - GOLD.demoUp) < 1e-9);
 
-/* Vấn đề, Sản phẩm, Luật nằm chung trang Tổng quan (route cuộn tới phần tương ứng) */
-const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'overview'], ['#/luat', 'overview'], ['#/demo/atl', 'demo/atl'],
-  ['#/demo/shield', 'demo/shield'], ['#/demo/vien-canh', 'demo/scen'], ['#/demo/danh-muc', 'demo/port']];
+const ROUTES = [['#/', 'overview'], ['#/van-de', 'problem'], ['#/san-pham', 'product'], ['#/demo/atl', 'demo/atl'],
+  ['#/demo/shield', 'demo/shield'], ['#/demo/vien-canh', 'demo/scen'], ['#/demo/danh-muc', 'demo/port'], ['#/luat', 'rules'], ['#/diem-yeu', 'limits']];
 
 (async () => {
   const channel = process.env.E2E_CHANNEL || undefined;
@@ -66,20 +65,15 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
     }
   }
 
-  /* 2. Tổng quan: các phần chung trang, thanh trên trong suốt ở đầu trang */
-  let d;
+  /* 2. Tổng quan: thước của ví dụ 4.4 */
   let pg = await openPage(1280, '#/');
-  ok('Tổng quan: thanh trên trong suốt ở đầu trang', await pg.$eval('.bar', b => b.classList.contains('clear')));
-  ok('Tổng quan: có đủ 3 phần Vấn đề, Sản phẩm, Luật', (await pg.$$eval('.view[data-view="overview"] [data-section]', e => e.map(x => x.id).join(','))) === 'van-de,san-pham,luat');
-  ok('Tổng quan: không còn trang Điểm yếu', (await pg.$$('.view[data-view="limits"], [data-tab="limits"]')).length === 0);
-  for (const [hash, id, tab] of [['#/van-de', 'van-de', 'problem'], ['#/san-pham', 'san-pham', 'product'], ['#/luat', 'luat', 'rules']]) {
-    await pg.click(`.tabs a[href="${hash}"]`); await pg.waitForTimeout(250);
-    const top = await pg.$eval('#' + id, e => Math.round(e.getBoundingClientRect().top));
-    const barH = await pg.$eval('.bar', b => b.offsetHeight);
-    ok(`${hash}: cuộn tới phần ${id} (đỉnh phần ngay dưới thanh trên)`, top >= barH - 2 && top <= barH + 40, 'top ' + top + ', bar ' + barH);
-    ok(`${hash}: tab ${tab} được đánh dấu`, (await pg.$eval('.tabs [aria-current="page"]', a => a.dataset.tab)) === tab);
-    ok(`${hash}: thanh trên hết trong suốt khi đã cuộn`, !(await pg.$eval('.bar', b => b.classList.contains('clear'))));
-  }
+  let d = await pg.$eval('[data-ruler="hero"]', e => [e.dataset.down, e.dataset.up]);
+  ok('Tổng quan: hiện tại 25,41% / ngoài phạm vi', d[0] === GOLD.atlBefore.toFixed(4) && d[1] === 'null', d);
+  ok('Tổng quan: chữ "> 30%" và "ngoài phạm vi mô phỏng", không "không giới hạn"', /> 30%[\s\S]*ngoài phạm vi mô phỏng/.test(await text(pg, '[data-ruler="hero"]')));
+  await pg.click('[data-hero="after"]');
+  d = await pg.$eval('[data-ruler="hero"]', e => [e.dataset.down, e.dataset.up]);
+  ok('Tổng quan: sau lệnh 2,27% / 10,14%', d[0] === GOLD.atlAfterDown.toFixed(4) && d[1] === GOLD.atlAfterUp.toFixed(4), d);
+  ok('Tổng quan: thẻ màu "Nguy hiểm" sau lệnh', /Nguy hiểm/.test(await text(pg, '[data-ruler="hero"] .chip')));
   /* build stamp: chân trang khớp window.__BUILD__ và <meta> */
   const B = await pg.evaluate(() => window.__BUILD__);
   const meta = JSON.parse(await pg.$eval('meta[name="build"]', m => m.content));
