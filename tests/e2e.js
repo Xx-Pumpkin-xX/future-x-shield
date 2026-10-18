@@ -31,7 +31,7 @@ ok('nguồn 2 khớp nguồn 1: ATL sau lệnh', Math.abs(engAtlAfter.down - GOL
 ok('nguồn 2 khớp nguồn 1: danh mục demo', Math.abs(engDemo.down - GOLD.demoDown) < 1e-9 && Math.abs(engDemo.up - GOLD.demoUp) < 1e-9);
 
 const ROUTES = [['#/', 'overview'], ['#/van-de', 'problem'], ['#/san-pham', 'product'], ['#/demo/atl', 'demo/atl'],
-  ['#/demo/shield', 'demo/shield'], ['#/demo/vien-canh', 'demo/scen'], ['#/luat', 'rules'], ['#/diem-yeu', 'limits']];
+  ['#/demo/shield', 'demo/shield'], ['#/demo/vien-canh', 'demo/scen'], ['#/demo/danh-muc', 'demo/port'], ['#/luat', 'rules'], ['#/diem-yeu', 'limits']];
 
 (async () => {
   const channel = process.env.E2E_CHANNEL || undefined;
@@ -130,8 +130,45 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'problem'], ['#/san-pham', 'pro
   ok('Viễn cảnh: 3 dòng sau 2 bước', (await pg.$$('#sc-chain li')).length === 3);
   await pg.click('#sc-undo'); await pg.click('#sc-undo');
   ok('Viễn cảnh: bỏ 2 bước về 1 dòng, nút bỏ bị khoá', (await pg.$$('#sc-chain li')).length === 1 && await pg.$eval('#sc-undo', b => b.disabled));
+  ok('Viễn cảnh: khối 3D có 3 hình cầu', (await pg.$$('#sc-cube .c3-pt')).length === 3);
   await pg.click('[data-face="AC"]');
+  await pg.waitForFunction(() => document.querySelector('#sc-cube').dataset.face === 'AC', null, { timeout: 3000 }).catch(() => {});
   ok('Viễn cảnh: chọn mặt A × C xoay khối', (await pg.$eval('#sc-cube', c => c.dataset.face)) === 'AC');
+  const yaw0 = +(await pg.$eval('#sc-cube svg', s => s.dataset.yaw));
+  const box = await pg.$eval('#sc-cube svg', s => { const r = s.getBoundingClientRect(); return { x: r.left + 30, y: r.top + 30 }; });
+  await pg.mouse.move(box.x, box.y); await pg.mouse.down(); await pg.mouse.move(box.x + 120, box.y + 10, { steps: 6 }); await pg.mouse.up();
+  const yaw1 = +(await pg.$eval('#sc-cube svg', s => s.dataset.yaw));
+  ok('Viễn cảnh: kéo chuột xoay khối (yaw ' + yaw0 + ' → ' + yaw1 + ')', Math.abs(yaw1 - yaw0) > 30);
+  await pg.context().close();
+
+  /* 5b. Danh mục thật: khách mẫu trên giá VN30F1M thật */
+  pg = await openPage(1280, '#/demo/danh-muc');
+  const sec = () => pg.$eval('.view[data-view="demo/port"]', s => Object.assign({}, s.dataset));
+  let ds = await sec();
+  ok('Danh mục: mở ở phiên 02/03/2026 với 5 Deal', ds.t === '2026-03-02' && ds.deals === '5', JSON.stringify(ds));
+  ok('Danh mục: Deal đầu tiên bị xử lý 03/03/2026, tổng 2 Deal', ds.firstLiq === '2026-03-03' && ds.liq === '2', JSON.stringify(ds));
+  ok('Danh mục: thanh Shield đỏ lúc đóng cửa 02/03', /Nguy hiểm/.test(await text(pg, '[data-ruler="port"] .chip')));
+  ok('Danh mục: câu tóm tắt nói Shield báo trước 1 phiên', /báo trước 1 phiên/.test(await text(pg, '#pt-insight')));
+  ok('Danh mục: bảng có 5 Deal', (await pg.$$('#pt-table tr[data-deal]')).length === 5);
+  ok('Danh mục: khối 3D có 5 hình cầu', (await pg.$$('#pt-cube .c3-pt')).length === 5);
+  await pg.click('[data-ptact="close"][data-id="2"]');
+  ds = await sec();
+  ok('Danh mục: đóng Deal #2 sau phiên 02/03 thì Deal đầu tiên bị xử lý dời tới 08/04/2026', ds.firstLiq === '2026-04-08' && ds.liq === '1', JSON.stringify(ds));
+  ok('Danh mục: quyết định hiện trong danh sách', (await pg.$$('#pt-mine [data-rm]')).length === 1);
+  await pg.click('#pt-mine [data-rm="0"]');
+  ds = await sec();
+  ok('Danh mục: bỏ quyết định thì về lại kết quả gốc', ds.firstLiq === '2026-03-03' && ds.liq === '2');
+  await pg.click('#pt-next');
+  ds = await sec();
+  ok('Danh mục: nút phiên sau chuyển sang 03/03, còn 4 Deal', ds.t === '2026-03-03' && ds.deals === '4', JSON.stringify(ds));
+  ok('Danh mục: sự kiện phiên 03/03 có Deal #2 bị xử lý', /Deal #2 bị xử lý/.test(await text(pg, '#pt-events')));
+  await pg.$eval('#pt-slider', el => { el.value = el.min; el.dispatchEvent(new Event('input', { bubbles: true })); });
+  ds = await sec();
+  ok('Danh mục: kéo thanh trượt về đầu khoảng (26/01/2026, chưa có Deal)', ds.t === '2026-01-26' && ds.deals === '0', JSON.stringify(ds));
+  await pg.click('[data-preset="B"]');
+  ds = await sec();
+  ok('Danh mục: khách B, Deal đầu tiên bị xử lý 03/04/2025', ds.firstLiq === '2025-04-03', JSON.stringify(ds));
+  ok('Danh mục: khách B, câu tóm tắt nói giá chạy trong phiên nhanh hơn', /trong phiên nhanh hơn/.test(await text(pg, '#pt-insight')));
   await pg.context().close();
 
   /* 6. Song ngữ */
@@ -167,7 +204,7 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'problem'], ['#/san-pham', 'pro
 
   ok('không lỗi/cảnh báo console, không CSP chặn', errors.length === 0, errors.slice(0, 5).join(' || '));
   await browser.close();
-  const MIN = 60;
+  const MIN = 75;
   console.log('\n' + pass + ' pass, ' + fail + ' fail');
   if (pass + fail < MIN) { console.log('FAIL: chỉ chạy ' + (pass + fail) + ' kiểm, cần ít nhất ' + MIN); process.exit(1); }
   process.exit(fail ? 1 : 0);

@@ -52,10 +52,11 @@ function sh(cmd) {
 function stamp() {
   const env = process.env;
   const inGit = sh('git rev-parse --is-inside-work-tree') === 'true';
-  /* GitHub Actions đặt GITHUB_*, Cloudflare Pages đặt CF_PAGES_*; chạy trên máy thì hỏi git. */
-  const ciSha = env.GITHUB_SHA || env.CF_PAGES_COMMIT_SHA;
+  /* GitHub Actions đặt GITHUB_*, Cloudflare Pages đặt CF_PAGES_*, Cloudflare Workers Builds đặt WORKERS_CI_*;
+     chạy trên máy thì hỏi git. */
+  const ciSha = env.GITHUB_SHA || env.CF_PAGES_COMMIT_SHA || env.WORKERS_CI_COMMIT_SHA;
   const commit = ciSha ? ciSha.slice(0, 12) : (inGit ? sh('git rev-parse --short=12 HEAD') : null);
-  const branch = env.GITHUB_REF_NAME || env.CF_PAGES_BRANCH || (inGit ? sh('git rev-parse --abbrev-ref HEAD') : null);
+  const branch = env.GITHUB_REF_NAME || env.CF_PAGES_BRANCH || env.WORKERS_CI_BRANCH || (inGit ? sh('git rev-parse --abbrev-ref HEAD') : null);
   const porcelain = inGit ? sh('git status --porcelain') : null;
   const dirty = !!(porcelain && porcelain.length);
   return { commit: commit || 'no-git', branch: branch || 'no-git', time: new Date().toISOString().replace(/\.\d+Z$/, 'Z'), dirty, inGit };
@@ -74,6 +75,20 @@ function fontsCSS() {
     }
   }
   return css;
+}
+
+/* Giá VN30F1M theo ngày (data/vn30f1m.csv, do tools/vn30f_xlsx_to_csv.py tạo). Dừng nếu file hỏng. */
+function priceData() {
+  const lines = rd('data/vn30f1m.csv').trim().split(/\r?\n/);
+  if (lines[0].trim() !== 'ngay,mo,cao,thap,dong') throw new Error('data/vn30f1m.csv: sai dòng tiêu đề');
+  const rows = lines.slice(1).map((l, i) => {
+    const c = l.split(','), v = c.slice(1).map(Number);
+    if (c.length !== 5 || !/^\d{4}-\d{2}-\d{2}$/.test(c[0]) || v.some(x => !isFinite(x)) || !(v[2] <= Math.min(v[0], v[3]) && Math.max(v[0], v[3]) <= v[1]))
+      throw new Error('data/vn30f1m.csv: dòng ' + (i + 2) + ' sai: ' + l);
+    return [c[0]].concat(v);
+  });
+  if (rows.length < 300) throw new Error('data/vn30f1m.csv: chỉ có ' + rows.length + ' phiên');
+  return 'var VN30F1M = ' + JSON.stringify(rows) + ';';
 }
 
 function put(html, marker, value) {
@@ -98,7 +113,7 @@ function build(opts) {
   const engineMsg = checkEngineSync();
   log('engine:', engineMsg);
   const st = opts.stamp || stamp();
-  if (!st.inGit && !process.env.GITHUB_SHA && !process.env.CF_PAGES_COMMIT_SHA) log('CẢNH BÁO: không chạy trong git, bản build ghi commit = no-git');
+  if (!st.inGit && !process.env.GITHUB_SHA && !process.env.CF_PAGES_COMMIT_SHA && !process.env.WORKERS_CI_COMMIT_SHA) log('CẢNH BÁO: không chạy trong git, bản build ghi commit = no-git');
   if (opts.requireClean && (st.dirty || st.commit === 'no-git')) throw new Error('--require-clean: bản build phải đến từ đúng một commit sạch (đang là ' + st.commit + (st.dirty ? '+dirty' : '') + ')');
   if (st.dirty) {
     console.warn('\n!!! CẢNH BÁO: có thay đổi CHƯA COMMIT. Bản build này không khớp với commit ' + st.commit + '.');
@@ -106,11 +121,12 @@ function build(opts) {
   }
   const buildInfo = { commit: st.commit, branch: st.branch, time: st.time, dirty: st.dirty };
   const script = '\nwindow.__BUILD__ = ' + JSON.stringify(buildInfo) + ';\n' +
-    rd('engine/engine.js') + '\n' + rd('src/i18n.js') + '\n' + rd('src/app.js') + '\n';
+    rd('engine/engine.js') + '\n' + rd('engine/timeline.js') + '\n' + priceData() + '\n' +
+    rd('src/i18n.js') + '\n' + rd('src/cube3d.js') + '\n' + rd('src/app.js') + '\n';
   let html = rd('src/index.html');
   /* Đoạn script trong mẫu chỉ được chứa 4 chỗ chèn; mọi thứ khác phải nằm trong file nguồn. */
   const tpl = html.match(/<script>([\s\S]*?)<\/script>/);
-  if (!tpl || tpl[1].replace(/\s+/g, '') !== '/*__BUILD__*//*__ENGINE__*//*__I18N__*//*__APP__*/') throw new Error('khối <script> trong src/index.html phải chỉ chứa 4 chỗ chèn');
+  if (!tpl || tpl[1].replace(/\s+/g, '') !== '/*__BUILD__*//*__ENGINE__*//*__TIMELINE__*//*__DATA__*//*__I18N__*//*__CUBE__*//*__APP__*/') throw new Error('khối <script> trong src/index.html phải chỉ chứa 7 chỗ chèn, đúng thứ tự');
   if ((html.match(/<script/g) || []).length !== 1) throw new Error('src/index.html chỉ được có 1 thẻ <script>');
   if (/\son[a-z]+\s*=/.test(html)) throw new Error('src/index.html có thuộc tính onXxx=: CSP sẽ chặn, chuyển sang app.js');
   html = html.replace(/<script>[\s\S]*?<\/script>/, () => '<script>' + script + '</script>');

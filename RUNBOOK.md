@@ -1,12 +1,14 @@
-# Runbook: GitHub (private) → Cloudflare Pages
+# Runbook: GitHub (private) → Cloudflare Workers
 
 Chạy trên **Windows** (PowerShell), trong thư mục `FBA\future-x-shield`. Không chạy git trong VM. Mỗi bước có dòng "phải thấy"; không thấy thì dừng lại, đừng làm tiếp.
 
-**Cách trang chạy.** Không có máy chủ của mình, không có tiến trình nào phải chạy hay khởi động lại. Cloudflare Pages lấy code từ GitHub, chạy test, build ra một file tĩnh và phát file đó từ mạng của Cloudflare. Máy Phong tắt thì trang vẫn chạy.
+**Cách trang chạy.** Không có máy chủ của mình, không có tiến trình nào phải chạy hay khởi động lại. Cloudflare Workers Builds lấy code từ GitHub, chạy test, build ra một file tĩnh trong `dist/` và phát file đó từ mạng của Cloudflare (`wrangler.jsonc` chỉ phát file tĩnh, không có code chạy phía máy chủ). Máy Phong tắt thì trang vẫn chạy.
+
+**Địa chỉ:** https://future-x-shield.luckynoob410.workers.dev/
 
 **Hai nơi, hai việc:**
-- **GitHub (repo private):** giữ code. GitHub Actions chạy test và e2e ở mỗi lần push. Biến `DEPLOY_PAGES` **không đặt**, nên GitHub Pages không đưa lên gì.
-- **Cloudflare Pages:** build và phát trang công khai. Cloudflare đọc được repo private, nên code không cần public.
+- **GitHub (repo private `Xx-Pumpkin-xX/future-x-shield`):** giữ code. GitHub Actions chạy test và e2e ở mỗi lần push. Biến `DEPLOY_PAGES` **không đặt**, nên GitHub Pages không đưa lên gì.
+- **Cloudflare Worker `future-x-shield`:** build và phát trang. Chỉ tự build lại khi Worker **đã nối với repo GitHub** (bước 3).
 
 ## 0. Một lần trên máy
 
@@ -21,105 +23,81 @@ cd "$HOME\OneDrive\Documents\FBA\future-x-shield"
 npm ci
 npm test
 ```
-Phải thấy `47 pass, 0 fail`, rồi `54 pass, 0 fail`.
+Phải thấy `47 pass, 0 fail`, rồi `17 pass, 0 fail`, rồi `55 pass, 0 fail`.
 
-Kiểm cả trình duyệt (nên làm trước lần công khai đầu tiên):
+Kiểm cả trình duyệt. Máy này không tải được Chromium của Playwright nên dùng Edge có sẵn:
 ```powershell
-npx playwright install chromium
-npm run e2e
+node build.js
+$env:E2E_CHANNEL = "msedge"
+node tests/e2e.js
+Remove-Item Env:E2E_CHANNEL
 ```
-Phải thấy `92 pass, 0 fail`.
+Phải thấy `115 pass, 0 fail`.
 
-## 2. Làm được ngay: tạo repo PRIVATE và đẩy lên
+## 2. Đẩy lên GitHub
 
-File workflow nằm ở `ci\pages.yml`, vì công cụ từ xa không được ghi vào `.github\`. Chuyển nó vào đúng chỗ trước commit đầu tiên:
 ```powershell
-New-Item -ItemType Directory -Force .github\workflows | Out-Null
-Move-Item ci\pages.yml .github\workflows\pages.yml
-git init -b main
 git status --short
 ```
-Phải thấy `.github/` trong danh sách và thư mục `ci\` đã trống. **Không được** có `dist/`, `node_modules/`, file `.env` nào (trừ `.env.example`), file nén hay log. Nếu có, sửa `.gitignore` trước.
+**Không được** có `dist/`, `node_modules/`, file `.env` nào (trừ `.env.example`), file nén, log.
 
 ```powershell
-git add .
-git commit -m "Trang đề xuất Future X Shield"
+git add -A
+git commit -m "<sửa gì>"
+git pull --no-rebase
+git push
 ```
-Trên github.com: New repository → tên `future-x-shield` → **Private** → không tick README, .gitignore hay license.
-```powershell
-git remote add origin https://github.com/<tài-khoản>/future-x-shield.git
-git push -u origin main
-```
-Phải thấy: tab Actions chạy workflow "Kiem va dua len Pages". Job `test-build` xanh; `deploy` và `verify-live` **bị bỏ qua** (skipped). Đúng như vậy.
+`git pull` trước khi `push` vì người khác trong team cũng có thể đã đẩy commit lên. Nếu pull báo xung đột: dừng lại, mở file bị xung đột, giữ phần đúng, rồi `git add` + `git commit`.
 
-## 3. Nối Cloudflare: CHỈ sau khi Leader xác nhận (A-06)
+Phải thấy: tab Actions trên GitHub chạy workflow "Kiem va dua len Pages". Job `test-build` xanh; `deploy` và `verify-live` **bị bỏ qua** (skipped). Đúng như vậy.
 
-**Vì sao phải đợi:** ngay lúc bấm "Save and Deploy", Cloudflare đưa trang lên một địa chỉ `*.pages.dev` mà ai có link cũng mở được. Đừng nối trước khi Leader đồng ý.
+## 3. Nối Worker với GitHub (một lần)
 
-Đọc lại lịch sử trước khi nối:
-```powershell
-git log --stat
-```
-Nếu một secret đã từng được commit, **đổi secret đó trước** (thu hồi token, tạo khoá mới). Viết lại lịch sử chỉ là việc phụ, vì nó không xoá được thứ đã lộ.
+Nếu push lên mà trang không đổi, Worker chưa được nối với repo. Lần đầu trang được đưa lên bằng tay nên không tự cập nhật.
 
-Trên dash.cloudflare.com:
-1. **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**.
-2. Chọn **GitHub**, đăng nhập, cho phép Cloudflare đọc **chỉ** repo `future-x-shield` (Only select repositories), rồi **Install & Authorize** → **Begin setup**.
-3. **Set up builds and deployments:**
-   - Project name: `future-x-shield` (thành địa chỉ `future-x-shield.pages.dev`; nếu tên đã có người dùng, Cloudflare thêm hậu tố)
-   - Production branch: `main`
-   - Framework preset: **None**
-   - Build command: `npm test && node build.js --require-clean`
-   - Build output directory: `dist`
-   - Root directory: để trống
-4. **Environment variables** (Production và Preview đều đặt):
-   - `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` = `1` (test trên Cloudflare không cần trình duyệt; e2e đã chạy ở GitHub Actions)
-5. **Save and Deploy.**
+Trên dash.cloudflare.com → **Workers & Pages** → Worker **future-x-shield** → **Settings** → **Build**:
+1. **Git repository** → **Connect** → GitHub → cho phép Cloudflare đọc **chỉ** repo `future-x-shield` → chọn repo, nhánh `main`.
+2. **Build command:** `npm test && node build.js --require-clean`
+3. **Deploy command:** `npx wrangler deploy` (đọc `wrangler.jsonc`, phát thư mục `dist`)
+4. **Root directory:** để trống.
+5. **Build variables:** `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD` = `1` (test trên Cloudflare không cần trình duyệt; e2e đã chạy ở GitHub Actions).
+6. Lưu. Vào tab **Deployments**, bấm build lại commit mới nhất, hoặc push một commit mới.
 
-Phải thấy trong log build của Cloudflare:
-- `47 pass, 0 fail` và `54 pass, 0 fail`
-- `bản build: <12 ký tự commit> main …`, **không** có `+dirty`
-- `Success: Your site was deployed!`
+Phải thấy trong log build:
+- `47 pass, 0 fail`, `17 pass, 0 fail`, `55 pass, 0 fail`;
+- `bản build: <12 ký tự commit> main …`, **không** có `+dirty`;
+- dòng báo deploy thành công của `wrangler`.
 
-Nếu build dừng với `--require-clean: … +dirty`: bước cài thư viện đã sửa một file đang được git theo dõi (thường là `package-lock.json`). Chạy `npm install` trên máy, commit `package-lock.json` mới, rồi push lại. Đừng bỏ `--require-clean` để chữa.
-
-**Bản xem trước:** mỗi nhánh khác `main` có một địa chỉ xem trước riêng, cũng công khai. Chỉ push nhánh mà bạn không ngại người khác xem.
+Nếu build dừng với `--require-clean: … +dirty`: bước cài thư viện đã sửa một file đang được git theo dõi (thường là `package-lock.json`). Chạy `npm install` trên máy, commit file lock mới, rồi push lại. Đừng bỏ `--require-clean` để chữa.
 
 ## 4. Kiểm địa chỉ thật, không phải localhost
 
-Từ máy (kiểm đúng commit đang chạy):
 ```powershell
-$env:E2E_URL = "https://future-x-shield.pages.dev/"
+$env:E2E_CHANNEL = "msedge"
+$env:E2E_URL = "https://future-x-shield.luckynoob410.workers.dev/"
 $env:EXPECT_COMMIT = (git rev-parse HEAD)
 node tests/e2e.js
-Remove-Item Env:E2E_URL; Remove-Item Env:EXPECT_COMMIT
+Remove-Item Env:E2E_CHANNEL, Env:E2E_URL, Env:EXPECT_COMMIT
 ```
-Phải thấy `PASS bản build: đúng commit vừa đẩy (…)` và `93 pass, 0 fail`.
+Phải thấy `PASS bản build: đúng commit vừa đẩy (…)` và `116 pass, 0 fail`. Nếu commit không khớp: Cloudflare chưa build xong, hoặc Worker chưa nối Git (bước 3).
 
 Trên điện thoại:
-1. Mở địa chỉ `.pages.dev`.
+1. Mở địa chỉ trên.
 2. So chân trang ("Bản build …") với `git rev-parse --short=12 HEAD`. Phải giống nhau.
-3. Demo → Lúc đặt lệnh: phải thấy trước lệnh 25,4%, sau lệnh 2,3% và 10,1%.
-4. Bấm EN: cả trang chuyển sang tiếng Anh. Tải lại: vẫn tiếng Anh. Bấm VI.
-5. Mở thẳng `…pages.dev/#/demo/vien-canh`: phải vào đúng tab.
-6. Trên iPhone (Safari): khối 3D ở tab Viễn cảnh phải xoay được.
+3. Demo → Lúc đặt lệnh: trước lệnh 25,4%, sau lệnh 2,3% và 10,1%.
+4. Demo → Danh mục thật: mở ở phiên 02/03/2026, Shield đỏ; bấm "Đóng Deal #2" thì câu tóm tắt đổi.
+5. Kéo khối 3D ở tab Viễn cảnh và Danh mục thật; trên iPhone (Safari) cũng phải xoay được.
+6. Bấm cờ ngôn ngữ, chọn English: cả trang chuyển sang tiếng Anh. Tải lại: vẫn tiếng Anh.
 
-## 5. Cập nhật
+## 5. Sửa bộ tính hoặc dữ liệu giá
 
-Sửa trong `src/` hoặc `engine/`. Không bao giờ sửa `dist/`: script bị sửa tay sẽ bị CSP chặn.
-```powershell
-npm test
-git add -A
-git commit -m "<sửa gì>"
-git push
-```
-GitHub Actions chạy test và e2e. Cloudflare build và đưa lên. **Nếu test trên Cloudflare đỏ, bản cũ vẫn chạy.** Sau khi Cloudflare xong, chạy lại bước 4 để chắc bản mới đang chạy.
-
-Sửa bộ tính: sửa `FBA\prototype_engine\engine.js`, chép sang `future-x-shield\engine\engine.js`, rồi chạy test ở cả hai chỗ. Build trên máy sẽ dừng nếu hai file khác nhau.
+- **Bộ tính:** sửa `FBA\prototype_engine\engine.js`, chép sang `future-x-shield\engine\engine.js`, chạy test ở cả hai chỗ. Build trên máy dừng nếu hai file khác nhau.
+- **Giá VN30F1M:** có file giá mới thì chạy `python tools/vn30f_xlsx_to_csv.py "<đường dẫn VN30F.xlsx>"` để ghi lại `data/vn30f1m.csv`, rồi chạy test. Các mốc của khách mẫu trong `tests/test_timeline.js` sẽ báo nếu số đổi.
+- Không bao giờ sửa `dist/`: script bị sửa tay sẽ bị CSP chặn.
 
 ## 6. Quay lại bản trước
 
-Nhanh nhất: Cloudflare → project → **Deployments** → chọn bản trước → **Rollback to this deployment**. Sau đó sửa cho đúng trong git:
+Nhanh nhất: Cloudflare → Worker → **Deployments** → chọn bản trước → **Rollback**. Sau đó sửa cho đúng trong git:
 ```powershell
 git log --oneline
 git revert <commit-lỗi>
@@ -129,10 +107,10 @@ Không tải file lên Cloudflare bằng tay. Mỗi bản đang chạy phải đ
 
 ## 7. Gỡ xuống
 
-Cloudflare → project → **Settings** → **Delete project**. Địa chỉ `.pages.dev` ngừng chạy. Repo GitHub vẫn private, không cần đổi gì.
+Cloudflare → Worker → **Settings** → **Domains & Routes** → tắt `workers.dev`: địa chỉ ngừng chạy, Worker vẫn còn. Xoá hẳn: **Settings** → **Delete**. Repo GitHub vẫn private, không cần đổi gì.
 
 ## 8. Ghi nhớ để trang luôn online
 
-- **Không đổi** tên project Cloudflare sau khi đã gửi link cho BTC, vì địa chỉ đổi theo.
+- **Không đổi** tên Worker sau khi đã gửi link cho BTC, vì địa chỉ đổi theo.
 - **Không gỡ** quyền của Cloudflare trên repo GitHub, vì các lần push sau sẽ không được đưa lên. Bản đang chạy vẫn chạy.
 - **Đính kèm** `dist/index.html` vào bài nộp làm bản dự phòng. File tự chứa, mở thẳng từ ổ đĩa được, không cần mạng.

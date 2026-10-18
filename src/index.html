@@ -19,10 +19,13 @@
 
 <header class="bar">
   <div class="bar-in">
-        <a class="brand" href="#/" aria-label="Future X Shield">
+    <div class="brand-wrap">
+    <a class="brand" href="#/" aria-label="Future X Shield">
       <img class="mark" src="__LOGO__" alt="" width="30" height="34">
       <span class="wordmark">Future<svg class="wm-x" viewBox="0 0 100 112" aria-hidden="true"><defs><linearGradient id="wm-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B0202A"/><stop offset="1" stop-color="#7A0F15"/></linearGradient></defs><polygon fill="url(#wm-g)" points="0,0 31,0 100,112 69,112"/><polygon fill="url(#wm-g)" points="74,0 100,0 26,112 0,112"/></svg>Shield</span>
     </a>
+    <span class="badge" data-i18n="badge"></span>
+    </div>
     <nav class="tabs" data-i18n-attr="aria-label:nav.label">
       <a href="#/" data-tab="overview" data-i18n="tab.overview"></a>
       <a href="#/van-de" data-tab="problem" data-i18n="tab.problem"></a>
@@ -50,8 +53,8 @@
           </button>
         </div>
       </div>
-      <a class="login" href="#/demo/atl" data-i18n="act.login"></a>
-      <a class="btn-open" href="#/demo/atl" data-i18n="act.open"></a>
+      <a class="login" href="#/van-de" data-i18n="act.read"></a>
+      <a class="btn-open" href="#/demo/atl" data-i18n="act.try"></a>
     </div>
   </div>
   
@@ -61,6 +64,7 @@
       <a href="#/demo/atl" data-sub="atl" data-i18n="sub.atl"></a>
       <a href="#/demo/shield" data-sub="shield" data-i18n="sub.shield"></a>
       <a href="#/demo/vien-canh" data-sub="scen" data-i18n="sub.scen"></a>
+      <a href="#/demo/danh-muc" data-sub="port" data-i18n="sub.port"></a>
     </div>
   </div>
 </header>
@@ -284,11 +288,75 @@
         <button type="button" data-face="AB" data-i18n="sc.face.ab"></button>
         <button type="button" data-face="AC" data-i18n="sc.face.ac"></button>
       </div>
-      <div class="stage"><div class="cube" id="sc-cube"></div></div>
-      <label class="yaw"><span data-i18n="sc.yaw"></span><input type="range" id="sc-yaw" min="-60" max="60" step="1" value="-24"></label>
+      <div class="stage3d" id="sc-cube"></div>
       <p class="note" data-i18n="sc.cube.note"></p>
     </div>
   </div>
+</section>
+
+<!-- ============ Demo: danh mục thật ============ -->
+<section class="view" data-view="demo/port" hidden>
+  <h1 data-i18n="pt.title"></h1>
+  <p class="lede" data-i18n="pt.lede"></p>
+  <div class="seg wide" role="group">
+    <button type="button" data-preset="A" data-i18n="pt.presetA"></button>
+    <button type="button" data-preset="B" data-i18n="pt.presetB"></button>
+  </div>
+  <p class="note" id="pt-desc"></p>
+
+  <figure class="pt-chart">
+    <figcaption class="note" data-i18n="pt.chart"></figcaption>
+    <div id="pt-chart"></div>
+    <div class="pt-legend note"><span class="lg liq">×</span><span data-i18n="pt.legend.liq"></span><span class="lg ord">▲▼</span><span data-i18n="pt.legend.order"></span><span class="lg you">◆</span><span data-i18n="pt.legend.you"></span></div>
+    <div class="pt-scrub">
+      <button type="button" class="btn" id="pt-prev" data-i18n-attr="aria-label:pt.prev">‹</button>
+      <input type="range" id="pt-slider" min="0" max="1" step="1" value="0" data-i18n-attr="aria-label:pt.slider">
+      <button type="button" class="btn" id="pt-next" data-i18n-attr="aria-label:pt.next">›</button>
+    </div>
+  </figure>
+
+  <p class="pt-insight" id="pt-insight" aria-live="polite"></p>
+
+  <div class="pt-day">
+    <h2 id="pt-date"></h2>
+    <p id="pt-state"></p>
+  </div>
+  <div class="ruler-slot" data-ruler="port"></div>
+
+  <div class="demo port">
+    <div class="pt-left">
+      <h2 data-i18n="pt.deals"></h2>
+      <div class="table-wrap"><table class="deals-t" id="pt-table"></table></div>
+      <p class="note" id="pt-gone" hidden></p>
+      <h3 data-i18n="pt.events"></h3>
+      <ul class="pt-events" id="pt-events"></ul>
+      <p class="disclaim" data-i18n="demo.notadvice"></p>
+    </div>
+    <div class="cube-box">
+      <h2 data-i18n="pt.cube"></h2>
+      <div class="seg" role="group">
+        <button type="button" data-pface="auto" data-i18n="sc.face.auto"></button>
+        <button type="button" data-pface="AB" data-i18n="sc.face.ab"></button>
+        <button type="button" data-pface="AC" data-i18n="sc.face.ac"></button>
+      </div>
+      <div class="stage3d" id="pt-cube"></div>
+      <p class="note" data-i18n="pt.same.a"></p>
+    </div>
+  </div>
+
+  <div class="pt-act">
+    <div>
+      <h2 id="pt-decide"></h2>
+      <p class="note" id="pt-decide-note"></p>
+      <div class="steps-grid" id="pt-buttons"></div>
+    </div>
+    <div>
+      <h2 data-i18n="pt.mine"></h2>
+      <ol class="chain" id="pt-mine"></ol>
+      <button type="button" class="btn" id="pt-reset" data-i18n="pt.reset"></button>
+    </div>
+  </div>
+  <p class="note" data-i18n="pt.src"></p>
 </section>
 
 <!-- ============ Luật và dữ liệu ============ -->
@@ -328,7 +396,10 @@
 <script>
 /*__BUILD__*/
 /*__ENGINE__*/
+/*__TIMELINE__*/
+/*__DATA__*/
 /*__I18N__*/
+/*__CUBE__*/
 /*__APP__*/
 </script>
 </body>

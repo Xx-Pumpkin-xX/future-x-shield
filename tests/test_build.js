@@ -81,7 +81,7 @@ ok('mỗi mẫu secret có một chuỗi cài thử', SECRET_PATTERNS.every(p =>
 
 /* Build thật phải TỪ CHỐI và không ghi file khi nguồn có secret (chạy trên bản sao). */
 function copyRepo(dest) {
-  for (const p of ['build.js', 'src', 'engine', 'fonts', 'assets']) fs.cpSync(path.join(ROOT, p), path.join(dest, p), { recursive: true });
+  for (const p of ['build.js', 'src', 'engine', 'fonts', 'assets', 'data']) fs.cpSync(path.join(ROOT, p), path.join(dest, p), { recursive: true });
 }
 const sand = fs.mkdtempSync(path.join(os.tmpdir(), 'fxs-sand-'));
 const repoCopy = path.join(sand, 'future-x-shield');
@@ -109,6 +109,11 @@ delete cfEnv.GITHUB_SHA; delete cfEnv.GITHUB_REF_NAME;
 r = spawnSync(process.execPath, ['build.js', '--require-clean'], { cwd: repo2, encoding: 'utf8', env: cfEnv });
 const cfOut = fs.existsSync(path.join(repo2, 'dist/index.html')) ? fs.readFileSync(path.join(repo2, 'dist/index.html'), 'utf8') : '';
 ok('Cloudflare: dấu commit lấy từ CF_PAGES_COMMIT_SHA', r.status === 0 && cfOut.includes('"commit":"cfcfcfcfcfcf","branch":"main"'), r.stdout + r.stderr);
+const wkEnv = Object.assign({}, process.env, { WORKERS_CI_COMMIT_SHA: 'abababababab9876543210', WORKERS_CI_BRANCH: 'main' });
+['GITHUB_SHA', 'GITHUB_REF_NAME', 'CF_PAGES_COMMIT_SHA', 'CF_PAGES_BRANCH'].forEach(k => delete wkEnv[k]);
+r = spawnSync(process.execPath, ['build.js', '--require-clean'], { cwd: repo2, encoding: 'utf8', env: wkEnv });
+const wkOut = fs.existsSync(path.join(repo2, 'dist/index.html')) ? fs.readFileSync(path.join(repo2, 'dist/index.html'), 'utf8') : '';
+ok('Cloudflare Workers: dấu commit lấy từ WORKERS_CI_COMMIT_SHA', r.status === 0 && wkOut.includes('"commit":"abababababab","branch":"main"'), r.stdout + r.stderr);
 
 /* ---------- 4. Không còn số cũ, không gọi ra mạng ---------- */
 const STALE = ['47 vs 0', '47 so với 0', '21,1%', '25,6%', '1,9%', '8,3%', 'Khiên', 'không giới hạn', 'unlimited', '72/79', 'Đệm ÷ Tốc độ'];
@@ -147,7 +152,7 @@ for (const pat of ['node_modules/', 'dist/', '.env', '*.log', '*.zip', '*.tar.gz
 ok('.gitignore vẫn cho commit .env.example', gi.split(/\r?\n/).includes('!.env.example'));
 
 fs.rmSync(tmp, { recursive: true, force: true }); fs.rmSync(sand, { recursive: true, force: true }); fs.rmSync(sand2, { recursive: true, force: true });
-const MIN = 52;
+const MIN = 53;
 console.log('\n' + pass + ' pass, ' + fail + ' fail');
 if (pass + fail < MIN) { console.log('FAIL: chỉ chạy ' + (pass + fail) + ' kiểm, cần ít nhất ' + MIN + ' (có đoạn bị bỏ qua?)'); process.exit(1); }
 process.exit(fail ? 1 : 0);

@@ -1,0 +1,10 @@
+// Cấu hình Cloudflare Workers: chỉ phát file tĩnh trong dist/ (không có code chạy phía máy chủ).
+// Workers Builds: Build command = npm test && node build.js --require-clean ; Deploy command = npx wrangler deploy
+{
+  "name": "future-x-shield",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
