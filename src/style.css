@@ -307,9 +307,20 @@ legend { font-size: 13px; color: var(--ink2); padding: 0; margin-bottom: 6px; }
 .pager .btn { flex-direction: column; align-items: flex-start; justify-content: center; padding: 8px 18px; min-height: 58px; }
 .pager .next { margin-left: auto; align-items: flex-end; text-align: right; }
 .pager small { font-size: 12px; font-weight: 400; opacity: .8; }
-.foot { background: var(--panel); border-top: 1px solid var(--rule); }
-.foot-in { max-width: calc(var(--wide) + 48px); margin: 0 auto; padding: 22px 24px 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 12px 32px; font-size: 13px; color: var(--ink2); }
-.build code { font-size: 12px; word-break: break-all; }
+/* chân trang: nền đỏ đô đậm, chữ sáng */
+.foot { background: linear-gradient(120deg, #3A0A0E 0%, #5A1218 45%, #8C1D22 100%); color: rgba(255,255,255,.72); }
+.foot-in { max-width: calc(var(--wide) + 48px); margin: 0 auto; padding: 56px 24px 28px; }
+.foot-top { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 32px 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,.16); }
+.foot-logo { display: inline-flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; margin-bottom: 16px; }
+.foot-logo .mark { width: 34px; height: auto; display: block; }
+.foot-logo .wordmark { color: #fff; font-size: 20px; }
+.foot-logo .wordmark b { color: #F4A9AD; font-weight: 800; }
+.foot-brand p { max-width: 42ch; font-size: 15px; line-height: 1.6; margin: 0; }
+.foot-h { color: #fff; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin: 6px 0 16px; }
+.foot-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
+.foot-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-top: 22px; font-size: 13px; }
+.foot-bottom p { margin: 0; }
+.build code { font-size: 12px; word-break: break-all; color: rgba(255,255,255,.72); }
 
 /* ---------- điện thoại ---------- */
 @media (max-width: 760px) {
@@ -327,7 +338,8 @@ legend { font-size: 13px; color: var(--ink2); padding: 0; margin-bottom: 6px; }
   .deal-list li { grid-template-columns: 32px 1fr; }
   .deal-list li span:nth-child(n+3) { grid-column: 2; }
   .r-scale:not(.edge-l):not(.edge-r) { display: none; }
-  .foot-in { padding: 18px 16px 24px; }
+  .foot-in { padding: 40px 16px 24px; }
+  .foot-top { grid-template-columns: minmax(0, 1fr); gap: 28px; padding-bottom: 28px; }
 }
 
 /* ---------- khối 3D (SVG) ---------- */

@@ -1,8 +1,6 @@
 # Future X Shield: trang đề xuất
 
-Trang web giới thiệu Future X Shield, concept của đội thi FBA 2026. Không phải sản phẩm hay giao diện chính thức của DNSE.
-
-Trang là **một file HTML tĩnh** (`dist/index.html`): không backend, không đăng nhập, không cookie, không đo lượt xem, không gọi ra mạng. Mọi phép tính chạy trong trình duyệt của người xem.
+Trang web giới thiệu Future X Shield, [concept của đội thi FBA 2026](https://future-x-shield.luckynoob410.workers.dev/?fbclid=IwY2xjawVAK0BleHRuA2FlbQIxMQBwZG9mA3NydGMGYXBwX2lkATAAAR5Oc1HYnkfv9BTGis-p-Jg2DEAAjK5zBf0rWIjMXBt64_mVpHKtTbhsyQrWWQ_aem_zauc48n8JLVswJ5GgWzBSA#/). Không phải sản phẩm hay giao diện chính thức của DNSE.
 
 Trang Tổng quan là một trang dài 9 phần (hero, Vấn đề, Bằng chứng, Giải pháp và 3 bước, Dành cho ai, Nguyên tắc, Dữ liệu), nền trắng và đỏ nhạt xen kẽ, theo hướng dẫn DNSE_R3_11 của leader (19/10/2026). Các tab Vấn đề, Sản phẩm, Luật và dữ liệu cuộn tới phần tương ứng. Tab Demo có 4 tab con: lúc đặt lệnh, Shield hai chiều, viễn cảnh, danh mục thật (khách mẫu chạy trên giá VN30F1M theo ngày). Mỗi tab có đường dẫn riêng, ví dụ `#/demo/atl`. Có hai ngôn ngữ, VI và EN.
 
