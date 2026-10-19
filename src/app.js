@@ -146,28 +146,53 @@
      Trục ngang luôn là A (trái thấp, phải cao); trục dọc B (A × B) hoặc C (A × C), dưới thấp, trên cao.
      Vạch nét đứt: A = 1/n, B = 0 (hòa vốn), C = 1/n. Hai ô bên phải (A cao) nền hồng, hai ô bên trái nền trắng;
      không tô xanh/đỏ theo B hay C. Chấm ghi "#id", cỡ chấm theo tỷ trọng cọc. */
-  function matrixHTML(ax, pair, k) {
-    k = k || 1; /* k < 1: chấm nhỏ hơn, dùng trong khung khối 3D */
+  function matrixHTML(ax, pair) {
+    /* Kiểu ma trận BCG (R3_11 A7, bản 11:10): hai trục đen cắt nhau ở giữa (tại A = 1/n và B = 0 hoặc C = 1/n),
+       không tô màu ô; tên ô là nhãn viền màu ở 4 góc (màu chỉ theo A: phải = A cao); mỗi Deal là một thẻ chữ cùng cỡ. */
     var n = ax.length;
     var bMax = Math.max(0.02, Math.max.apply(null, ax.map(function (r) { return Math.abs(r.B); }).concat([0])) * 1.3);
     var names = pair === 'AB' ? [['Két sắt', 'Dao hai lưỡi'], ['Món chết', 'Quả bom']] : [['Vết thương cũ', 'Thủ phạm chính'], ['Đứng ngoài', 'Mối nguy kế tiếp']];
-    var h = '<p class="mx-ty">' + t(pair === 'AB' ? 'mx.ax.b' : 'mx.ax.c') + '</p><div class="mx-plot">';
+    /* tên trục và nhãn ranh giới nằm ngoài khung, để trong khung chỉ có nhãn ô và thẻ Deal (không chồng nhau ở bề ngang điện thoại) */
+    var h = '<p class="mx-ty"><span>' + t(pair === 'AB' ? 'mx.ax.b' : 'mx.ax.c') + '</span></p><div class="mx-plot">';
     [0, 1].forEach(function (row) { [0, 1].forEach(function (col) {
       var nm = names[row][col], g = cellGloss(nm);
-      h += '<div class="m-cell' + (col ? ' right' : '') + (row ? ' bottom' : '') + '"><span class="m-name">' + cellName(nm) + '</span>' +
+      h += '<div class="m-corner' + (col ? ' right' : '') + (row ? ' bottom' : '') + '"><span class="m-tag">' + cellName(nm) + '</span>' +
         (g ? '<span class="m-gloss">' + g + '</span>' : '') + '</div>';
     }); });
-    h += '<span class="m-line v"></span><span class="m-line h"></span>' +
-      '<span class="m-lab v">' + t('mx.eq', { n: n }) + '</span>' +
+    h += '<span class="mx-axis h"></span><span class="mx-axis v"></span>' +
       '<span class="m-lab h">' + (pair === 'AB' ? t('mx.be') : t('mx.eq', { n: n })) + '</span>';
-    ax.slice().sort(function (a, b) { return b.w - a.w; }).forEach(function (r) {
-      var size = Math.round((22 + Math.sqrt(Math.max(0, r.w)) * 40) * k), nm = SE.cell(r, pair, n);
-      /* chừa dải trên/dưới cho tên ô: chấm nằm trong 18–82% chiều cao */
-      var x = 9 + posA(r.A, n) * 82, y = pair === 'AB' ? 50 - Math.max(-1, Math.min(1, r.B / bMax)) * 32 : 82 - posC(r.C, n) * 64;
-      h += '<span class="dot' + (hiOf(r.A, n) ? ' hi' : '') + '" data-id="' + r.id + '" data-cell="' + CELL[nm] + '" style="left:' + x.toFixed(1) + '%;top:' + y.toFixed(1) + '%;width:' + size + 'px;height:' + size +
-        'px;margin:' + (-size / 2) + 'px 0 0 ' + (-size / 2) + 'px" title="Deal #' + r.id + ' · ' + cellName(nm) + '">#' + r.id + '</span>';
+    /* vị trí theo %: chừa góc cho nhãn ô và đầu trục cho tên trục; thẻ trùng chỗ thì xếp lệch xuống (hoặc lên) */
+    var placed = [];
+    ax.slice().sort(function (a, b) { return a.id - b.id; }).forEach(function (r) {
+      var nm = SE.cell(r, pair, n);
+      var x = 13 + posA(r.A, n) * 74, y = pair === 'AB' ? 50 - Math.max(-1, Math.min(1, r.B / bMax)) * 30 : 80 - posC(r.C, n) * 60;
+      /* Thẻ luôn nằm trong đúng ô của nó: Deal đúng bằng ranh giới (vd. A = 1/n) là "thấp" nên đặt lệch vào phía thấp,
+         và khi tránh chồng thẻ chỉ dịch trong nửa của ô đó, không bao giờ vượt trục. */
+      var right = hiOf(r.A, n), top = pair === 'AB' ? r.B >= 0 : hiOf(r.C, n);
+      x = right ? Math.max(x, 57) : Math.min(x, 43);
+      var lo = top ? 14 : 57, hi = top ? 43 : 86;
+      y = Math.max(lo, Math.min(hi, y));
+      /* Tránh chồng thẻ: thẻ ~36 × 22 px, khung nhỏ nhất (trong khối 3D trên điện thoại) ~270 × 150 px, nên coi là chồng
+         khi lệch < 14% ngang và < 16% dọc. Chọn chỗ trống gần vị trí thật nhất, trong đúng ô (không vượt trục). */
+      var xlo = right ? 57 : 10, xhi = right ? 90 : 43, x0 = x, y0 = y;
+      /* ô đông (vd. 5 Deal cùng một ô): nới khoảng cách dần về đúng cỡ thẻ trên khung 286 × 200 px */
+      [[14, 16], [13, 13], [12.6, 11.5]].some(function (gap) {
+        var free = function (xx, yy) { return !placed.some(function (q) { return Math.abs(q[0] - xx) < gap[0] && Math.abs(q[1] - yy) < gap[1]; }); };
+        if (free(x, y)) return true;
+        var best = null;
+        for (var gx = xlo; gx <= xhi + 0.01; gx += 1.5) for (var gy = lo; gy <= hi + 0.01; gy += 1.5) {
+          if (!free(gx, gy)) continue;
+          var dist = Math.pow(gx - x0, 2) + Math.pow(gy - y0, 2) * 1.5;
+          if (!best || dist < best[2]) best = [gx, gy, dist];
+        }
+        if (best) { x = best[0]; y = best[1]; return true; }
+        return false;
+      });
+      placed.push([x, y]);
+      h += '<span class="dot' + (hiOf(r.A, n) ? ' hi' : '') + '" data-id="' + r.id + '" data-cell="' + CELL[nm] + '" style="left:' + x.toFixed(1) + '%;top:' + y.toFixed(1) + '%"' +
+        ' title="Deal #' + r.id + ' · ' + cellName(nm) + '">#' + r.id + '</span>';
     });
-    return h + '</div><p class="mx-tx">' + t('mx.ax.a') + '</p>';
+    return h + '</div><div class="mx-foot"><span class="m-lab v">' + t('mx.eq', { n: n }) + '</span><span class="mx-title x">' + t('mx.ax.a') + '</span></div>';
   }
   function drawMatrix(host, ax, pair) { host.innerHTML = matrixHTML(ax, pair); host.setAttribute('data-pair', pair); }
 
@@ -296,7 +321,7 @@
     var ax = SE.axes(acc, dir || 1), n = ax.length;
     var bMax = Math.max(0.02, Math.max.apply(null, ax.map(function (r) { return Math.abs(r.B); }).concat([0])) * 1.3);
     /* hai mặt phẳng 2D (cùng hình vẽ với ma trận ở Tổng quan và Shield hai chiều) */
-    return { n: n, bMax: bMax, flat: { AB: matrixHTML(ax, 'AB', 0.8), AC: matrixHTML(ax, 'AC', 0.8) }, pts: ax.map(function (r) {
+    return { n: n, bMax: bMax, flat: { AB: matrixHTML(ax, 'AB'), AC: matrixHTML(ax, 'AC') }, pts: ax.map(function (r) {
       return { id: r.id, A: posA(r.A, n) * 2 - 1, B: r.B, C: posC(r.C, n), w: r.w, heat: hiOf(r.A, n) ? 'hot' : 'cool',
         title: t('cube.title', { id: r.id, a: r.A == null ? '—' : fmt(r.A * 100, 1) + '%',
           b: (r.B >= 0 ? '+' : '−') + fmt(Math.abs(r.B) * 100, 2) + '%', c: r.C == null ? t('sh.c.none') : fmt(r.C * 100, 0) + '%' }) };

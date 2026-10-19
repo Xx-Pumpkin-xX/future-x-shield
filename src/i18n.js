@@ -93,7 +93,6 @@ var I18N = {
     'mx.ab.name': 'Ma trận Cảm nhận – Rủi ro', 'mx.ac.name': 'Ma trận Truy nguyên rủi ro',
     'mx.ax.a': 'A · Đóng góp rủi ro →', 'mx.ax.b': 'B · Lãi lỗ từ lúc mở ↑', 'mx.ax.c': 'C · Mức hút cọc dự phòng ↑',
     'mx.eq': 'mức chia đều (1/{n})', 'mx.be': 'hòa vốn',
-    'mx.size': 'Cỡ chấm = tỷ trọng cọc của Deal.',
 
     /* Tên ô: giữ tiếng Anh như deck; cellg.* là nghĩa tiếng Việt in nhỏ bên dưới (bản EN không in, vì trùng tên) */
     'cell.safe': 'Contained gain', 'cell.double': 'Exposed gain', 'cell.dead': 'Contained loss', 'cell.bomb': 'Exposed loss',
@@ -210,6 +209,7 @@ var I18N = {
     'pt.desc.B': 'Cọc ban đầu 180 triệu. Sáu lệnh mở rải trong tháng 3/2025: năm long VN30F1M, một short VN30F2M{skip}. Bật tự tăng tỷ lệ Deal.',
     'pt.skip': ' ({n} lệnh bị bỏ qua vì không đủ cọc ngoài Deal)',
     'pt.src': 'Giá VN30F1M theo ngày, 02/01/2025 – 28/08/2026 (411 phiên; tải ngày 15/10/2026). Khách là giả lập [M]. Thứ tự giá trong phiên và giá VN30F2M bằng VN30F1M là giả định [A].',
+    'pt.method': 'Demo này dò giá trong phiên từng nấc 0,01% và giữ Deal tới khi đóng, nên ngày và giá có thể lệch nhẹ so với Mô phỏng 1.',
     'pt.chart': 'Giá đóng cửa VN30F1M, dải màu là Shield cuối mỗi phiên',
     'pt.legend.liq': 'Deal bị xử lý', 'pt.legend.order': 'lệnh của khách', 'pt.legend.rej': 'lệnh bị từ chối (không đủ cọc ngoài Deal)', 'pt.legend.you': 'quyết định của bạn',
     'pt.slider': 'Chọn phiên', 'pt.prev': 'Phiên trước', 'pt.next': 'Phiên sau',
@@ -336,7 +336,6 @@ var I18N = {
     'mx.ab.name': 'Perception–Risk Matrix', 'mx.ac.name': 'Attribution Matrix',
     'mx.ax.a': 'A · Risk contribution →', 'mx.ax.b': 'B · P&L since opening ↑', 'mx.ax.c': 'C · Reserve draw ↑',
     'mx.eq': 'equal share (1/{n})', 'mx.be': 'break-even',
-    'mx.size': 'Dot size = the Deal’s share of total Deal margin.',
 
     'cell.safe': 'Contained gain', 'cell.double': 'Exposed gain', 'cell.dead': 'Contained loss', 'cell.bomb': 'Exposed loss',
     'cell.out': 'Low contributor', 'cell.next': 'Emerging driver', 'cell.old': 'Past drain', 'cell.main': 'Primary driver',
@@ -443,6 +442,7 @@ var I18N = {
     'pt.desc.B': 'Starting margin 180 million VND. Six orders spread over Mar 2025: five long VN30F1M, one short VN30F2M{skip}. Auto Deal Top-up on.',
     'pt.skip': ' ({n} order skipped: not enough unallocated margin)',
     'pt.src': 'Daily VN30F1M prices, 2 Jan 2025 – 28 Aug 2026 (411 sessions; downloaded 15 Oct 2026). The trader is simulated [M]. Intraday price order, and VN30F2M trading at the VN30F1M price, are assumptions [A].',
+    'pt.method': 'This demo walks intraday prices in 0.01% steps and keeps Deals open until closed, so its dates differ slightly from Simulation 1.',
     'pt.chart': 'VN30F1M closing price; the colour band is Shield at each close',
     'pt.legend.liq': 'Deal force-closed', 'pt.legend.order': 'trader’s order', 'pt.legend.rej': 'order rejected (not enough unallocated margin)', 'pt.legend.you': 'your decision',
     'pt.slider': 'Choose a session', 'pt.prev': 'Previous session', 'pt.next': 'Next session',

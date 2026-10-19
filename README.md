@@ -1,6 +1,6 @@
 # Future X Shield: trang đề xuất
 
-Trang web giới thiệu Future X Shield, [concept của đội thi FBA 2026](https://future-x-shield.luckynoob410.workers.dev/?fbclid=IwY2xjawVAK0BleHRuA2FlbQIxMQBwZG9mA3NydGMGYXBwX2lkATAAAR5Oc1HYnkfv9BTGis-p-Jg2DEAAjK5zBf0rWIjMXBt64_mVpHKtTbhsyQrWWQ_aem_zauc48n8JLVswJ5GgWzBSA#/). Không phải sản phẩm hay giao diện chính thức của DNSE.
+Trang web giới thiệu Future X Shield, [concept của đội thi FBA 2026](https://future-x-shield.luckynoob410.workers.dev/). Không phải sản phẩm hay giao diện chính thức của DNSE.
 
 Trang Tổng quan là một trang dài 9 phần (hero, Vấn đề, Bằng chứng, Giải pháp và 3 bước, Dành cho ai, Nguyên tắc, Dữ liệu), nền trắng và đỏ nhạt xen kẽ, theo hướng dẫn DNSE_R3_11 của leader (19/10/2026). Các tab Vấn đề, Sản phẩm, Luật và dữ liệu cuộn tới phần tương ứng. Tab Demo có 4 tab con: lúc đặt lệnh, Shield hai chiều, viễn cảnh, danh mục thật (khách mẫu chạy trên giá VN30F1M theo ngày). Mỗi tab có đường dẫn riêng, ví dụ `#/demo/atl`. Có hai ngôn ngữ, VI và EN.
 
@@ -41,7 +41,7 @@ npm ci                          # cài playwright (chỉ để chạy e2e)
 npm test                        # "51 pass", "17 pass", "18 pass", rồi "59 pass", đều 0 fail
 node build.js                   # ra dist/index.html và dist/_headers, in commit đã đóng dấu
 npx playwright install chromium # lần đầu; không tải được thì đặt E2E_CHANNEL=msedge
-npm run e2e                     # "141 pass, 0 fail"
+npm run e2e                     # "144 pass, 0 fail"
 ```
 
 Mở `dist/index.html` bằng trình duyệt là xem được, không cần máy chủ.
@@ -71,13 +71,12 @@ Không biến môi trường nào là bắt buộc. `.env.example` liệt kê m�
 
 ## Chưa làm, kèm lý do
 
-- **Chưa công khai.** Leader phải xác nhận luật thi cho đăng trước hạn nộp (A-06). Chỉ nối Cloudflare sau khi Leader xác nhận, vì Cloudflare đưa trang lên ngay khi nối.
 - **Chưa có trạng thái “quy mô đỉnh 5 phiên”** (FR-23), vì tài khoản demo chưa có dữ liệu cho nó. Tab Điểm yếu đã bỏ (18/10), nên trang hiện không còn ghi điều này.
 - **Ranh giới ô ma trận** đã chốt 19/10: A và C “cao” khi lớn hơn phần chia đều 1/n (R3_11 A7). `SE.cell` ở cả hai bản engine đã đổi theo; `shield_engine.py` của Team Product không có hàm chia ô nên không cần đổi.
 - **Tên ô** theo deck (Contained gain … Primary driver), bản VN giữ tên tiếng Anh, nghĩa tiếng Việt in nhỏ bên dưới. Engine vẫn trả khoá tên cũ (Két sắt …) để prototype trên canvas không phải sửa; `app.js` đổi sang tên hiển thị.
 - **Tên “Future X Shield”** là mặc định đang chờ team chốt; xem hồ sơ BA v2 mục 7.
 - **Chưa thử trên Safari iOS thật.** e2e chạy Chromium và Edge. Khối 3D là SVG, kéo bằng pointer events; cần mở thử trên iPhone trước khi gửi link.
 - **Mô phỏng 1 và 2 đã chạy lại được đúng từng dòng** (19/10, sau khi nhận script gốc). Bản JS cũ `l10b_replica.js` ra 12 và 5 vì sai 4 luật: cửa sổ 126 phiên, lệnh ngược chiều chỉ đóng Deal cũ chứ không mở mới trong phiên, không kiểm ở giá mở cửa, Deal tự đóng sau 5 phiên. Đã thay bằng `tools/l10_sim.js`.
-- **Tab Danh mục thật** dùng cùng luật Future X (ngưỡng, thứ tự bù, thanh toán cuối ngày) cho hai khách mẫu tự đặt [M], nhưng không phải một case của Mô phỏng 1 và có 3 chỗ khác cách mô phỏng: (1) có kiểm ở giá mở cửa, nên phiên mở cửa nhảy giá thì Deal bị xử lý ở giá mở cửa; (2) đi giá trong phiên từng nấc 0,01% nên Deal bị xử lý đúng ở giá chạm 17,35%, còn mô phỏng xử lý ở giá thấp nhất/cao nhất của phiên; (3) Deal không tự đóng sau 5 phiên. Muốn tab này theo đúng cách mô phỏng thì các mốc ngày và giá trong câu kết luận (leader đã duyệt) sẽ đổi.
+- **Tab Danh mục thật** dùng cùng luật Future X (ngưỡng, thứ tự bù, thanh toán cuối ngày) cho hai khách mẫu tự đặt [M], nhưng không phải một case của Mô phỏng 1 và có 3 chỗ khác cách mô phỏng: (1) có kiểm ở giá mở cửa, nên phiên mở cửa nhảy giá thì Deal bị xử lý ở giá mở cửa; (2) đi giá trong phiên từng nấc 0,01% nên Deal bị xử lý đúng ở giá chạm 17,35%, còn mô phỏng xử lý ở giá thấp nhất/cao nhất của phiên; (3) Deal không tự đóng sau 5 phiên. Leader chốt 19/10: giữ cách hiện tại, trang ghi rõ khác biệt ở dòng chú thích cuối tab (`pt.method`).
 - **Khách mẫu có lúc cọc ngoài Deal âm** (ví dụ khách B sau 03/04/2025). Mô phỏng chưa có bước gọi ký quỹ khi cọc ngoài Deal âm.
 - **Ngưỡng 18,48% / 17,71% / 17,35%** lấy từ ví dụ FAQ, cần DNSE xác nhận [A].

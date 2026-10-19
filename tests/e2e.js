@@ -234,6 +234,35 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   ok('Danh mục: khách B, câu tóm tắt nói giá chạy trong phiên nhanh hơn', /trong phiên nhanh hơn/.test(await text(pg, '#pt-insight')));
   await pg.context().close();
 
+  /* 5c. Ma trận kiểu BCG: mỗi thẻ Deal nằm đúng góc phần tư của ô nó thuộc (đo trên màn hình so với 2 trục), không thẻ nào chồng thẻ nào */
+  const QUAD = { safe: 'TL', double: 'TR', dead: 'BL', bomb: 'BR', old: 'TL', main: 'TR', out: 'BL', next: 'BR' };
+  const checkMx = (root) => pg.$$eval(root + ' .mx-plot', (plots, Q) => plots.filter(p => p.offsetParent).map(p => {
+    const v = p.querySelector('.mx-axis.v').getBoundingClientRect(), h = p.querySelector('.mx-axis.h').getBoundingClientRect();
+    const ax = v.left + v.width / 2, ay = h.top + h.height / 2, ds = [...p.querySelectorAll('.dot')].map(d => ({ id: d.dataset.id, cell: d.dataset.cell, r: d.getBoundingClientRect() }));
+    const wrong = ds.filter(d => { const cx = d.r.left + d.r.width / 2, cy = d.r.top + d.r.height / 2; return (cx > ax ? 'R' : 'L') !== Q[d.cell][1] || (cy < ay ? 'T' : 'B') !== Q[d.cell][0]; }).map(d => '#' + d.id + ' ' + d.cell);
+    let overlap = 0; for (let i = 0; i < ds.length; i++) for (let j = i + 1; j < ds.length; j++) { const a = ds[i].r, b = ds[j].r; if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) overlap++; }
+    return { n: ds.length, wrong, overlap };
+  }), QUAD);
+  const mxRes = [];
+  for (const width of [1280, 390]) {
+    pg = await openPage(width, '#/'); mxRes.push(...(await checkMx('#buoc-2'))); await pg.context().close();
+    pg = await openPage(width, '#/demo/shield'); mxRes.push(...(await checkMx('#sh-matrix'))); await pg.click('[data-shview="order"]'); mxRes.push(...(await checkMx('#sh-matrix'))); await pg.context().close();
+    pg = await openPage(width, '#/demo/danh-muc');
+    for (const preset of ['A', 'B']) {
+      await pg.click('[data-preset="' + preset + '"]');
+      for (const off of [0, 3, 6, 12]) {
+        await pg.$eval('#pt-slider', (el, o) => { el.value = Math.min(+el.max, +el.value + o); el.dispatchEvent(new Event('input', { bubbles: true })); }, off);
+        await pg.waitForFunction(() => document.querySelector('#pt-cube').dataset.mode === 'flat', null, { timeout: 3000 }).catch(() => {});
+        mxRes.push(...(await checkMx('#pt-cube')));
+      }
+    }
+    await pg.context().close();
+  }
+  const mxWrong = mxRes.flatMap(r => r.wrong), mxOver = mxRes.reduce((a, r) => a + r.overlap, 0), mxTags = mxRes.reduce((a, r) => a + r.n, 0);
+  ok('Ma trận: ' + mxTags + ' thẻ Deal trên ' + mxRes.length + ' hình, thẻ nào cũng nằm đúng góc của ô mình', mxRes.length >= 20 && mxWrong.length === 0, mxWrong.slice(0, 5).join(', '));
+  ok('Ma trận: không thẻ Deal nào chồng lên thẻ khác', mxOver === 0, mxOver + ' cặp chồng');
+  ok('Ma trận: không còn dòng "Cỡ chấm"', !(await (async () => { pg = await openPage(1280, '#/'); const t = await pg.evaluate(() => document.body.innerText); await pg.context().close(); return /Cỡ chấm|Dot size/.test(t); })()));
+
   /* 6. Song ngữ */
   pg = await openPage(1280, '#/demo/atl');
   const viText = await pg.evaluate(() => document.body.innerText);
@@ -271,7 +300,7 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
 
   ok('không lỗi/cảnh báo console, không CSP chặn', errors.length === 0, errors.slice(0, 5).join(' || '));
   await browser.close();
-  const MIN = 95;
+  const MIN = 100;
   console.log('\n' + pass + ' pass, ' + fail + ' fail');
   if (pass + fail < MIN) { console.log('FAIL: chỉ chạy ' + (pass + fail) + ' kiểm, cần ít nhất ' + MIN); process.exit(1); }
   process.exit(fail ? 1 : 0);
