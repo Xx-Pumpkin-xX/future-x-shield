@@ -4,7 +4,7 @@ Trang web giới thiệu Future X Shield, concept của đội thi FBA 2026. Kh�
 
 Trang là **một file HTML tĩnh** (`dist/index.html`): không backend, không đăng nhập, không cookie, không đo lượt xem, không gọi ra mạng. Mọi phép tính chạy trong trình duyệt của người xem.
 
-Trang có 6 tab: Tổng quan, Vấn đề, Sản phẩm, Demo, Luật và dữ liệu, Điểm yếu. Tab Demo có 4 tab con: lúc đặt lệnh, Shield hai chiều, viễn cảnh, danh mục thật (khách mẫu chạy trên giá VN30F1M theo ngày). Mỗi tab có đường dẫn riêng, ví dụ `#/demo/atl`. Có hai ngôn ngữ, VI và EN.
+Trang Tổng quan là một trang dài 9 phần (hero, Vấn đề, Bằng chứng, Giải pháp và 3 bước, Dành cho ai, Nguyên tắc, Dữ liệu), nền trắng và đỏ nhạt xen kẽ, theo hướng dẫn DNSE_R3_11 của leader (19/10/2026). Các tab Vấn đề, Sản phẩm, Luật và dữ liệu cuộn tới phần tương ứng. Tab Demo có 4 tab con: lúc đặt lệnh, Shield hai chiều, viễn cảnh, danh mục thật (khách mẫu chạy trên giá VN30F1M theo ngày). Mỗi tab có đường dẫn riêng, ví dụ `#/demo/atl`. Có hai ngôn ngữ, VI và EN.
 
 ## Cấu trúc
 
@@ -22,7 +22,7 @@ Trang có 6 tab: Tổng quan, Vấn đề, Sản phẩm, Demo, Luật và dữ l
 | `src/style.css` | Giao diện. |
 | `fonts/` | Font Be Vietnam Pro (OFL, xem `fonts/OFL.txt`), nhúng vào file build để không phải tải từ Google. |
 | `build.js` | Ghép tất cả thành `dist/index.html`. |
-| `tests/` | `test_engine.js` (47 số vàng), `test_timeline.js` (mô phỏng nhiều phiên, 17 kiểm), `test_build.js` (build, nội dung, cấu hình), `e2e.js` (trình duyệt thật). |
+| `tests/` | `test_engine.js` (51 kiểm: số vàng và ranh giới ô 1/n), `test_timeline.js` (mô phỏng nhiều phiên, 17 kiểm), `test_build.js` (build, nội dung, cấu hình), `e2e.js` (trình duyệt thật). |
 | `tools/l10b_replica.js` | Thử chạy lại L10b không cần script gốc. Hiện khớp xu hướng, chưa khớp số (xem "Chưa làm"). |
 | `wrangler.jsonc` | Cấu hình Cloudflare Workers: chỉ phát thư mục `dist`. |
 | `.github/workflows/pages.yml` | Chạy test và e2e ở mỗi lần push (phần đưa lên GitHub Pages bị tắt khi dùng Cloudflare). Trên máy Phong, file đang chờ ở `ci/pages.yml`: RUNBOOK bước 2 chuyển nó vào đúng chỗ. |
@@ -39,10 +39,10 @@ Cần Node 18 trở lên.
 
 ```
 npm ci                          # cài playwright (chỉ để chạy e2e)
-npm test                        # "47 pass", "17 pass", rồi "56 pass", đều 0 fail
+npm test                        # "51 pass", "17 pass", rồi "59 pass", đều 0 fail
 node build.js                   # ra dist/index.html và dist/_headers, in commit đã đóng dấu
 npx playwright install chromium # lần đầu; không tải được thì đặt E2E_CHANNEL=msedge
-npm run e2e                     # "115 pass, 0 fail"
+npm run e2e                     # "134 pass, 0 fail"
 ```
 
 Mở `dist/index.html` bằng trình duyệt là xem được, không cần máy chủ.
@@ -73,8 +73,10 @@ Không biến môi trường nào là bắt buộc. `.env.example` liệt kê m�
 ## Chưa làm, kèm lý do
 
 - **Chưa công khai.** Leader phải xác nhận luật thi cho đăng trước hạn nộp (A-06). Chỉ nối Cloudflare sau khi Leader xác nhận, vì Cloudflare đưa trang lên ngay khi nối.
-- **Chưa có trạng thái “quy mô đỉnh 5 phiên”** (FR-23), vì tài khoản demo chưa có dữ liệu cho nó. Trang ghi rõ ở tab Điểm yếu.
-- **Tên “Future X Shield”** và **ranh giới trục A = 0** là mặc định đang chờ team chốt; xem hồ sơ BA v2 mục 7.
+- **Chưa có trạng thái “quy mô đỉnh 5 phiên”** (FR-23), vì tài khoản demo chưa có dữ liệu cho nó. Tab Điểm yếu đã bỏ (18/10), nên trang hiện không còn ghi điều này.
+- **Ranh giới ô ma trận** đã chốt 19/10: A và C “cao” khi lớn hơn phần chia đều 1/n (R3_11 A7). `SE.cell` ở cả hai bản engine đã đổi theo; `shield_engine.py` của Team Product không có hàm chia ô nên không cần đổi.
+- **Tên ô** theo deck (Contained gain … Primary driver), bản VN giữ tên tiếng Anh, nghĩa tiếng Việt in nhỏ bên dưới. Engine vẫn trả khoá tên cũ (Két sắt …) để prototype trên canvas không phải sửa; `app.js` đổi sang tên hiển thị.
+- **Tên “Future X Shield”** là mặc định đang chờ team chốt; xem hồ sơ BA v2 mục 7.
 - **Chưa thử trên Safari iOS thật.** e2e chạy Chromium và Edge. Khối 3D là SVG, kéo bằng pointer events; cần mở thử trên iPhone trước khi gửi link.
 - **Chưa chạy lại được đúng L10b.** Bộ dữ liệu mô phỏng mới có giá nhưng chưa có `l10b_sim.py`, `l10c_sim.py`. `tools/l10b_replica.js` dựng lại theo luật ở KQ_L4 phần 15: ra đúng xu hướng (1 Deal bật tự tăng: 0 Deal bị xử lý; tắt tự tăng: hàng trăm), nhưng nhóm nhiều Deal bật tự tăng ra 12 và 5, so với 24 và 14 của CSV. Cần script gốc để biết khác ở luật nào.
 - **Tab Danh mục thật** dùng luật L10b trên giá thật cho hai khách mẫu tự đặt [M]; không phải một case của L10b.

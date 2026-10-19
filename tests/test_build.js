@@ -28,11 +28,22 @@ const app = fs.readFileSync(path.join(ROOT, 'src/app.js'), 'utf8');
 const usedHtml = [...html.matchAll(/data-i18n="([^"]+)"/g)].map(m => m[1])
   .concat([...html.matchAll(/data-i18n-attr="[a-z-]+:([^"]+)"/g)].map(m => m[1]));
 const usedApp = [...app.matchAll(/\bt\('([a-z0-9.]+)'\s*[,)]/g)].map(m => m[1])
-  .concat(['green', 'yellow', 'red', 'violated'].map(k => 'tone.' + k)); /* t('tone.' + level) ghép động */
-const cellKeys = [...app.matchAll(/'(cell\.[a-z]+)'/g)].map(m => m[1]);
+  .concat(['green', 'yellow', 'red', 'violated'].map(k => 'tone.' + k)) /* t('tone.' + level) ghép động */
+  .concat(['unit.ct1', 'unit.ctn', 'unit.deal1', 'unit.dealn']); /* plural(key, n) ghép động */
+/* tên ô: app.js ánh xạ khoá engine sang 'cell.<x>' (tên) và 'cellg.<x>' (nghĩa tiếng Việt) */
+const cellMap = (app.match(/var CELL = \{([^}]*)\}/) || ['', ''])[1];
+const cellKeys = [...cellMap.matchAll(/:\s*'([a-z]+)'/g)].flatMap(m => ['cell.' + m[1], 'cellg.' + m[1]]);
 ok('i18n: index.html dùng ' + usedHtml.length + ' khoá, đều có', usedHtml.length > 80 && missingKeys(usedHtml).length === 0, missingKeys(usedHtml).join(', '));
 ok('i18n: app.js dùng ' + usedApp.length + ' khoá, đều có', usedApp.length > 40 && missingKeys(usedApp).length === 0, missingKeys(usedApp).join(', '));
-ok('i18n: 8 tên ô ma trận đều có', cellKeys.length === 8 && missingKeys(cellKeys).length === 0);
+ok('i18n: 8 tên ô ma trận và nghĩa tiếng Việt đều có', cellKeys.length === 16 && missingKeys(cellKeys).length === 0, cellKeys.length + ' ' + missingKeys(cellKeys).join(', '));
+/* R3_11 phần C: từ cũ không được quay lại (chỉ quét chữ hiển thị, không quét tên biến trong code) */
+const BANNED = { en: [/liquidat/i, /margin outside the Deals/i, /shared pool/i, /reserve money/i, /automatic (Deal )?top-up/i, /Demo book/, /room left/i,
+    /two-way bar\b/i, /Background alarm/, /calculator/i, /Customer [AB]\b/, /\(s\)/, /\d ct\b/, /\bL10[bc]\b/, /\bL8b\b/, /brief 4\./, /\bBomb\b/, /Bystander/, /Main culprit/, /Next threat/],
+  vi: [/ăn đệm/, /tựa vào/, /túi chung/, /túi cọc/, /Báo thức nền/, /thanh hai chiều/, /\bL10[bc]\b/, /\bL8b\b/, /brief 4\./, /Quả bom/, /Thủ phạm/, /Két sắt/] };
+function bannedIn(lang, vals) { return BANNED[lang].filter(re => vals.some(v => re.test(v))).map(String); }
+ok('R3_11 phần C: bản en không còn từ cũ', bannedIn('en', Object.values(I18N.en)).length === 0, bannedIn('en', Object.values(I18N.en)).join(', '));
+ok('R3_11 phần C: bản vi không còn từ cũ', bannedIn('vi', Object.values(I18N.vi)).length === 0, bannedIn('vi', Object.values(I18N.vi)).join(', '));
+ok('đối chứng âm: bộ dò từ cũ bắt được "liquidated" và "túi chung"', bannedIn('en', ['Deal #2 liquidated']).length === 1 && bannedIn('vi', ['túi chung']).length === 1);
 ok('đối chứng âm: bộ kiểm khoá báo thiếu khi khoá không tồn tại', missingKeys(['zz.khong-co']).length === 1);
 const EN_VIET = /[ăâđêôơưàáạảãằắặẳẵầấậẩẫèéẹẻẽềếệểễìíịỉĩòóọỏõồốộổỗờớợởỡùúụủũừứựửữỳýỵỷỹ]/i;
 const enLeak = en.filter(k => EN_VIET.test(I18N.en[k]));
@@ -153,7 +164,7 @@ for (const pat of ['node_modules/', 'dist/', '.env', '*.log', '*.zip', '*.tar.gz
 ok('.gitignore vẫn cho commit .env.example', gi.split(/\r?\n/).includes('!.env.example'));
 
 fs.rmSync(tmp, { recursive: true, force: true }); fs.rmSync(sand, { recursive: true, force: true }); fs.rmSync(sand2, { recursive: true, force: true });
-const MIN = 54;
+const MIN = 57;
 console.log('\n' + pass + ' pass, ' + fail + ' fail');
 if (pass + fail < MIN) { console.log('FAIL: chỉ chạy ' + (pass + fail) + ' kiểm, cần ít nhất ' + MIN + ' (có đoạn bị bỏ qua?)'); process.exit(1); }
 process.exit(fail ? 1 : 0);

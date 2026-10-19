@@ -69,7 +69,21 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   let d;
   let pg = await openPage(1280, '#/');
   ok('Tổng quan: thanh trên trong suốt ở đầu trang', await pg.$eval('.bar', b => b.classList.contains('clear')));
-  ok('Tổng quan: có đủ 3 phần Vấn đề, Sản phẩm, Luật', (await pg.$$eval('[data-section]', e => e.map(x => x.id).join(','))) === 'van-de,san-pham,luat');
+  ok('Tổng quan: 8 phần sau hero, đúng thứ tự R3_11', (await pg.$$eval('[data-section]', e => e.map(x => x.id).join(','))) === 'van-de,bang-chung,san-pham,buoc-2,buoc-3,ai-dung,luat,du-lieu');
+  const bgs = await pg.$$eval('.band', e => e.map(x => getComputedStyle(x).backgroundColor));
+  ok('Tổng quan: nền đỏ nhạt / trắng xen kẽ (bắt đầu bằng đỏ nhạt ở Vấn đề)', bgs.every((c, i) => c === (i % 2 === 0 ? 'rgb(253, 240, 240)' : 'rgb(255, 255, 255)')), bgs.join(' | '));
+  ok('Tổng quan: phần nào cũng mở đầu bằng nhãn hoặc tiêu đề Bước', (await pg.$$eval('.band', e => e.filter(x => !x.querySelector(':scope > .kicker, :scope > .sec-title')).length)) === 0);
+  ok('Tổng quan: chú giải [F] [A] [M] nằm ở hero, khối "Ba nhãn" đã xoá', /\[F\][\s\S]*\[A\][\s\S]*\[M\]/.test(await text(pg, '.hero-note')) && (await pg.$$('.chips')).length === 0);
+  const pbBars = await text(pg, '#pb-bars');
+  ok('Vấn đề: hai thanh lấy số từ engine (80 → 6 triệu; 25,4% → 2,3%)', pbBars.includes('80 → 6 triệu') && pbBars.includes('25,4% → 2,3%'), pbBars);
+  ok('Vấn đề: 4 Deal cùng tỷ lệ 18,48%, Deal #3 #4 là mới', (await pg.$$eval('#pb-see li', e => e.filter(x => x.innerText.includes('18,48%')).length)) === 4 && (await pg.$$('#pb-see li em')).length === 2);
+  ok('Bước 1: thanh tĩnh của danh mục demo 9,60% / 13,47%', (await pg.$eval('[data-ruler="ov"]', e => e.dataset.down + '/' + e.dataset.up)) === '0.0960/0.1347');
+  const cellsOf = async sel => pg.$$eval(sel + ' .dot', e => e.map(x => x.dataset.id + ':' + x.dataset.cell).sort().join(','));
+  ok('Bước 2: ma trận A × B (#1 Exposed loss, #2 #3 Contained gain)', (await cellsOf('#ov-mx-ab')) === '1:bomb,2:safe,3:safe', await cellsOf('#ov-mx-ab'));
+  ok('Bước 2: ma trận A × C sau lệnh (#1 Primary, #4 Emerging, #2 #3 Low)', (await cellsOf('#ov-mx-ac')) === '1:main,2:out,3:out,4:next', await cellsOf('#ov-mx-ac'));
+  ok('Bước 2: vạch ranh giới ghi 1/3 và 1/4', /1\/3/.test(await text(pg, '#ov-mx-ab')) && /1\/4/.test(await text(pg, '#ov-mx-ac')));
+  ok('Bước 2: ví dụ Deal #1 là 61% / −0,8% / 81%', (await text(pg, '#ex-a')) === '61%' && (await text(pg, '#ex-b')) === '−0,8%' && (await text(pg, '#ex-c')) === '81%');
+  ok('Dành cho ai: 1, 2, 3 icon người', (await pg.$$eval('[data-people]', e => e.map(x => x.querySelectorAll('svg').length).join(''))) === '123');
   ok('Tổng quan: không còn trang Điểm yếu', (await pg.$$('[data-view="limits"], [data-tab="limits"]')).length === 0);
   for (const [hash, id, tab] of [['#/van-de', 'van-de', 'problem'], ['#/san-pham', 'san-pham', 'product'], ['#/luat', 'luat', 'rules']]) {
     await pg.click(`.tabs a[href="${hash}"]`); await pg.waitForTimeout(1200);
@@ -144,6 +158,22 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   const yaw1 = +(await pg.$eval('#sc-cube svg', s => s.dataset.yaw));
   ok('Viễn cảnh: kéo chuột xoay khối (yaw ' + yaw0 + ' → ' + yaw1 + ')', Math.abs(yaw1 - yaw0) > 30);
   await pg.context().close();
+  pg = await openPage(1280, '#/demo/vien-canh');
+  const faceNow = () => pg.$eval('#sc-cube', c => c.dataset.face);
+  const waitFace = f => pg.waitForFunction(x => document.querySelector('#sc-cube').dataset.face === x, f, { timeout: 3000 }).catch(() => {});
+  ok('Viễn cảnh: gợi ý "Thử" ghi đúng điểm sau 1 lệnh long', (await text(pg, '#sc-try')).includes('↓1,6% ↑2,8%'));
+  await pg.click('[data-add="long"]'); await waitFace('AC');
+  ok('Viễn cảnh (lỗi B3): "Theo màu", 1 lệnh long → đỏ → khối sang mặt A × C', (await faceNow()) === 'AC' && /Nguy hiểm/.test(await text(pg, '#sc-chain li:last-child .chip')));
+  ok('Viễn cảnh: mặt A × C hiện tên ô mới', /Primary driver/.test(await pg.$eval('#sc-cube svg', s => s.textContent)));
+  /* kéo lên: pitch tăng từ −80° về gần −10°, tức nhìn lại mặt A × B */
+  const cb = await pg.$eval('#sc-cube svg', s => { s.scrollIntoView({ block: 'center' }); const r = s.getBoundingClientRect(); return { x: r.left + 40, y: r.bottom - 20 }; });
+  await pg.mouse.move(cb.x, cb.y); await pg.mouse.down(); await pg.mouse.move(cb.x + 10, cb.y - 150, { steps: 8 }); await pg.mouse.up();
+  const dragged = await faceNow();
+  await pg.click('[data-add="short"]'); await waitFace('AC');
+  ok('Viễn cảnh (lỗi B3): kéo lệch về A × B rồi thêm bước vẫn đỏ → khối tự về A × C (sau kéo: ' + dragged + ')', dragged === 'AB' && (await faceNow()) === 'AC');
+  await pg.click('#sc-undo'); await pg.click('#sc-undo'); await waitFace('AB');
+  ok('Viễn cảnh: bỏ hết bước → xanh → khối về mặt A × B', (await faceNow()) === 'AB');
+  await pg.context().close();
 
   /* 5b. Danh mục thật: khách mẫu trên giá VN30F1M thật */
   pg = await openPage(1280, '#/demo/danh-muc');
@@ -152,7 +182,11 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   ok('Danh mục: mở ở phiên 02/03/2026 với 5 Deal', ds.t === '2026-03-02' && ds.deals === '5', JSON.stringify(ds));
   ok('Danh mục: Deal đầu tiên bị xử lý 03/03/2026, tổng 2 Deal', ds.firstLiq === '2026-03-03' && ds.liq === '2', JSON.stringify(ds));
   ok('Danh mục: thanh Shield đỏ lúc đóng cửa 02/03', /Nguy hiểm/.test(await text(pg, '[data-ruler="port"] .chip')));
-  ok('Danh mục: câu tóm tắt nói Shield báo trước 1 phiên', /báo trước 1 phiên/.test(await text(pg, '#pt-insight')));
+  ok('Danh mục: câu tóm tắt nói xử lý một phiên sau khi Shield báo', /một phiên sau khi Shield báo/.test(await text(pg, '#pt-insight')));
+  /* lỗi R3_11 B4: số dấu × trên biểu đồ phải khớp số Deal bị xử lý; lệnh thứ 6 bị từ chối phải được nói ra */
+  ok('Danh mục: biểu đồ có đúng 2 dấu ×, ghi #2 và #5', (await pg.$$eval('#pt-chart .pc-liqid', e => e.map(x => x.textContent).join(','))) === '#2,#5');
+  ok('Danh mục: lệnh bị từ chối có dấu riêng và được ghi trong mô tả', (await pg.$$('#pt-chart .pc-ord.rej')).length === 1 && /1 lệnh bị bỏ qua vì không đủ cọc ngoài Deal/.test(await text(pg, '#pt-desc')));
+  ok('Danh mục: cọc ngoài Deal âm có giải thích', /−0,8 triệu \(âm:/.test(await text(pg, '#pt-state')));
   ok('Danh mục: bảng có 5 Deal', (await pg.$$('#pt-table tr[data-deal]')).length === 5);
   ok('Danh mục: khối 3D có 5 hình cầu', (await pg.$$('#pt-cube .c3-pt')).length === 5);
   await pg.click('[data-ptact="close"][data-id="2"]');
@@ -191,6 +225,10 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   await pg.evaluate(() => { location.hash = '#/demo/atl'; }); await pg.waitForTimeout(150);
   card = await text(pg, '#atl-card');
   ok('EN: số theo kiểu en-US (25.4%, 2.3%)', card.includes(p1('en', GOLD.atlBefore)) && card.includes(p1('en', GOLD.atlAfterDown)), card);
+  await pg.evaluate(() => { location.hash = '#/demo/danh-muc'; }); await pg.waitForTimeout(300);
+  ok('EN: kết luận Trader A khớp nguyên văn R3_11 B4', (await text(pg, '#pt-insight')) === 'Shield turned red at the close of 2 Mar 2026 (headroom: VN30F could fall 3.1% or rise 2.7%). On 3 Mar 2026, Deal #2 was force-closed at 1,951.9, one session after the warning. In total, 2 Deals were force-closed in this period.', await text(pg, '#pt-insight'));
+  await pg.evaluate(() => { location.hash = '#/demo/atl'; }); await pg.waitForTimeout(150);
+  ok('EN: khối lượng ghi "2 contracts"', (await text(pg, '#atl-qty')) === '2 contracts');
   await pg.reload(); await pg.waitForSelector('body[data-ready="1"]');
   ok('EN: tải lại vẫn nhớ tiếng Anh', (await pg.$eval('html', h => h.lang)) === 'en');
   await pg.click('#lang-toggle'); await pg.click('[data-lang="vi"]');
@@ -208,7 +246,7 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
 
   ok('không lỗi/cảnh báo console, không CSP chặn', errors.length === 0, errors.slice(0, 5).join(' || '));
   await browser.close();
-  const MIN = 75;
+  const MIN = 95;
   console.log('\n' + pass + ' pass, ' + fail + ' fail');
   if (pass + fail < MIN) { console.log('FAIL: chỉ chạy ' + (pass + fail) + ' kiểm, cần ít nhất ' + MIN); process.exit(1); }
   process.exit(fail ? 1 : 0);

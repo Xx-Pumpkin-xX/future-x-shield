@@ -17,19 +17,28 @@
     return Number(x).toLocaleString(lang === 'vi' ? 'vi-VN' : 'en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
   }
   function pct(x) { return x == null ? t('score.out') : (x <= 0 ? t('score.breach') : fmt(x * 100, 1) + '%'); }
-  /* trong câu: "> 30% (ngoài phạm vi mô phỏng)" */
-  function pctIn(x) { return x == null ? '&gt; 30% (' + t('score.out') + ')' : pct(x); }
+  /* trong câu: "> 30%" (thanh đệm đã ghi chú "vượt phạm vi dò 30%") */
+  function pctIn(x) { return x == null ? '&gt; 30%' : pct(x); }
   function big(x) { return x == null ? '<b>&gt; 30%</b><small>' + t('score.out') + '</small>' : '<b>' + pct(x) + '</b>'; }
   function toneOf(sc) { var lv = SE.level(sc.min, YELLOW, RED); return lv === 'violated' ? 'red' : lv; }
   function toneLabel(sc) { return t('tone.' + SE.level(sc.min, YELLOW, RED)); }
-  var CELL = { 'Két sắt': 'cell.safe', 'Dao hai lưỡi': 'cell.double', 'Món chết': 'cell.dead', 'Quả bom': 'cell.bomb',
-    'Đứng ngoài': 'cell.out', 'Mối nguy kế tiếp': 'cell.next', 'Vết thương cũ': 'cell.old', 'Thủ phạm chính': 'cell.main' };
-  function cellName(vn) { return t(CELL[vn]); }
-  function cellHeat(vn) {
-    if (vn === 'Thủ phạm chính' || vn === 'Quả bom') return 'hot';
-    if (vn === 'Mối nguy kế tiếp' || vn === 'Dao hai lưỡi') return 'warm';
-    return 'cool';
-  }
+  /* số ít / số nhiều: "1 contract", "2 contracts"; tiếng Việt không đổi */
+  function plural(key, n) { return t(key + (n === 1 ? '1' : 'n'), { n: n }); }
+  function ct(n) { return plural('unit.ct', n); }
+  function nDeals(n) { return plural('unit.deal', n); }
+  function signed(x, d) { return (x < 0 ? '−' : '') + fmt(Math.abs(x), d); }
+  /* Engine trả khoá ô (tên cũ, giữ cho prototype canvas); tên hiển thị theo R3_11 A6 nằm ở i18n */
+  var CELL = { 'Két sắt': 'safe', 'Dao hai lưỡi': 'double', 'Món chết': 'dead', 'Quả bom': 'bomb',
+    'Đứng ngoài': 'out', 'Mối nguy kế tiếp': 'next', 'Vết thương cũ': 'old', 'Thủ phạm chính': 'main' };
+  function cellName(vn) { return t('cell.' + CELL[vn]); }
+  /* nghĩa tiếng Việt in nhỏ dưới tên ô; bản EN trùng tên nên không in */
+  function cellGloss(vn) { var g = t('cellg.' + CELL[vn]); return g === cellName(vn) ? '' : g; }
+  /* "cao" trên trục A/C: lớn hơn phần chia đều 1/n (cùng luật với SE.cell) */
+  function hiOf(x, n) { return x != null && x > 1 / Math.max(1, n) + 1e-9; }
+  /* Toạ độ vẽ: đặt vạch 1/n ở giữa khung để bốn ô bằng nhau.
+     A ∈ [−1, 1/n] → [0, 0.5]; A ∈ [1/n, 1] → [0.5, 1]. C ∈ [0, 1/n] → [0, 0.5]; C ∈ [1/n, 1] → [0.5, 1]. */
+  function posA(A, n) { var e = 1 / Math.max(1, n), a = A == null ? 0 : Math.max(-1, Math.min(1, A)); return a <= e ? (a + 1) / (e + 1) * 0.5 : 0.5 + (a - e) / (1 - e) * 0.5; }
+  function posC(C, n) { var e = 1 / Math.max(1, n), c = C == null ? 0 : Math.max(0, Math.min(1, C)); return c <= e ? c / e * 0.5 : 0.5 + (c - e) / (1 - e) * 0.5; }
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
   function memo(fn) { var c = {}; return function (k) { return c.hasOwnProperty(k) ? c[k] : (c[k] = fn(k)); }; }
@@ -98,7 +107,7 @@
   function renderATL() {
     $$('[data-code]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.code === atl.code)); });
     $$('[data-side]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.side === atl.side)); });
-    $('#atl-qty').textContent = atl.qty + ' ' + t('unit.hd');
+    $('#atl-qty').textContent = ct(atl.qty);
     $('[data-step="-1"]').disabled = atl.qty <= 1; $('[data-step="1"]').disabled = atl.qty >= 6;
     $('#atl-note').textContent = t('atl.note', { dep: fmt(SE.depositFor(1, 2000), 2) });
     var c = atlCalc([atl.side, atl.qty, atl.code].join('|')), r = c.r, a = r.acc;
@@ -108,11 +117,11 @@
     } else {
       h += scoreRow(t('atl.after'), c.after, 'after');
       var closed = r.closed.length ? t('atl.closed', { ids: r.closed.join(', #') }) : '';
-      h += '<p class="explain">' + closed + t('atl.explain', { n: a.deals.length,
+      h += '<p class="explain">' + closed + t('atl.explain', { n: nDeals(a.deals.length),
         dir: t(c.after.dir === -1 ? 'atl.dir.up' : 'atl.dir.down'), x: pct(c.after.min) }) + '</p>';
       var sorted = a.deals.slice().sort(function (x, y) { return SE.head(x, a.P) - SE.head(y, a.P); });
       h += '<h3>' + t('atl.deals') + '</h3><ul class="deal-list">' + sorted.map(function (d) {
-        return '<li><b>#' + d.id + '</b><span>' + d.code + ' ' + (d.s === 1 ? 'long' : 'short') + ' ' + d.n + ' ' + t('unit.hd') +
+        return '<li><b>#' + d.id + '</b><span>' + d.code + ' ' + (d.s === 1 ? 'long' : 'short') + ' ' + ct(d.n) +
           (d.fresh ? ' <em>' + t('atl.deal.new') + '</em>' : '') + '</span><span>' + t('atl.deal.ratio') + ' ' + fmt(SE.ratio(d, a.P) * 100, 2) + '%</span>' +
           '<span>' + t('atl.deal.head') + ' ' + fmt(SE.head(d, a.P), 2) + ' ' + t('unit.m') + '</span></li>';
       }).join('') + '</ul>';
@@ -121,10 +130,9 @@
         var k = c.conds, rows = [];
         if (k.deposit) rows.push([t('atl.c.dep', { amt: fmt(Math.round(k.deposit.amount), 0) }), k.deposit.score]);
         if (k.closeOne) rows.push([t('atl.c.close', { id: k.closeOne.id }), k.closeOne.score]);
-        if (k.maxQty) rows.push([k.maxQty.n === 0 ? t('atl.c.none') : t('atl.c.max', { n: k.maxQty.n }), k.maxQty.score]);
+        if (k.maxQty) rows.push([k.maxQty.n === 0 ? t('atl.c.none') : t('atl.c.max', { q: ct(k.maxQty.n) }), k.maxQty.score]);
         h += '<h3>' + t('atl.conds') + '</h3><ul class="conds">' + rows.map(function (rw) {
-          return '<li><p>' + rw[0] + '</p><p>' + t('atl.c.then') + ' ' + t('score.down') + ' <b>' + pctIn(rw[1].down) + '</b>, ' +
-            t('score.up') + ' <b>' + pctIn(rw[1].up) + '</b></p></li>';
+          return '<li><p>' + rw[0] + '</p><p>' + t('atl.c.res', { d: '<b>' + pctIn(rw[1].down) + '</b>', u: '<b>' + pctIn(rw[1].up) + '</b>' }) + '</p></li>';
         }).join('') + '</ul><p class="note">' + t('atl.c.foot') + '</p>';
       }
     }
@@ -133,6 +141,33 @@
     card.innerHTML = h;
     card.setAttribute('data-after-down', c.after && c.after.down != null ? c.after.down.toFixed(4) : 'null');
   }
+
+  /* ---------- Ma trận 2D dùng chung (R3_11 A7) ----------
+     Trục ngang luôn là A (trái thấp, phải cao); trục dọc B (A × B) hoặc C (A × C), dưới thấp, trên cao.
+     Vạch nét đứt: A = 1/n, B = 0 (hòa vốn), C = 1/n. Hai ô bên phải (A cao) nền hồng, hai ô bên trái nền trắng;
+     không tô xanh/đỏ theo B hay C. Chấm ghi "#id", cỡ chấm theo tỷ trọng cọc. */
+  function matrixHTML(ax, pair) {
+    var n = ax.length;
+    var bMax = Math.max(0.02, Math.max.apply(null, ax.map(function (r) { return Math.abs(r.B); }).concat([0])) * 1.3);
+    var names = pair === 'AB' ? [['Két sắt', 'Dao hai lưỡi'], ['Món chết', 'Quả bom']] : [['Vết thương cũ', 'Thủ phạm chính'], ['Đứng ngoài', 'Mối nguy kế tiếp']];
+    var h = '<p class="mx-ty">' + t(pair === 'AB' ? 'mx.ax.b' : 'mx.ax.c') + '</p><div class="mx-plot">';
+    [0, 1].forEach(function (row) { [0, 1].forEach(function (col) {
+      var nm = names[row][col], g = cellGloss(nm);
+      h += '<div class="m-cell' + (col ? ' right' : '') + (row ? ' bottom' : '') + '"><span class="m-name">' + cellName(nm) + '</span>' +
+        (g ? '<span class="m-gloss">' + g + '</span>' : '') + '</div>';
+    }); });
+    h += '<span class="m-line v"></span><span class="m-line h"></span>' +
+      '<span class="m-lab v">' + t('mx.eq', { n: n }) + '</span>' +
+      '<span class="m-lab h">' + (pair === 'AB' ? t('mx.be') : t('mx.eq', { n: n })) + '</span>';
+    ax.slice().sort(function (a, b) { return b.w - a.w; }).forEach(function (r) {
+      var size = Math.round(22 + Math.sqrt(Math.max(0, r.w)) * 40), nm = SE.cell(r, pair, n);
+      var x = 9 + posA(r.A, n) * 82, y = pair === 'AB' ? 50 - Math.max(-1, Math.min(1, r.B / bMax)) * 40 : 90 - posC(r.C, n) * 80;
+      h += '<span class="dot' + (hiOf(r.A, n) ? ' hi' : '') + '" data-id="' + r.id + '" data-cell="' + CELL[nm] + '" style="left:' + x.toFixed(1) + '%;top:' + y.toFixed(1) + '%;width:' + size + 'px;height:' + size +
+        'px;margin:' + (-size / 2) + 'px 0 0 ' + (-size / 2) + 'px" title="Deal #' + r.id + ' · ' + cellName(nm) + '">#' + r.id + '</span>';
+    });
+    return h + '</div><p class="mx-tx">' + t('mx.ax.a') + '</p>';
+  }
+  function drawMatrix(host, ax, pair) { host.innerHTML = matrixHTML(ax, pair); host.setAttribute('data-pair', pair); }
 
   /* ---------- Demo: Shield hai chiều ---------- */
   var sh = { view: 'now' };
@@ -149,34 +184,49 @@
     var pair = toneOf(sc) === 'red' ? 'AC' : 'AB';
     $('#sh-pair').textContent = t(pair === 'AB' ? 'sh.pair.ab' : 'sh.pair.ac');
     $('#sh-why').textContent = t(pair === 'AB' ? 'sh.pair.why.ab' : 'sh.pair.why.ac');
-    var bMax = Math.max(0.02, Math.max.apply(null, ax.map(function (r) { return Math.abs(r.B); })) * 1.3);
-    function xPct(A) { return 6 + ((A == null ? 0 : A) + 1) / 2 * 88; }
-    function yPct(r) { return pair === 'AB' ? 6 + (bMax - r.B) / (2 * bMax) * 88 : 6 + (1 - (r.C == null ? 0 : r.C)) * 88; }
-    var my = pair === 'AB' ? 50 : 6 + (1 - 1 / Math.max(1, n)) * 88;
-    var names = pair === 'AB' ? [['Két sắt', 'Dao hai lưỡi'], ['Món chết', 'Quả bom']] : [['Vết thương cũ', 'Thủ phạm chính'], ['Đứng ngoài', 'Mối nguy kế tiếp']];
-    var h = '';
-    [0, 1].forEach(function (row) { [0, 1].forEach(function (col) {
-      var nm = names[row][col];
-      h += '<div class="m-cell ' + cellHeat(nm) + (col ? ' right' : '') + (row ? ' bottom' : '') + '" style="left:' + (col ? 50 : 0) + '%;width:50%;top:' +
-        (row ? my : 0) + '%;height:' + (row ? 100 - my : my) + '%"><span>' + cellName(nm) + '</span></div>';
-    }); });
-    ax.forEach(function (r) {
-      var size = Math.round(24 + r.w * 34), nm = SE.cell(r, pair, n);
-      h += '<span class="dot ' + cellHeat(nm) + '" style="left:' + xPct(r.A) + '%;top:' + yPct(r) + '%;width:' + size + 'px;height:' + size +
-        'px;margin:' + (-size / 2) + 'px 0 0 ' + (-size / 2) + 'px" title="Deal #' + r.id + '">' + r.id + '</span>';
-    });
-    h += '<span class="m-ax x">' + t('sh.axis.a') + '</span><span class="m-ax y">' + t(pair === 'AB' ? 'sh.axis.b' : 'sh.axis.c') + ' ↑</span>';
-    $('#sh-matrix').innerHTML = h;
+    drawMatrix($('#sh-matrix'), ax, pair);
     var tb = '<thead><tr><th>' + t('sh.tbl.deal') + '</th><th>' + t('sh.tbl.a') + '</th><th>' + t('sh.tbl.b') + '</th><th>' + t('sh.tbl.c') + '</th><th>' + t('sh.tbl.cell') + '</th></tr></thead><tbody>';
     ax.forEach(function (r) {
       var d = c.acc.deals.filter(function (x) { return x.id === r.id; })[0];
-      tb += '<tr><td><b>#' + r.id + '</b> ' + d.code + ' ' + (d.s === 1 ? 'long' : 'short') + ' ' + d.n + ' ' + t('unit.hd') + '</td>' +
+      tb += '<tr><td><b>#' + r.id + '</b> ' + d.code + ' ' + (d.s === 1 ? 'long' : 'short') + ' ' + ct(d.n) + '</td>' +
         '<td>' + (r.A == null ? '—' : fmt(r.A * 100, 1) + '%') + '</td>' +
         '<td>' + (r.B >= 0 ? '+' : '−') + fmt(Math.abs(r.B) * 100, 2) + '%</td>' +
         '<td>' + (r.C == null ? t('sh.c.none') : fmt(r.C * 100, 0) + '%') + '</td>' +
         '<td>' + cellName(SE.cell(r, pair, n)) + '</td></tr>';
     });
     $('#sh-table').innerHTML = tb + '</tbody>';
+  }
+
+  /* ---------- Tổng quan: số trong hình lấy từ engine (R3_11 A3, A5, A6, A7) ---------- */
+  var PERSON = '<svg viewBox="0 0 24 32" width="24" height="32" aria-hidden="true"><circle cx="12" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/>' +
+    '<path d="M2.5 30v-5.5a9.5 9.5 0 0 1 19 0V30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  var ovCalc = memo(function () {
+    var atlA = SE.atlAccount(), atlR = SE.order(atlA, 1, 2, 'VN30F1M').acc, demo = SE.demoAccount(), demo1 = SE.order(demo, 1, 1, 'VN30F1M').acc;
+    var sDemo = SE.score(demo), sDemo1 = SE.score(demo1);
+    return { atlA: atlA, atlR: atlR, s0: SE.score(atlA), s1: SE.score(atlR), demo: demo, sDemo: sDemo,
+      axNow: SE.axes(demo, sDemo.dir || 1), axAfter: SE.axes(demo1, sDemo1.dir || 1) };
+  });
+  function bar(label, w0, w1) {
+    return '<div class="hbar"><p>' + label + '</p><div class="hb-track"><span class="hb0" style="width:' + (w0 * 100).toFixed(1) + '%"></span>' +
+      '<span class="hb1" style="width:' + (w1 * 100).toFixed(1) + '%"></span></div></div>';
+  }
+  function renderOverview() {
+    var c = ovCalc('x'), dep = SE.depositFor(1, 2000);
+    $('#pb-see').innerHTML = c.atlR.deals.map(function (d) {
+      return '<li>' + t('pb.see.row', { id: d.id, r: fmt(SE.ratio(d, c.atlR.P) * 100, 2) + '%' }) + (d.fresh ? ' <em>' + t('pb.see.new') + '</em>' : '') + '</li>';
+    }).join('');
+    $('#pb-bars').innerHTML =
+      bar(t('pb.bar.f', { a: fmt(c.atlA.F, 0), b: fmt(c.atlR.F, 0) }), 1, c.atlR.F / c.atlA.F) +
+      bar(t('pb.bar.x', { a: pct(c.s0.down), b: pct(c.s1.down) }), c.s0.down / SCALE, c.s1.down / SCALE);
+    $('#pb-real-cap').textContent = t('pb.real.cap', { dep: fmt(dep, 2) });
+    updateRuler($('[data-ruler="ov"]'), c.sDemo);
+    var d1 = c.axNow[0];
+    $('#ex-a').textContent = fmt(d1.A * 100, 0) + '%';
+    $('#ex-b').textContent = signed(d1.B * 100, 1) + '%';
+    $('#ex-c').textContent = fmt(d1.C * 100, 0) + '%';
+    drawMatrix($('#ov-mx-ab'), c.axNow, 'AB');
+    drawMatrix($('#ov-mx-ac'), c.axAfter, 'AC');
+    $$('[data-people]').forEach(function (el) { var h = ''; for (var i = 0; i < +el.dataset.people; i++) h += PERSON; el.innerHTML = h; });
   }
 
   /* ---------- Demo: viễn cảnh ---------- */
@@ -217,7 +267,8 @@
       return '<li class="' + (it.ok ? '' : 'skipped') + '"><span>' + lbl + '</span><span class="cs"><span class="chip ' + toneOf(it.sc) + '">' +
         toneLabel(it.sc) + '</span> <b>' + shortTxt(it.sc) + '</b></span></li>';
     }).join('');
-    $('#sc-state').textContent = t('sc.state', { p: fmt(a.P, 1), f: fmt(a.F, 2), n: a.deals.length });
+    $('#sc-state').textContent = t('sc.state', { p: fmt(a.P, 1), f: fmt(a.F, 2), n: nDeals(a.deals.length) });
+    $('#sc-try').textContent = t('sc.try', { s: shortTxt(runChain(JSON.stringify([{ type: 'long' }])).list[1].sc) });
     var pr = $('#sc-processed');
     pr.hidden = !a.processed.length;
     if (a.processed.length) pr.textContent = t('sc.processed', { ids: a.processed.join(', #') });
@@ -228,7 +279,7 @@
     $$('[data-face]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.face === scn.face)); });
     if (!scCube) scCube = Cube3D.mount($('#sc-cube'), {});
     var cd = cubePoints(a, last.dir);
-    scCube.update(cd.pts, { bMax: cd.bMax, n: cd.n, face: scn.face, tone: tone, labels: cubeLabels() });
+    scCube.update(cd.pts, { bMax: cd.bMax, n: cd.n, cMid: 0.5, face: scn.face, tone: tone, labels: cubeLabels() });
   }
 
   /* ---------- khối 3D dùng chung ---------- */
@@ -237,11 +288,12 @@
       cells: ['Két sắt', 'Dao hai lưỡi', 'Món chết', 'Quả bom'].map(cellName),
       cellsAC: ['Vết thương cũ', 'Thủ phạm chính', 'Đứng ngoài', 'Mối nguy kế tiếp'].map(cellName) };
   }
+  /* A và C đưa về toạ độ có vạch 1/n ở giữa khối (như ma trận 2D); B giữ nguyên (vạch hòa vốn ở giữa) */
   function cubePoints(acc, dir) {
     var ax = SE.axes(acc, dir || 1), n = ax.length;
     var bMax = Math.max(0.02, Math.max.apply(null, ax.map(function (r) { return Math.abs(r.B); }).concat([0])) * 1.3);
     return { n: n, bMax: bMax, pts: ax.map(function (r) {
-      return { id: r.id, A: r.A, B: r.B, C: r.C, w: r.w, heat: cellHeat(SE.cell(r, 'AC', n)),
+      return { id: r.id, A: posA(r.A, n) * 2 - 1, B: r.B, C: posC(r.C, n), w: r.w, heat: hiOf(r.A, n) ? 'hot' : 'cool',
         title: t('cube.title', { id: r.id, a: r.A == null ? '—' : fmt(r.A * 100, 1) + '%',
           b: (r.B >= 0 ? '+' : '−') + fmt(Math.abs(r.B) * 100, 2) + '%', c: r.C == null ? t('sh.c.none') : fmt(r.C * 100, 0) + '%' }) };
     }) };
@@ -279,15 +331,18 @@
     if (!L.length) return t('pt.i.none');
     var first = L[0], i = first.t - s0, prev = i > 0 ? res.scores[i - 1] : null, b = BARS[first.t];
     var lvPrev = lvOf(prev), xPrev = prev ? pct(prev.min) : t('score.out'), out;
+    var lvWord = t('tone.' + (lvPrev === 'none' ? 'green' : lvPrev)).toLowerCase();
     if (isRed(prev)) {
       var j = i - 1; while (j - 1 >= 0 && isRed(res.scores[j - 1])) j--;
-      out = t('pt.i.warn', { d1: fmtDate(s0 + j), x: pct(res.scores[j].min), dL: fmtDate(first.t), id: first.id, p: fmt(first.price, 1), k: i - j });
+      var k = i - j, sj = res.scores[j];
+      out = t('pt.i.warn', { d1: fmtDate(s0 + j), xd: pctIn(sj.down), xu: pctIn(sj.up), dL: fmtDate(first.t), id: first.id, p: fmt(first.price, 1),
+        k: k === 1 ? t('pt.i.k1') : t('pt.i.kn', { n: k }) });
     } else if (Math.abs(first.price - b.mo) < 1e-9) {
-      out = t('pt.i.gap', { dL: fmtDate(first.t), g: signedPct(b.mo / BARS[first.t - 1].dong - 1), id: first.id, lv: '“' + t('tone.' + (lvPrev === 'none' ? 'green' : lvPrev)) + '”', x: xPrev });
+      out = t('pt.i.gap', { dL: fmtDate(first.t), g: signedPct(b.mo / BARS[first.t - 1].dong - 1), id: first.id, lv: lvWord, x: xPrev });
     } else {
-      out = t('pt.i.late', { dL: fmtDate(first.t), id: first.id, p: fmt(first.price, 1), lv: '“' + t('tone.' + (lvPrev === 'none' ? 'green' : lvPrev)) + '”', x: xPrev });
+      out = t('pt.i.late', { dL: fmtDate(first.t), id: first.id, p: fmt(first.price, 1), lv: lvWord, x: xPrev });
     }
-    if (L.length > 1) out += ' ' + t('pt.i.more', { n: L.length });
+    if (L.length > 1) out += ' ' + t('pt.i.more', { n: nDeals(L.length) });
     return out;
   }
 
@@ -317,10 +372,12 @@
     h += '<polyline class="pc-line" points="' + res.snaps.map(function (sn) { return x(sn.t).toFixed(1) + ',' + y(BARS[sn.t].dong).toFixed(1); }).join(' ') + '"/>';
     res.events.forEach(function (e) {
       if (e.type === 'open' || e.type === 'reject') {
-        var yy = y(BARS[e.t].mo), xx = x(e.t);
-        h += '<text x="' + xx.toFixed(1) + '" y="' + (e.s === 1 ? yy + 14 : yy - 6).toFixed(1) + '" class="pc-ord' + (e.type === 'reject' ? ' rej' : '') + '" text-anchor="middle">' + (e.s === 1 ? '▲' : '▼') + '</text>';
+        var yy = y(BARS[e.t].mo), xx = x(e.t), rj = e.type === 'reject';
+        h += '<text x="' + xx.toFixed(1) + '" y="' + (e.s === 1 ? yy + 14 : yy - 6).toFixed(1) + '" class="pc-ord' + (rj ? ' rej' : '') + '" text-anchor="middle">' +
+          (rj ? (e.s === 1 ? '△' : '▽') : (e.s === 1 ? '▲' : '▼')) + (rj ? '<title>' + ptEventText(e) + '</title>' : '') + '</text>';
       } else if (e.type === 'liquidated') {
-        h += '<text x="' + x(e.t).toFixed(1) + '" y="' + (y(e.price) + 5).toFixed(1) + '" class="pc-liq" text-anchor="middle">×</text>';
+        h += '<g class="pc-liqg"><text x="' + x(e.t).toFixed(1) + '" y="' + (y(e.price) + 5).toFixed(1) + '" class="pc-liq" text-anchor="middle">×</text>' +
+          '<text x="' + (x(e.t) + 7).toFixed(1) + '" y="' + (y(e.price) + 16).toFixed(1) + '" class="pc-liqid">#' + e.id + '</text><title>' + ptEventText(e) + '</title></g>';
       }
     });
     pt.mine.forEach(function (a) { h += '<text x="' + x(a.t).toFixed(1) + '" y="' + (padT + 2) + '" class="pc-you" text-anchor="middle">◆</text>'; });
@@ -354,14 +411,18 @@
     if (pt.t == null || pt.t < s0 || pt.t > s1) pt.t = ix(PRESETS[pt.preset].view);
     $$('[data-preset]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.preset === pt.preset)); });
     $$('[data-pface]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.pface === pt.face)); });
-    $('#pt-desc').textContent = t('pt.desc.' + pt.preset);
+    /* lệnh của khách mẫu bị từ chối vì thiếu cọc ngoài Deal (không tính quyết định của người xem) */
+    var preT = PRESETS[pt.preset].orders.map(function (o) { return ix(o[0]); });
+    var rej = res.events.filter(function (e) { return e.type === 'reject' && preT.indexOf(e.t) >= 0; }).length;
+    $('#pt-desc').textContent = t('pt.desc.' + pt.preset, { skip: rej ? t('pt.skip', { n: rej }) : '' });
     var sl = $('#pt-slider'); sl.min = s0; sl.max = s1; sl.value = pt.t;
     $('#pt-prev').disabled = pt.t <= s0; $('#pt-next').disabled = pt.t >= s1;
     ptChart(res);
     $('#pt-insight').textContent = ptInsight(res);
     var k = pt.t - s0, sn = res.snaps[k], sc = res.scores[k] || { down: null, up: null, min: null, dir: null }, b = BARS[pt.t];
     $('#pt-date').textContent = fmtDate(pt.t);
-    $('#pt-state').textContent = t('pt.state', { p: fmt(b.dong, 1), chg: signedPct(b.dong / BARS[pt.t - 1].dong - 1, 2), f: fmt(sn.F, 1), n: sn.deals.length }) + ' ' + t(sn.auto ? 'pt.auto.on' : 'pt.auto.off');
+    $('#pt-state').textContent = t('pt.state', { p: fmt(b.dong, 1), chg: signedPct(b.dong / BARS[pt.t - 1].dong - 1, 2), f: signed(sn.F, 1),
+      neg: sn.F < 0 ? t('pt.neg') : '', n: nDeals(sn.deals.length) }) + ' ' + t(sn.auto ? 'pt.auto.on' : 'pt.auto.off');
     updateRuler($('[data-ruler="port"]'), sc, b.dong);
     var tb = '<thead><tr><th>' + t('pt.col.deal') + '</th><th>' + t('pt.col.open') + '</th><th>' + t('pt.col.ratio') + '</th><th>' + t('pt.col.head') + '</th><th>' + t('pt.col.topup') + '</th><th>' + t('pt.col.pnl') + '</th></tr></thead><tbody>';
     sn.deals.forEach(function (d) {
@@ -378,7 +439,7 @@
     $('#pt-events').innerHTML = evs.length ? evs.map(function (e) { return '<li class="ev-' + e.type + '">' + ptEventText(e) + '</li>'; }).join('') : '<li>' + t('pt.events.none') + '</li>';
     if (!ptCube) ptCube = Cube3D.mount($('#pt-cube'), { onSelect: function (id) { pt.sel = id; renderPortfolio(); } });
     var cd = cubePoints({ P: sn.P, F: sn.F, deals: sn.deals, K0: sn.K0 }, sc.dir);
-    ptCube.update(cd.pts, { bMax: cd.bMax, n: cd.n, face: pt.face, tone: toneOf(sc), labels: cubeLabels() });
+    ptCube.update(cd.pts, { bMax: cd.bMax, n: cd.n, cMid: 0.5, face: pt.face, tone: toneOf(sc), labels: cubeLabels() });
     if (pt.sel != null) ptCube.select(pt.sel);
     var last = pt.t >= s1;
     $('#pt-decide').textContent = t('pt.decide', { d: fmtDate(pt.t) });
@@ -444,7 +505,7 @@
     return 0;
   }
   function routeLabel(r) { return r.sub ? t('tab.demo') + ': ' + t(r.label) : t(r.label); }
-  var RENDER = { 'demo/atl': renderATL, 'demo/shield': renderShield, 'demo/scen': renderScenario, 'demo/port': renderPortfolio };
+  var RENDER = { 'overview': renderOverview, 'demo/atl': renderATL, 'demo/shield': renderShield, 'demo/scen': renderScenario, 'demo/port': renderPortfolio };
 
     function setTab(tab) {
     $$('[data-tab]').forEach(function (a) { if (a.dataset.tab === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });

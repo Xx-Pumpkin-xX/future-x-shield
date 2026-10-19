@@ -2,10 +2,11 @@
    - Kéo (chuột hoặc ngón tay) để xoay; phím mũi tên khi khối đang được chọn; nút đặt sẵn mặt A × B, A × C.
    - Mỗi Deal là một hình cầu: bán kính theo √w (diện tích chấm tỷ lệ với phần cọc), có bóng đổ xuống đáy để đọc độ cao B.
    - Bấm vào hình cầu để chọn Deal; khối gọi lại onSelect(id).
-   Trục: x = A (−1..1), y = B (chuẩn hóa theo bMax, lên trên là lãi), z = C (0..1, C cao nằm phía sau khối). */
+   Trục: x = A (−1..1), y = B (chuẩn hóa theo bMax, lên trên là lãi), z = C (0..1, C cao nằm phía trước khối,
+   để khi nhìn từ trên xuống ở mặt A × C, C cao ở hàng trên: Past drain / Primary driver, như R3_11 A7). */
 var Cube3D = (function () {
   var NS = 'http://www.w3.org/2000/svg';
-  var FACES = { AB: { yaw: -28, pitch: -16 }, AC: { yaw: -22, pitch: -78 } };
+  var FACES = { AB: { yaw: -28, pitch: -16 }, AC: { yaw: 0, pitch: -80 } };
   function el(name, attrs, parent) {
     var e = document.createElementNS(NS, name);
     for (var k in attrs) e.setAttribute(k, attrs[k]);
@@ -41,7 +42,7 @@ var Cube3D = (function () {
     /* co giãn để cả khối (và nhãn trục) luôn nằm gọn trong khung, ở mọi góc xoay */
     function fit() {
       var xs = [], ys = [];
-      CORNERS.concat([[1.18, -1, 1], [-1, 1.16, 1], [-1.12, -1, -1.12]]).forEach(function (p) {
+      CORNERS.concat([[1.18, -1, 1], [-1, 1.16, 1], [-1.12, -1.12, 1.18]]).forEach(function (p) {
         var r = rot(p), k = CAM / (CAM - r[2]); xs.push(r[0] * k); ys.push(-r[1] * k);
       });
       var minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs), minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
@@ -64,7 +65,7 @@ var Cube3D = (function () {
     function draw() {
       fit();
       gPlanes.textContent = ''; gEdges.textContent = ''; gLabels.textContent = ''; gShadow.textContent = ''; gPts.textContent = '';
-      var zc = 1 - st.cMid * 2; /* C cao nằm phía sau: nhìn từ trên xuống thì ở nửa trên */
+      var zc = st.cMid * 2 - 1; /* C cao nằm phía trước: nhìn từ trên xuống thì ở nửa trên */
       [[0, 0, 'pa'], [1, 0, 'pb'], [2, zc, 'pc']].forEach(function (pl) {
         var pts = plane(pl[0], pl[1]).map(proj);
         el('polygon', { points: pts.map(function (p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' '), class: 'c3-plane ' + pl[2] }, gPlanes);
@@ -75,14 +76,14 @@ var Cube3D = (function () {
         el('line', { x1: a.x.toFixed(1), y1: a.y.toFixed(1), x2: b.x.toFixed(1), y2: b.y.toFixed(1), class: 'c3-edge' + (back ? ' back' : '') }, gEdges);
       });
       var L = st.labels || {};
-      function lab(p, text, cls) { var q = proj(p); var t = el('text', { x: q.x.toFixed(1), y: q.y.toFixed(1), class: 'c3-lab ' + (cls || ''), 'text-anchor': 'middle' }, gLabels); t.textContent = text; return q; }
-      lab([1.18, -1, 1], L.a || 'A →', 'axis');
+      function lab(p, text, cls, anchor) { var q = proj(p); var t = el('text', { x: q.x.toFixed(1), y: q.y.toFixed(1), class: 'c3-lab ' + (cls || ''), 'text-anchor': anchor || 'middle' }, gLabels); t.textContent = text; return q; }
+      lab([1.06, -1.1, 1.16], L.a || 'A →', 'axis', 'end');
       lab([-1, 1.16, 1], L.b || 'B ↑', 'axis');
-      lab([-1.12, -1, -1.12], L.c || 'C', 'axis');
+      lab([-1.02, -1.12, 1.18], L.c || 'C', 'axis', 'start');
       if (L.cells) {
         /* tên ô ở mặt đang nhìn: AB = mặt trước (z = 1), AC = mặt đáy (y = −1) */
         var face = currentFace();
-        var spots = face === 'AC' ? [[-0.5, -1, -0.5], [0.5, -1, -0.5], [-0.5, -1, 0.5], [0.5, -1, 0.5]] : [[-0.5, 0.5, 1], [0.5, 0.5, 1], [-0.5, -0.5, 1], [0.5, -0.5, 1]];
+        var spots = face === 'AC' ? [[-0.5, -1, 0.5], [0.5, -1, 0.5], [-0.5, -1, -0.5], [0.5, -1, -0.5]] : [[-0.5, 0.5, 1], [0.5, 0.5, 1], [-0.5, -0.5, 1], [0.5, -0.5, 1]];
         var names = face === 'AC' ? L.cellsAC : L.cells;
         spots.forEach(function (sp, i) { lab(sp, names[i], 'cell'); });
       }
@@ -150,22 +151,26 @@ var Cube3D = (function () {
       e.preventDefault(); draw();
     });
 
-    /* points: [{id, A, B, C, w, heat, title}], o: {bMax, n, face:'auto'|'AB'|'AC', tone, labels} */
+    /* points: [{id, A, B, C, w, heat, title}], o: {bMax, n, cMid, face:'auto'|'AB'|'AC', tone, labels}
+       cMid: vị trí mặt phẳng ranh giới trên trục C (mặc định 1/n; app đã đổi toạ độ nên truyền 0.5). */
     function update(points, o) {
       o = o || {};
       st.labels = o.labels || st.labels;
-      st.cMid = 1 / Math.max(1, o.n || points.length || 1);
+      st.cMid = o.cMid != null ? o.cMid : 1 / Math.max(1, o.n || points.length || 1);
       var bMax = o.bMax || 0.02;
       st.pts = points.map(function (p) {
         return { id: p.id, heat: p.heat, title: p.title,
           x: 0.88 * Math.max(-1, Math.min(1, p.A == null ? 0 : p.A)),
           y: 0.88 * Math.max(-1, Math.min(1, p.B / bMax)),
-          z: 0.88 * (1 - (p.C == null ? 0 : p.C) * 2),
+          z: 0.88 * ((p.C == null ? 0 : p.C) * 2 - 1),
           r: 9 + Math.sqrt(Math.max(0, p.w || 0)) * 22 };
       });
       if (st.sel != null && !points.some(function (p) { return p.id === st.sel; })) st.sel = null;
       var want = o.face === 'auto' ? (o.tone === 'red' ? 'AC' : 'AB') : o.face;
-      if (want && want !== st.face) { st.face = want; var f = FACES[want]; animateTo(f.yaw, f.pitch); }
+      /* "Theo màu": mỗi lần cập nhật đều đưa khối về đúng mặt, kể cả khi người xem đã kéo lệch
+         (lỗi R3_11 B3: khối có thể đứng ở mặt A × B dù điểm đã đỏ). */
+      var off = o.face === 'auto' && !st.anim && currentFace() !== want;
+      if (want && (want !== st.face || off)) { st.face = want; var f = FACES[want]; animateTo(f.yaw, f.pitch); }
       else draw();
     }
     function select(id) { st.sel = id; draw(); }

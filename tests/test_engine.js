@@ -46,6 +46,12 @@ const axU = SE.axes(demo, -1);
 [0.81, 0.13, 0.06].forEach((C, i) => eq('demo #' + (i + 1) + ' C', Math.round(ax[i].C * 100) / 100, C));
 [1.04, 3.78, 2.44].forEach((h, i) => eq('demo #' + (i + 1) + ' h', Math.round(ax[i].h * 100) / 100, h));
 eq('demo #1 o A×C', SE.cell(ax[0], 'AC', 3) === 'Thủ phạm chính' ? 1 : 0, 1);
+// Ranh giới 1/n (R3_11 A7): số và ô khớp ví dụ của leader
+const cellsOf = (acc, pair) => { const a = SE.axes(acc, 1); return a.map(r => SE.cell(r, pair, a.length)).join('|'); };
+eq('demo: ô A×B (#1 Exposed loss, #2 #3 Contained gain)', cellsOf(demo, 'AB') === 'Quả bom|Két sắt|Két sắt' ? 1 : 0, 1);
+eq('demo + 1 long: ô A×C (#1 Primary, #2 #3 Low, #4 Emerging)', cellsOf(SE.order(demo, 1, 1, 'VN30F1M').acc, 'AC') === 'Thủ phạm chính|Đứng ngoài|Đứng ngoài|Mối nguy kế tiếp' ? 1 : 0, 1);
+eq('ranh giới 1/n: A 20% với 3 Deal là thấp (luật cũ A > 0 sẽ ra cao)', SE.cell({ A: 0.2, B: -0.01, C: 0.2 }, 'AB', 3) === 'Món chết' ? 1 : 0, 1);
+eq('ranh giới 1/n: A đúng bằng 1/n (lệch dấu phẩy động) vẫn là thấp', SE.cell({ A: 1 / 3 + 1e-15, B: 0.01, C: null }, 'AB', 3) === 'Két sắt' ? 1 : 0, 1);
 // Negative control: một lỗi cố ý phải làm test trượt (chứng minh test không pass vì không chạy)
 const broken = SE.firstHit(base(2), 79, 2000, 1);
 const nc = Math.abs(broken - 0.25409999999998834) > 1e-9;

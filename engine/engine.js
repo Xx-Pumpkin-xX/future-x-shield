@@ -77,11 +77,14 @@ var SE = (function () {
       };
     });
   }
-  /* Ranh giới tạm [A]: A = 0, B = 0, C = 1/số Deal (R3_07 mục 5.1 còn chờ chốt). */
+  /* Ranh giới (leader chốt 19/10, R3_11 mục A7) [A]: A và C "cao" khi lớn hơn phần chia đều 1/n; B = 0 là hòa vốn.
+     Sai số dấu phẩy động: A của các Deal cùng giá tham chiếu bằng đúng 1/n (lệch ~1e-15), nên so với 1/n + 1e-9.
+     Khoá trả về giữ tên cũ để prototype trên canvas không phải đổi; tên hiển thị nằm ở i18n (cell.*). */
   function cell(ax, pair, n) {
-    var hiA = ax.A != null && ax.A > 0;
+    var eq = 1 / Math.max(1, n), EPS = 1e-9;
+    var hiA = ax.A != null && ax.A > eq + EPS;
     if (pair === 'AB') return ax.B >= 0 ? (hiA ? 'Dao hai lưỡi' : 'Két sắt') : (hiA ? 'Quả bom' : 'Món chết');
-    var hiC = ax.C != null && ax.C >= 1 / Math.max(1, n);
+    var hiC = ax.C != null && ax.C > eq + EPS;
     return hiC ? (hiA ? 'Thủ phạm chính' : 'Vết thương cũ') : (hiA ? 'Mối nguy kế tiếp' : 'Đứng ngoài');
   }
 

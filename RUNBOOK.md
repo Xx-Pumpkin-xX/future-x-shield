@@ -23,7 +23,7 @@ cd "$HOME\OneDrive\Documents\FBA\future-x-shield"
 npm ci
 npm test
 ```
-Phải thấy `47 pass, 0 fail`, rồi `17 pass, 0 fail`, rồi `56 pass, 0 fail`.
+Phải thấy `51 pass, 0 fail`, rồi `17 pass, 0 fail`, rồi `59 pass, 0 fail`.
 
 Kiểm cả trình duyệt. Máy này không tải được Chromium của Playwright nên dùng Edge có sẵn:
 ```powershell
@@ -32,7 +32,7 @@ $env:E2E_CHANNEL = "msedge"
 node tests/e2e.js
 Remove-Item Env:E2E_CHANNEL
 ```
-Phải thấy `115 pass, 0 fail`.
+Phải thấy `134 pass, 0 fail`.
 
 ## 2. Đẩy lên GitHub
 
@@ -64,7 +64,7 @@ Trên dash.cloudflare.com → **Workers & Pages** → Worker **future-x-shield**
 6. Lưu. Vào tab **Deployments**, bấm build lại commit mới nhất, hoặc push một commit mới.
 
 Phải thấy trong log build:
-- `47 pass, 0 fail`, `17 pass, 0 fail`, `56 pass, 0 fail`;
+- `51 pass, 0 fail`, `17 pass, 0 fail`, `59 pass, 0 fail`;
 - `bản build: <12 ký tự commit> main …`, **không** có `+dirty`;
 - dòng báo deploy thành công của `wrangler`.
 
@@ -79,13 +79,14 @@ $env:EXPECT_COMMIT = (git rev-parse HEAD)
 node tests/e2e.js
 Remove-Item Env:E2E_CHANNEL, Env:E2E_URL, Env:EXPECT_COMMIT
 ```
-Phải thấy `PASS bản build: đúng commit vừa đẩy (…)` và `116 pass, 0 fail`. Nếu commit không khớp: Cloudflare chưa build xong, hoặc Worker chưa nối Git (bước 3).
+Phải thấy `PASS bản build: đúng commit vừa đẩy (…)` và `135 pass, 0 fail`. Nếu commit không khớp: Cloudflare chưa build xong, hoặc Worker chưa nối Git (bước 3).
 
 Trên điện thoại:
 1. Mở địa chỉ trên.
 2. So chân trang ("Bản build …") với `git rev-parse --short=12 HEAD`. Phải giống nhau.
 3. Demo → Lúc đặt lệnh: trước lệnh 25,4%, sau lệnh 2,3% và 10,1%.
 4. Demo → Danh mục thật: mở ở phiên 02/03/2026, Shield đỏ; bấm "Đóng Deal #2" thì câu tóm tắt đổi.
+   Demo → Viễn cảnh: bấm "Mở 1 HĐ long VN30F1M" một lần, khối phải tự xoay sang mặt A × C (hàng trên Past drain / Primary driver).
 5. Kéo khối 3D ở tab Viễn cảnh và Danh mục thật; trên iPhone (Safari) cũng phải xoay được.
 6. Bấm cờ ngôn ngữ, chọn English: cả trang chuyển sang tiếng Anh. Tải lại: vẫn tiếng Anh.
 

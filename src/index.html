@@ -66,121 +66,165 @@
 
 <main id="main" tabindex="-1">
 
-<!-- ============ Tổng quan ============ -->
+<!-- ============ Tổng quan: 9 phần, nền trắng / đỏ nhạt xen kẽ (R3_11 phần A) ============ -->
 <section class="view" data-view="overview">
+  <!-- 1. Hero (trắng) -->
   <div class="hero">
     <img class="hero-art" src="__HERO__" alt="" width="1916" height="821">
     <div class="hero-in">
       <div class="hero-copy">
-        <p class="eyebrow" data-i18n="ov.eyebrow"></p>
+        <p class="kicker" data-i18n="ov.kicker"></p>
         <h1 class="hero-title"><span data-i18n="ov.h1.a"></span> <em data-i18n="ov.h1.b"></em></h1>
-        <p class="lede" data-i18n="ov.lede"></p>
+        <p class="lede lede-1" data-i18n="ov.lede1"></p>
+        <p class="lede" data-i18n="ov.lede2"></p>
         <div class="cta-row">
           <a class="btn primary" href="#/demo/atl" data-i18n="ov.cta.demo"></a>
           <a class="btn" href="#/van-de" data-i18n="ov.cta.problem"></a>
         </div>
-        <p class="hero-note" data-i18n="ov.hero.note"></p>
+        <p class="hero-note" data-i18n="ov.legend"></p>
       </div>
     </div>
   </div>
-  <section class="sec" id="van-de" data-section="problem">
-  <h2 class="sec-title" data-i18n="pb.title"></h2>
-  <div class="split">
-    <div>
-      <h2 data-i18n="pb.mech.title"></h2>
-      <ul class="plain">
-        <li data-i18n="pb.mech.1"></li><li data-i18n="pb.mech.2"></li><li data-i18n="pb.mech.3"></li><li data-i18n="pb.mech.4"></li>
-      </ul>
-      <p class="pull" data-i18n="pb.mech.so"></p>
-    </div>
-    <figure class="pool-fig">
-      <svg viewBox="0 0 420 250" role="img" aria-labelledby="pool-cap">
-        <g class="deals">
-          <rect x="30" y="40" width="70" height="96" rx="4"/><rect x="125" y="40" width="70" height="96" rx="4"/>
-          <rect x="220" y="40" width="70" height="96" rx="4"/><rect class="weak" x="315" y="40" width="70" height="96" rx="4"/>
-          <rect class="fill" x="30" y="70" width="70" height="66"/><rect class="fill" x="125" y="76" width="70" height="60"/>
-          <rect class="fill" x="220" y="80" width="70" height="56"/><rect class="fill weakfill" x="315" y="104" width="70" height="32"/>
-        </g>
-        <text x="65" y="30" text-anchor="middle"><tspan data-i18n="pb.fig.deal"></tspan> 1</text>
-        <text x="160" y="30" text-anchor="middle"><tspan data-i18n="pb.fig.deal"></tspan> 2</text>
-        <text x="255" y="30" text-anchor="middle"><tspan data-i18n="pb.fig.deal"></tspan> 3</text>
-        <text x="350" y="30" text-anchor="middle"><tspan data-i18n="pb.fig.deal"></tspan> 4</text>
-        <path class="flow" d="M350 186 V146"/><path class="flow faint" d="M65 186 V146"/><path class="flow faint" d="M160 186 V146"/><path class="flow faint" d="M255 186 V146"/>
-        <rect class="pool" x="20" y="186" width="380" height="44" rx="6"/>
-        <text class="pool-t" x="210" y="214" text-anchor="middle" data-i18n="pb.fig.pool"></text>
-        <text class="weak-t" x="340" y="170" text-anchor="end" data-i18n="pb.fig.weak"></text>
-      </svg>
-      <figcaption id="pool-cap" class="muted" data-i18n="pb.fig.cap"></figcaption>
-    </figure>
-  </div>
-  <h2 data-i18n="pb.ev.title"></h2>
-  <div class="evidence">
-    <div><p class="big" data-i18n="pb.ev.1.n"></p><p data-i18n="pb.ev.1.t"></p></div>
-    <div><p class="big" data-i18n="pb.ev.2.n"></p><p data-i18n="pb.ev.2.t"></p></div>
-    <div><p class="big" data-i18n="pb.ev.3.n"></p><p data-i18n="pb.ev.3.t"></p></div>
-  </div>
-  <p class="note" data-i18n="pb.ev.method"></p>
-</section>
 
-<!-- ============ Sản phẩm ============ -->
-  <section class="sec" id="san-pham" data-section="product">
-  <h2 class="sec-title" data-i18n="pd.title"></h2>
-  <div class="split">
-    <div>
-      <h2 data-i18n="pd.score.title"></h2>
-      <p class="pull" data-i18n="pd.score.what"></p>
-      <p data-i18n="pd.score.how"></p>
-      <p data-i18n="pd.score.rules"></p>
-    </div>
-    <div>
-      <h2 data-i18n="pd.layers.title"></h2>
-      <div class="table-wrap">
-        <table class="layers">
-          <thead><tr><th data-i18n="pd.layers.h1"></th><th data-i18n="pd.layers.h2"></th><th data-i18n="pd.layers.h3"></th></tr></thead>
-          <tbody>
-            <tr><td data-i18n="pd.l1.a"></td><td data-i18n="pd.l1.b"></td><td data-i18n="pd.l1.c"></td></tr>
-            <tr><td data-i18n="pd.l2.a"></td><td data-i18n="pd.l2.b"></td><td data-i18n="pd.l2.c"></td></tr>
-            <tr><td data-i18n="pd.l3.a"></td><td data-i18n="pd.l3.b"></td><td data-i18n="pd.l3.c"></td></tr>
-          </tbody>
-        </table>
+  <!-- 2. Vấn đề (đỏ nhạt) -->
+  <section class="band tint" id="van-de" data-section="problem">
+    <p class="kicker" data-i18n="pb.kicker"></p>
+    <h2 class="sec-title" data-i18n="pb.title"></h2>
+    <p class="note" data-i18n="pb.example"></p>
+    <div class="pair">
+      <div class="card2">
+        <h3 data-i18n="pb.see.t"></h3>
+        <ul class="see-list" id="pb-see"></ul>
+        <p class="note" data-i18n="pb.see.cap"></p>
+      </div>
+      <div class="card2">
+        <h3 data-i18n="pb.real.t"></h3>
+        <div class="bars" id="pb-bars"></div>
+        <p class="bars-key note" data-i18n="pb.bar.key"></p>
+        <p class="note" id="pb-real-cap"></p>
       </div>
     </div>
-  </div>
-  <h2 data-i18n="pd.axes.title"></h2>
-  <ul class="plain">
-    <li data-i18n="pd.axes.a"></li><li data-i18n="pd.axes.b"></li><li data-i18n="pd.axes.c"></li>
-  </ul>
-  <div class="cells-key">
-    <div><p class="k">A × B</p><ul><li data-i18n="cell.safe"></li><li data-i18n="cell.double"></li><li data-i18n="cell.dead"></li><li data-i18n="cell.bomb"></li></ul></div>
-    <div><p class="k">A × C</p><ul><li data-i18n="cell.out"></li><li data-i18n="cell.next"></li><li data-i18n="cell.old"></li><li data-i18n="cell.main"></li></ul></div>
-  </div>
-  <p class="note" data-i18n="pd.axes.cells"></p>
-  <div class="block">
-    <h2 data-i18n="ov.who.title"></h2>
-    <ol class="years">
-      <li data-i18n="ov.who.y1"></li><li data-i18n="ov.who.y2"></li><li data-i18n="ov.who.y3"></li>
-    </ol>
-  </div>
+    <p class="punch" data-i18n="pb.punch"></p>
+    <details class="fold">
+      <summary data-i18n="pb.rules.t"></summary>
+      <div class="fold-in">
+        <ol class="ladder"><li data-i18n="pb.rules.1"></li><li data-i18n="pb.rules.2"></li><li data-i18n="pb.rules.3"></li></ol>
+        <p data-i18n="pb.rules.eod"></p>
+        <p class="note" data-i18n="pb.rules.note"></p>
+      </div>
+    </details>
   </section>
 
-  <section class="sec" id="luat" data-section="rules">
-  <h2 class="sec-title" data-i18n="ru.title"></h2>
-  <dl class="rules">
-    <div><dt data-i18n="ru.1.t"></dt><dd data-i18n="ru.1.b"></dd></div>
-    <div><dt data-i18n="ru.2.t"></dt><dd data-i18n="ru.2.b"></dd></div>
-    <div><dt data-i18n="ru.3.t"></dt><dd data-i18n="ru.3.b"></dd></div>
-    <div><dt data-i18n="ru.4.t"></dt><dd data-i18n="ru.4.b"></dd></div>
-  </dl>
-  <h2 data-i18n="da.title"></h2>
-  <p class="measure" data-i18n="da.body"></p>
-  <p class="measure note" data-i18n="da.thr"></p>
-  <p class="measure note" data-i18n="da.site"></p>
-  <div class="block">
-    <h2 data-i18n="ov.labels.title"></h2>
-    <ul class="chips">
-      <li data-i18n="ov.label.f"></li><li data-i18n="ov.label.a"></li><li data-i18n="ov.label.m"></li>
+  <!-- 3. Bằng chứng (trắng) -->
+  <section class="band" id="bang-chung" data-section="problem">
+    <p class="kicker" data-i18n="ev.kicker"></p>
+    <h2 class="sec-title" data-i18n="ev.title"></h2>
+    <p class="measure" data-i18n="ev.lede"></p>
+    <ol class="flow3">
+      <li class="card2"><p class="q" data-i18n="ev.q1"></p><p class="big" data-i18n="ev.n1"></p><p data-i18n="ev.a1"></p></li>
+      <li class="card2"><p class="q" data-i18n="ev.q2"></p><p class="big" data-i18n="ev.n2"></p><p data-i18n="ev.a2"></p></li>
+      <li class="card2"><p class="q" data-i18n="ev.q3"></p><p class="big" data-i18n="ev.n3"></p><p data-i18n="ev.a3"></p></li>
+    </ol>
+    <p class="concl" data-i18n="ev.concl"></p>
+    <p class="note" data-i18n="ev.cap"></p>
+  </section>
+
+  <!-- 4. Giải pháp tổng quan + Bước 1 (đỏ nhạt) -->
+  <section class="band tint" id="san-pham" data-section="product">
+    <p class="kicker" data-i18n="so.kicker"></p>
+    <h2 class="sec-title" data-i18n="so.title"></h2>
+    <p class="measure" data-i18n="so.lede"></p>
+    <ol class="map3">
+      <li class="card2"><span class="num">1</span><p class="q" data-i18n="so.m1.q"></p><p data-i18n="so.m1.tool"></p><p class="note" data-i18n="so.m1.when"></p></li>
+      <li class="card2"><span class="num">2</span><p class="q" data-i18n="so.m2.q"></p><p data-i18n="so.m2.tool"></p><p class="note" data-i18n="so.m2.when"></p></li>
+      <li class="card2"><span class="num">3</span><p class="q" data-i18n="so.m3.q"></p><p data-i18n="so.m3.tool"></p><p class="note" data-i18n="so.m3.when"></p></li>
+    </ol>
+    <div class="step">
+      <h3 class="step-t" data-i18n="st1.title"></h3>
+      <p class="pull" data-i18n="st1.what"></p>
+      <figure class="card2 gauge">
+        <div class="ruler-slot" data-ruler="ov"></div>
+        <figcaption class="note" data-i18n="st1.cap"></figcaption>
+      </figure>
+      <p class="measure" data-i18n="st1.colour"></p>
+      <p class="note measure" data-i18n="st1.how"></p>
+    </div>
+  </section>
+
+  <!-- 5. Bước 2: ba thước đo, hai ma trận (trắng) -->
+  <section class="band" id="buoc-2" data-section="product">
+    <h2 class="sec-title" data-i18n="st2.title"></h2>
+    <ul class="abc">
+      <li class="card2"><span class="letter">A</span><p class="q" data-i18n="st2.a.name"></p><p data-i18n="st2.a.q"></p><p class="ex"><span data-i18n="st2.ex"></span> <b id="ex-a"></b></p></li>
+      <li class="card2"><span class="letter">B</span><p class="q" data-i18n="st2.b.name"></p><p data-i18n="st2.b.q"></p><p class="ex"><span data-i18n="st2.ex"></span> <b id="ex-b"></b></p></li>
+      <li class="card2"><span class="letter">C</span><p class="q" data-i18n="st2.c.name"></p><p data-i18n="st2.c.q"></p><p class="ex"><span data-i18n="st2.ex"></span> <b id="ex-c"></b></p></li>
     </ul>
-  </div>
+    <p class="measure" data-i18n="st2.pair"></p>
+    <div class="pair">
+      <div class="card2">
+        <h3 data-i18n="mx.ab.name"></h3>
+        <p class="note" data-i18n="st2.ab.when"></p>
+        <p class="q" data-i18n="st2.ab.q"></p>
+        <div class="matrix" id="ov-mx-ab"></div>
+        <p class="note" data-i18n="mx.size"></p>
+        <p class="focus" data-i18n="st2.ab.focus"></p>
+      </div>
+      <div class="card2">
+        <h3 data-i18n="mx.ac.name"></h3>
+        <p class="note" data-i18n="st2.ac.when"></p>
+        <p class="q" data-i18n="st2.ac.q"></p>
+        <div class="matrix" id="ov-mx-ac"></div>
+        <p class="note" data-i18n="mx.size"></p>
+        <p class="focus" data-i18n="st2.ac.focus"></p>
+      </div>
+    </div>
+    <p class="measure" data-i18n="st2.story"></p>
+    <p class="note" data-i18n="st2.cells"></p>
+    <p class="note measure" data-i18n="st2.sep"></p>
+  </section>
+
+  <!-- 6. Bước 3 + Shield hiện ở đâu (đỏ nhạt) -->
+  <section class="band tint" id="buoc-3" data-section="product">
+    <h2 class="sec-title" data-i18n="st3.title"></h2>
+    <p class="measure" data-i18n="st3.body"></p>
+    <h3 data-i18n="where.title"></h3>
+    <div class="pair">
+      <div class="card2"><h3 data-i18n="where.1.t"></h3><p data-i18n="where.1.b"></p></div>
+      <div class="card2"><h3 data-i18n="where.2.t"></h3><p data-i18n="where.2.b"></p></div>
+    </div>
+  </section>
+
+  <!-- 7. Dành cho ai (trắng) -->
+  <section class="band" id="ai-dung" data-section="product">
+    <p class="kicker" data-i18n="who.kicker"></p>
+    <h2 class="sec-title" data-i18n="who.title"></h2>
+    <ol class="flow3 who">
+      <li class="card2"><span class="people" data-people="1"></span><p class="note" data-i18n="who.y1.t"></p><p class="q" data-i18n="who.y1.h"></p><p data-i18n="who.y1.b"></p></li>
+      <li class="card2"><span class="people" data-people="2"></span><p class="note" data-i18n="who.y2.t"></p><p class="q" data-i18n="who.y2.h"></p><p data-i18n="who.y2.b"></p></li>
+      <li class="card2"><span class="people" data-people="3"></span><p class="note" data-i18n="who.y3.t"></p><p class="q" data-i18n="who.y3.h"></p><p data-i18n="who.y3.b"></p></li>
+    </ol>
+    <p class="pull" data-i18n="who.foot"></p>
+  </section>
+
+  <!-- 8. Luật thiết kế và pháp lý (đỏ nhạt) -->
+  <section class="band tint" id="luat" data-section="rules">
+    <p class="kicker" data-i18n="ru.kicker"></p>
+    <h2 class="sec-title" data-i18n="ru.title"></h2>
+    <dl class="rules">
+      <div class="card2"><dt data-i18n="ru.1.t"></dt><dd data-i18n="ru.1.b"></dd></div>
+      <div class="card2"><dt data-i18n="ru.2.t"></dt><dd data-i18n="ru.2.b"></dd></div>
+      <div class="card2"><dt data-i18n="ru.3.t"></dt><dd data-i18n="ru.3.b"></dd></div>
+      <div class="card2"><dt data-i18n="ru.4.t"></dt><dd data-i18n="ru.4.b"></dd></div>
+    </dl>
+  </section>
+
+  <!-- 9. Dữ liệu (trắng) -->
+  <section class="band" id="du-lieu" data-section="rules">
+    <p class="kicker" data-i18n="da.kicker"></p>
+    <h2 class="sec-title" data-i18n="da.title"></h2>
+    <p class="measure" data-i18n="da.body"></p>
+    <p class="measure note" data-i18n="da.thr"></p>
+    <p class="measure note" data-i18n="da.site"></p>
   </section>
 </section>
 
@@ -232,7 +276,7 @@
       <h2 id="sh-pair"></h2>
       <p class="note" id="sh-why"></p>
       <div class="matrix" id="sh-matrix"></div>
-      <p class="note" data-i18n="sh.size"></p>
+      <p class="note" data-i18n="mx.size"></p>
     </div>
     <div>
       <div class="table-wrap"><table class="deals-t" id="sh-table"></table></div>
@@ -247,6 +291,7 @@
   <h1 data-i18n="sc.title"></h1>
   <p class="lede" data-i18n="sc.lede"></p>
   <p class="note" data-i18n="demo.acc.demo"></p>
+  <p class="tryit" id="sc-try"></p>
   <div class="demo scen">
     <div>
       <h2 data-i18n="sc.add"></h2>
@@ -294,7 +339,7 @@
   <figure class="pt-chart">
     <figcaption class="note" data-i18n="pt.chart"></figcaption>
     <div id="pt-chart"></div>
-    <div class="pt-legend note"><span class="lg liq">×</span><span data-i18n="pt.legend.liq"></span><span class="lg ord">▲▼</span><span data-i18n="pt.legend.order"></span><span class="lg you">◆</span><span data-i18n="pt.legend.you"></span></div>
+    <div class="pt-legend note"><span class="lg liq">×</span><span data-i18n="pt.legend.liq"></span><span class="lg ord">▲▼</span><span data-i18n="pt.legend.order"></span><span class="lg rej">△</span><span data-i18n="pt.legend.rej"></span><span class="lg you">◆</span><span data-i18n="pt.legend.you"></span></div>
     <div class="pt-scrub">
       <button type="button" class="btn" id="pt-prev" data-i18n-attr="aria-label:pt.prev">‹</button>
       <input type="range" id="pt-slider" min="0" max="1" step="1" value="0" data-i18n-attr="aria-label:pt.slider">
