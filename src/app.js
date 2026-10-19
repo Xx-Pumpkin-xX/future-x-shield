@@ -607,6 +607,7 @@
   /* ---------- bản build ---------- */
   var B = window.__BUILD__ || {};
   $('#build-id').textContent = (B.commit || '?') + (B.dirty ? '+dirty' : '') + ' · ' + (B.branch || '?') + ' · ' + (B.time || '?');
+  $('#foot-mark').src = $('.bar .mark').src;
   console.info('[fxs] build', JSON.stringify(B));
 
   applyLang();
