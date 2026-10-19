@@ -7,7 +7,7 @@
   "engines": { "node": ">=18" },
   "scripts": {
     "build": "node build.js",
-    "test": "node tests/test_engine.js && node tests/test_timeline.js && node tests/test_build.js",
+    "test": "node tests/test_engine.js && node tests/test_timeline.js && node tests/test_sim.js && node tests/test_build.js",
     "e2e": "node build.js && node tests/e2e.js"
   },
   "devDependencies": {

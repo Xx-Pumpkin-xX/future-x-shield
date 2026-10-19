@@ -164,7 +164,8 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   ok('Viễn cảnh: gợi ý "Thử" ghi đúng điểm sau 1 lệnh long', (await text(pg, '#sc-try')).includes('↓1,6% ↑2,8%'));
   await pg.click('[data-add="long"]'); await waitFace('AC');
   ok('Viễn cảnh (lỗi B3): "Theo màu", 1 lệnh long → đỏ → khối sang mặt A × C', (await faceNow()) === 'AC' && /Nguy hiểm/.test(await text(pg, '#sc-chain li:last-child .chip')));
-  ok('Viễn cảnh: mặt A × C hiện tên ô mới', /Primary driver/.test(await pg.$eval('#sc-cube svg', s => s.textContent)));
+  await pg.waitForFunction(() => document.querySelector('#sc-cube').dataset.mode === 'flat', null, { timeout: 3000 }).catch(() => {});
+  ok('Viễn cảnh: mặt A × C trải phẳng, hiện tên ô mới', /Primary driver/.test(await pg.$eval('#sc-cube', h => h.textContent)));
   /* kéo lên: pitch tăng từ −80° về gần −10°, tức nhìn lại mặt A × B */
   const cb = await pg.$eval('#sc-cube svg', s => { s.scrollIntoView({ block: 'center' }); const r = s.getBoundingClientRect(); return { x: r.left + 40, y: r.bottom - 20 }; });
   await pg.mouse.move(cb.x, cb.y); await pg.mouse.down(); await pg.mouse.move(cb.x + 10, cb.y - 150, { steps: 8 }); await pg.mouse.up();
@@ -173,6 +174,30 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   ok('Viễn cảnh (lỗi B3): kéo lệch về A × B rồi thêm bước vẫn đỏ → khối tự về A × C (sau kéo: ' + dragged + ')', dragged === 'AB' && (await faceNow()) === 'AC');
   await pg.click('#sc-undo'); await pg.click('#sc-undo'); await waitFace('AB');
   ok('Viễn cảnh: bỏ hết bước → xanh → khối về mặt A × B', (await faceNow()) === 'AB');
+  await pg.context().close();
+
+  /* Khối 3D xoay kiểu bàn xoay; hai mặt A × B, A × C là ma trận 2D phẳng */
+  pg = await openPage(1280, '#/demo/vien-canh');
+  const modeNow = () => pg.$eval('#sc-cube', c => c.dataset.mode);
+  await pg.waitForFunction(() => document.querySelector('#sc-cube').dataset.mode === 'flat', null, { timeout: 3000 }).catch(() => {});
+  ok('Khối: mặt A × B là ma trận 2D phẳng, đủ 3 chấm, có tên ô mới', (await modeNow()) === 'flat' && (await pg.$$('#sc-cube .c3-flat .dot')).length === 3 && /Contained gain/.test(await text(pg, '#sc-cube .c3-flat')));
+  const c0 = await pg.$eval('#sc-cube', h => { h.scrollIntoView({ block: 'center' }); const b = h.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; });
+  const centreOf = () => pg.$eval('#sc-cube svg', s => { const q = [...s.querySelectorAll('.c3-plane.pa, .c3-plane.pb')].flatMap(p => p.getAttribute('points').split(' ').map(v => v.split(',').map(Number)));
+    return [q.reduce((a, v) => a + v[0], 0) / q.length, q.reduce((a, v) => a + v[1], 0) / q.length]; });
+  await pg.mouse.move(c0.x, c0.y); await pg.mouse.down(); const cs = [];
+  for (let i = 1; i <= 5; i++) { await pg.mouse.move(c0.x + i * 30, c0.y - i * 12, { steps: 3 }); cs.push(await centreOf()); }
+  ok('Khối: kéo trên ma trận 2D thì nổi thành 3D', (await modeNow()) === '3d');
+  const drift = Math.max(...cs.map(c => Math.hypot(c[0] - cs[0][0], c[1] - cs[0][1])));
+  ok('Khối: tâm xoay cố định khi kéo (lệch tối đa ' + drift.toFixed(1) + ' px)', drift < 6);
+  await pg.mouse.up(); const yA = +(await pg.$eval('#sc-cube svg', s => s.dataset.yaw)); await pg.waitForTimeout(300);
+  const yB = +(await pg.$eval('#sc-cube svg', s => s.dataset.yaw));
+  ok('Khối: thả tay khi đang kéo thì còn trôi theo quán tính (' + yA + '° → ' + yB + '°)', yB !== yA);
+  await pg.click('[data-face="3d"]'); await pg.waitForTimeout(900);
+  ok('Khối: nút Xoay 3D giữ khối ở dạng 3D', (await modeNow()) === '3d');
+  await pg.click('[data-add="long"]'); await pg.waitForTimeout(900);
+  ok('Khối: ở chế độ Xoay 3D, thêm bước không tự trải phẳng', (await modeNow()) === '3d');
+  await pg.click('[data-face="AC"]'); await pg.waitForFunction(() => document.querySelector('#sc-cube').dataset.mode === 'flat', null, { timeout: 3000 }).catch(() => {});
+  ok('Khối: nút Mặt A × C trải phẳng ma trận A × C', (await modeNow()) === 'flat' && (await faceNow()) === 'AC' && /Primary driver/.test(await text(pg, '#sc-cube .c3-flat')));
   await pg.context().close();
 
   /* 5b. Danh mục thật: khách mẫu trên giá VN30F1M thật */

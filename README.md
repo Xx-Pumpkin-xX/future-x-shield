@@ -15,15 +15,16 @@ Trang Tổng quan là một trang dài 9 phần (hero, Vấn đề, Bằng chứ
 | `data/vn30f1m.csv` | Giá VN30F1M theo ngày, 411 phiên (02/01/2025–28/08/2026), từ `VN30F.xlsx` của team mô phỏng; tạo lại bằng `tools/vn30f_xlsx_to_csv.py`. |
 | `src/index.html` | Khung trang, có 7 chỗ chèn script, 2 chỗ chèn CSS. |
 | `src/app.js` | Hiển thị: định tuyến tab, ngôn ngữ, 4 demo. Không tự tính số. |
-| `src/cube3d.js` | Khối A × B × C 3D vẽ bằng SVG: kéo để xoay, mỗi Deal là một hình cầu theo tỷ lệ cọc. |
+| `src/cube3d.js` | Khối A × B × C 3D vẽ bằng SVG, xoay kiểu bàn xoay (tâm và cỡ cố định, trục B luôn đứng, có quán tính). Mặt A × B và A × C là ma trận 2D phẳng; kéo trên ma trận thì nổi lại thành 3D. Mỗi Deal là một hình cầu theo tỷ trọng cọc. |
 | `assets/logo-icon.png` | Logo khiên ở đầu trang. |
 | `assets/favicon.png` | Cùng logo, cắt vuông 64×64, làm biểu tượng tab trình duyệt. Cả hai được nhúng thẳng vào file build. |
 | `src/i18n.js` | Toàn bộ chữ trên trang, mỗi khoá có cả `vi` và `en`. |
 | `src/style.css` | Giao diện. |
 | `fonts/` | Font Be Vietnam Pro (OFL, xem `fonts/OFL.txt`), nhúng vào file build để không phải tải từ Google. |
 | `build.js` | Ghép tất cả thành `dist/index.html`. |
-| `tests/` | `test_engine.js` (51 kiểm: số vàng và ranh giới ô 1/n), `test_timeline.js` (mô phỏng nhiều phiên, 17 kiểm), `test_build.js` (build, nội dung, cấu hình), `e2e.js` (trình duyệt thật). |
-| `tools/l10b_replica.js` | Thử chạy lại L10b không cần script gốc. Hiện khớp xu hướng, chưa khớp số (xem "Chưa làm"). |
+| `tests/` | `test_engine.js` (51 kiểm: số vàng và ranh giới ô 1/n), `test_timeline.js` (mô phỏng nhiều phiên, 17 kiểm), `test_sim.js` (chạy lại Mô phỏng 1 và 2 của team, so từng dòng với kết quả gốc và với số trên trang, 18 kiểm), `test_build.js` (build, nội dung, cấu hình), `e2e.js` (trình duyệt thật). |
+| `tools/l10_sim.js` | Bản JS dòng-theo-dòng của `l10b_sim.py`, `l10c_sim.py`, `check_ma_tran_1n.py` (gói mô phỏng team gửi 19/10/2026). Mọi số ở phần Bằng chứng trên trang ra từ đây: 38 so với 0, 0,96–1,08×, 16% (6/38), 35 so với 38, 479 phiên, 29% và 94%. `node tools/l10_sim.js` in tóm tắt. |
+| `data/sim/` | Kết quả gốc của team (`l10b_ket_qua.csv`, `l10c_ket_qua.csv`, `l10c_truc.csv`, chạy bằng Python 3.10.12 ngày 19/10). `tests/test_sim.js` so từng dòng. |
 | `wrangler.jsonc` | Cấu hình Cloudflare Workers: chỉ phát thư mục `dist`. |
 | `.github/workflows/pages.yml` | Chạy test và e2e ở mỗi lần push (phần đưa lên GitHub Pages bị tắt khi dùng Cloudflare). Trên máy Phong, file đang chờ ở `ci/pages.yml`: RUNBOOK bước 2 chuyển nó vào đúng chỗ. |
 | `.nvmrc` | Node 20, cho Cloudflare và máy dev dùng cùng phiên bản. |
@@ -39,10 +40,10 @@ Cần Node 18 trở lên.
 
 ```
 npm ci                          # cài playwright (chỉ để chạy e2e)
-npm test                        # "51 pass", "17 pass", rồi "59 pass", đều 0 fail
+npm test                        # "51 pass", "17 pass", "18 pass", rồi "59 pass", đều 0 fail
 node build.js                   # ra dist/index.html và dist/_headers, in commit đã đóng dấu
 npx playwright install chromium # lần đầu; không tải được thì đặt E2E_CHANNEL=msedge
-npm run e2e                     # "134 pass, 0 fail"
+npm run e2e                     # "141 pass, 0 fail"
 ```
 
 Mở `dist/index.html` bằng trình duyệt là xem được, không cần máy chủ.
@@ -78,7 +79,7 @@ Không biến môi trường nào là bắt buộc. `.env.example` liệt kê m�
 - **Tên ô** theo deck (Contained gain … Primary driver), bản VN giữ tên tiếng Anh, nghĩa tiếng Việt in nhỏ bên dưới. Engine vẫn trả khoá tên cũ (Két sắt …) để prototype trên canvas không phải sửa; `app.js` đổi sang tên hiển thị.
 - **Tên “Future X Shield”** là mặc định đang chờ team chốt; xem hồ sơ BA v2 mục 7.
 - **Chưa thử trên Safari iOS thật.** e2e chạy Chromium và Edge. Khối 3D là SVG, kéo bằng pointer events; cần mở thử trên iPhone trước khi gửi link.
-- **Chưa chạy lại được đúng L10b.** Bộ dữ liệu mô phỏng mới có giá nhưng chưa có `l10b_sim.py`, `l10c_sim.py`. `tools/l10b_replica.js` dựng lại theo luật ở KQ_L4 phần 15: ra đúng xu hướng (1 Deal bật tự tăng: 0 Deal bị xử lý; tắt tự tăng: hàng trăm), nhưng nhóm nhiều Deal bật tự tăng ra 12 và 5, so với 24 và 14 của CSV. Cần script gốc để biết khác ở luật nào.
-- **Tab Danh mục thật** dùng luật L10b trên giá thật cho hai khách mẫu tự đặt [M]; không phải một case của L10b.
+- **Mô phỏng 1 và 2 đã chạy lại được đúng từng dòng** (19/10, sau khi nhận script gốc). Bản JS cũ `l10b_replica.js` ra 12 và 5 vì sai 4 luật: cửa sổ 126 phiên, lệnh ngược chiều chỉ đóng Deal cũ chứ không mở mới trong phiên, không kiểm ở giá mở cửa, Deal tự đóng sau 5 phiên. Đã thay bằng `tools/l10_sim.js`.
+- **Tab Danh mục thật** dùng cùng luật Future X (ngưỡng, thứ tự bù, thanh toán cuối ngày) cho hai khách mẫu tự đặt [M], nhưng không phải một case của Mô phỏng 1 và có 3 chỗ khác cách mô phỏng: (1) có kiểm ở giá mở cửa, nên phiên mở cửa nhảy giá thì Deal bị xử lý ở giá mở cửa; (2) đi giá trong phiên từng nấc 0,01% nên Deal bị xử lý đúng ở giá chạm 17,35%, còn mô phỏng xử lý ở giá thấp nhất/cao nhất của phiên; (3) Deal không tự đóng sau 5 phiên. Muốn tab này theo đúng cách mô phỏng thì các mốc ngày và giá trong câu kết luận (leader đã duyệt) sẽ đổi.
 - **Khách mẫu có lúc cọc ngoài Deal âm** (ví dụ khách B sau 03/04/2025). Mô phỏng chưa có bước gọi ký quỹ khi cọc ngoài Deal âm.
 - **Ngưỡng 18,48% / 17,71% / 17,35%** lấy từ ví dụ FAQ, cần DNSE xác nhận [A].

@@ -23,7 +23,7 @@ cd "$HOME\OneDrive\Documents\FBA\future-x-shield"
 npm ci
 npm test
 ```
-Phải thấy `51 pass, 0 fail`, rồi `17 pass, 0 fail`, rồi `59 pass, 0 fail`.
+Phải thấy `51 pass, 0 fail`, `17 pass, 0 fail`, `18 pass, 0 fail`, rồi `59 pass, 0 fail`.
 
 Kiểm cả trình duyệt. Máy này không tải được Chromium của Playwright nên dùng Edge có sẵn:
 ```powershell
@@ -32,7 +32,7 @@ $env:E2E_CHANNEL = "msedge"
 node tests/e2e.js
 Remove-Item Env:E2E_CHANNEL
 ```
-Phải thấy `134 pass, 0 fail`.
+Phải thấy `141 pass, 0 fail`.
 
 ## 2. Đẩy lên GitHub
 
@@ -64,7 +64,7 @@ Trên dash.cloudflare.com → **Workers & Pages** → Worker **future-x-shield**
 6. Lưu. Vào tab **Deployments**, bấm build lại commit mới nhất, hoặc push một commit mới.
 
 Phải thấy trong log build:
-- `51 pass, 0 fail`, `17 pass, 0 fail`, `59 pass, 0 fail`;
+- `51 pass, 0 fail`, `17 pass, 0 fail`, `18 pass, 0 fail`, `59 pass, 0 fail`;
 - `bản build: <12 ký tự commit> main …`, **không** có `+dirty`;
 - dòng báo deploy thành công của `wrangler`.
 
@@ -79,7 +79,7 @@ $env:EXPECT_COMMIT = (git rev-parse HEAD)
 node tests/e2e.js
 Remove-Item Env:E2E_CHANNEL, Env:E2E_URL, Env:EXPECT_COMMIT
 ```
-Phải thấy `PASS bản build: đúng commit vừa đẩy (…)` và `135 pass, 0 fail`. Nếu commit không khớp: Cloudflare chưa build xong, hoặc Worker chưa nối Git (bước 3).
+Phải thấy `PASS bản build: đúng commit vừa đẩy (…)` và `142 pass, 0 fail`. Nếu commit không khớp: Cloudflare chưa build xong, hoặc Worker chưa nối Git (bước 3).
 
 Trên điện thoại:
 1. Mở địa chỉ trên.
@@ -93,7 +93,7 @@ Trên điện thoại:
 ## 5. Sửa bộ tính hoặc dữ liệu giá
 
 - **Bộ tính:** sửa `FBA\prototype_engine\engine.js`, chép sang `future-x-shield\engine\engine.js`, chạy test ở cả hai chỗ. Build trên máy dừng nếu hai file khác nhau.
-- **Giá VN30F1M:** có file giá mới thì chạy `python tools/vn30f_xlsx_to_csv.py "<đường dẫn VN30F.xlsx>"` để ghi lại `data/vn30f1m.csv`, rồi chạy test. Các mốc của khách mẫu trong `tests/test_timeline.js` sẽ báo nếu số đổi.
+- **Giá VN30F1M:** có file giá mới thì chạy `python tools/vn30f_xlsx_to_csv.py "<đường dẫn VN30F.xlsx>"` để ghi lại `data/vn30f1m.csv`, rồi chạy test. Các mốc của khách mẫu trong `tests/test_timeline.js` và kết quả mô phỏng trong `tests/test_sim.js` sẽ báo nếu số đổi. Nếu team chạy lại mô phỏng với giá mới, chép 3 file kết quả của họ vào `data/sim/`.
 - Không bao giờ sửa `dist/`: script bị sửa tay sẽ bị CSP chặn.
 
 ## 6. Quay lại bản trước

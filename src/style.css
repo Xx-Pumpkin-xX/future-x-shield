@@ -331,9 +331,16 @@ legend { font-size: 13px; color: var(--ink2); padding: 0; margin-bottom: 6px; }
 }
 
 /* ---------- khối 3D (SVG) ---------- */
-.stage3d { background: #F7F9FB; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; touch-action: pan-y; }
-.cube3d { display: block; width: 100%; height: auto; max-height: 380px; cursor: grab; user-select: none; -webkit-user-select: none; }
-.cube3d:active { cursor: grabbing; }
+/* touch-action: none như các mô hình 3D: kéo dọc trên khối để nghiêng, không cuộn trang */
+.stage3d { position: relative; background: #F7F9FB; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.stage3d:active { cursor: grabbing; }
+.cube3d.c3-gone { visibility: hidden; }
+.c3-flat { position: absolute; inset: 0; padding: 10px 14px 6px; background: #FFFFFF; }
+.c3-flat .mx-plot { height: auto; flex: 1; min-height: 0; }
+.c3-flat .mx-tx { margin-top: 16px; }
+.c3-flat-hint { font-size: 11px; color: var(--ink2); text-align: right; }
+.dot.sel { box-shadow: 0 0 0 3px var(--blue); }
+.cube3d { display: block; width: 100%; height: auto; max-height: 380px; }
 .cube3d:focus-visible { outline: 3px solid var(--blue); outline-offset: -3px; }
 .c3-edge { stroke: var(--ink2); stroke-width: 1.2; }
 .c3-edge.back { stroke: var(--far); stroke-dasharray: 3 4; }

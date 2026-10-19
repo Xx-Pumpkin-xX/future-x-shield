@@ -146,7 +146,8 @@
      Trục ngang luôn là A (trái thấp, phải cao); trục dọc B (A × B) hoặc C (A × C), dưới thấp, trên cao.
      Vạch nét đứt: A = 1/n, B = 0 (hòa vốn), C = 1/n. Hai ô bên phải (A cao) nền hồng, hai ô bên trái nền trắng;
      không tô xanh/đỏ theo B hay C. Chấm ghi "#id", cỡ chấm theo tỷ trọng cọc. */
-  function matrixHTML(ax, pair) {
+  function matrixHTML(ax, pair, k) {
+    k = k || 1; /* k < 1: chấm nhỏ hơn, dùng trong khung khối 3D */
     var n = ax.length;
     var bMax = Math.max(0.02, Math.max.apply(null, ax.map(function (r) { return Math.abs(r.B); }).concat([0])) * 1.3);
     var names = pair === 'AB' ? [['Két sắt', 'Dao hai lưỡi'], ['Món chết', 'Quả bom']] : [['Vết thương cũ', 'Thủ phạm chính'], ['Đứng ngoài', 'Mối nguy kế tiếp']];
@@ -160,8 +161,9 @@
       '<span class="m-lab v">' + t('mx.eq', { n: n }) + '</span>' +
       '<span class="m-lab h">' + (pair === 'AB' ? t('mx.be') : t('mx.eq', { n: n })) + '</span>';
     ax.slice().sort(function (a, b) { return b.w - a.w; }).forEach(function (r) {
-      var size = Math.round(22 + Math.sqrt(Math.max(0, r.w)) * 40), nm = SE.cell(r, pair, n);
-      var x = 9 + posA(r.A, n) * 82, y = pair === 'AB' ? 50 - Math.max(-1, Math.min(1, r.B / bMax)) * 40 : 90 - posC(r.C, n) * 80;
+      var size = Math.round((22 + Math.sqrt(Math.max(0, r.w)) * 40) * k), nm = SE.cell(r, pair, n);
+      /* chừa dải trên/dưới cho tên ô: chấm nằm trong 18–82% chiều cao */
+      var x = 9 + posA(r.A, n) * 82, y = pair === 'AB' ? 50 - Math.max(-1, Math.min(1, r.B / bMax)) * 32 : 82 - posC(r.C, n) * 64;
       h += '<span class="dot' + (hiOf(r.A, n) ? ' hi' : '') + '" data-id="' + r.id + '" data-cell="' + CELL[nm] + '" style="left:' + x.toFixed(1) + '%;top:' + y.toFixed(1) + '%;width:' + size + 'px;height:' + size +
         'px;margin:' + (-size / 2) + 'px 0 0 ' + (-size / 2) + 'px" title="Deal #' + r.id + ' · ' + cellName(nm) + '">#' + r.id + '</span>';
     });
@@ -279,12 +281,13 @@
     $$('[data-face]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.face === scn.face)); });
     if (!scCube) scCube = Cube3D.mount($('#sc-cube'), {});
     var cd = cubePoints(a, last.dir);
-    scCube.update(cd.pts, { bMax: cd.bMax, n: cd.n, cMid: 0.5, face: scn.face, tone: tone, labels: cubeLabels() });
+    scCube.update(cd.pts, { bMax: cd.bMax, n: cd.n, cMid: 0.5, face: scn.face, tone: tone, labels: cubeLabels(), flat: cd.flat,
+      key: JSON.stringify(scn.steps) });
   }
 
   /* ---------- khối 3D dùng chung ---------- */
   function cubeLabels() {
-    return { a: t('cube.a'), b: t('cube.b'), c: t('cube.c'), hint: t('cube.hint'),
+    return { a: t('cube.a'), b: t('cube.b'), c: t('cube.c'), hint: t('cube.hint'), flatHint: t('cube.flathint'),
       cells: ['Két sắt', 'Dao hai lưỡi', 'Món chết', 'Quả bom'].map(cellName),
       cellsAC: ['Vết thương cũ', 'Thủ phạm chính', 'Đứng ngoài', 'Mối nguy kế tiếp'].map(cellName) };
   }
@@ -292,7 +295,8 @@
   function cubePoints(acc, dir) {
     var ax = SE.axes(acc, dir || 1), n = ax.length;
     var bMax = Math.max(0.02, Math.max.apply(null, ax.map(function (r) { return Math.abs(r.B); }).concat([0])) * 1.3);
-    return { n: n, bMax: bMax, pts: ax.map(function (r) {
+    /* hai mặt phẳng 2D (cùng hình vẽ với ma trận ở Tổng quan và Shield hai chiều) */
+    return { n: n, bMax: bMax, flat: { AB: matrixHTML(ax, 'AB', 0.8), AC: matrixHTML(ax, 'AC', 0.8) }, pts: ax.map(function (r) {
       return { id: r.id, A: posA(r.A, n) * 2 - 1, B: r.B, C: posC(r.C, n), w: r.w, heat: hiOf(r.A, n) ? 'hot' : 'cool',
         title: t('cube.title', { id: r.id, a: r.A == null ? '—' : fmt(r.A * 100, 1) + '%',
           b: (r.B >= 0 ? '+' : '−') + fmt(Math.abs(r.B) * 100, 2) + '%', c: r.C == null ? t('sh.c.none') : fmt(r.C * 100, 0) + '%' }) };
@@ -439,7 +443,8 @@
     $('#pt-events').innerHTML = evs.length ? evs.map(function (e) { return '<li class="ev-' + e.type + '">' + ptEventText(e) + '</li>'; }).join('') : '<li>' + t('pt.events.none') + '</li>';
     if (!ptCube) ptCube = Cube3D.mount($('#pt-cube'), { onSelect: function (id) { pt.sel = id; renderPortfolio(); } });
     var cd = cubePoints({ P: sn.P, F: sn.F, deals: sn.deals, K0: sn.K0 }, sc.dir);
-    ptCube.update(cd.pts, { bMax: cd.bMax, n: cd.n, cMid: 0.5, face: pt.face, tone: toneOf(sc), labels: cubeLabels() });
+    ptCube.update(cd.pts, { bMax: cd.bMax, n: cd.n, cMid: 0.5, face: pt.face, tone: toneOf(sc), labels: cubeLabels(), flat: cd.flat,
+      key: pt.preset + '|' + pt.t + '|' + JSON.stringify(pt.mine) });
     if (pt.sel != null) ptCube.select(pt.sel);
     var last = pt.t >= s1;
     $('#pt-decide').textContent = t('pt.decide', { d: fmtDate(pt.t) });
@@ -591,9 +596,9 @@
       scn.steps = scn.steps.concat([s]); renderScenario();
     }
     else if (ds.close) { scn.steps = scn.steps.concat([{ type: 'close', id: +ds.close }]); renderScenario(); }
-    else if (ds.face) { scn.face = ds.face; if (scCube) { if (ds.face === 'auto') scCube.state.face = null; else scCube.face(ds.face); } renderScenario(); }
+    else if (ds.face) { scn.face = ds.face; if (scCube) scCube.reset(); renderScenario(); }
     else if (ds.preset) { pt.preset = ds.preset; pt.mine = []; pt.t = null; pt.sel = null; renderPortfolio(); }
-    else if (ds.pface) { pt.face = ds.pface; if (ptCube) { if (ds.pface === 'auto') ptCube.state.face = null; else ptCube.face(ds.pface); } renderPortfolio(); }
+    else if (ds.pface) { pt.face = ds.pface; if (ptCube) ptCube.reset(); renderPortfolio(); }
     else if (ds.ptact) { ptAddAction(ds.ptact, +ds.id); }
     else if (ds.rm != null) { pt.mine = pt.mine.filter(function (x, i) { return i !== +ds.rm; }); renderPortfolio(); }
     else if (b.id === 'pt-prev') { pt.t--; renderPortfolio(); }

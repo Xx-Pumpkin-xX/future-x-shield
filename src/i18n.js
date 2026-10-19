@@ -87,7 +87,7 @@ var I18N = {
     'st2.ac.focus': 'Primary driver: Deal đã hút cọc dự phòng và sẽ còn tiêu hao đệm.',
     'st2.story': 'Khi danh mục demo đang xanh, Deal #1 nằm ở ô Exposed loss: chỉ chiếm 25% cọc nhưng gánh 61% rủi ro. Sau khi mở thêm 1 hợp đồng long, tài khoản chuyển đỏ và Shield chuyển sang Ma trận Truy nguyên rủi ro: Deal #1 thành Primary driver (đã hút 81% cọc dự phòng), còn Deal #4 mới mở hiện ở ô Emerging driver.',
     'st2.cells': 'Tên ô chỉ mô tả vị trí trên hai trục, không phải lời khuyên.',
-    'st2.sep': 'Ma trận có thật sự tách được các Deal không? Trên 479 thời điểm mô phỏng có từ 2 Deal trở lên (Mô phỏng 2 [M]), các Deal rơi vào các ô khác nhau ở 29% số thời điểm với Ma trận Cảm nhận – Rủi ro và 99% với Ma trận Truy nguyên rủi ro. Một Deal được xếp \'cao\' khi gánh nhiều hơn phần chia đều (1/n); ranh giới này là lựa chọn thiết kế [A].',
+    'st2.sep': 'Ma trận có thật sự tách được các Deal không? Trên 479 thời điểm mô phỏng có từ 2 Deal trở lên (Mô phỏng 2 [M]), các Deal rơi vào các ô khác nhau ở 29% số thời điểm với Ma trận Cảm nhận – Rủi ro và 94% với Ma trận Truy nguyên rủi ro. Một Deal được xếp \'cao\' khi gánh nhiều hơn phần chia đều (1/n); ranh giới này là lựa chọn thiết kế [A].',
 
     /* Ma trận dùng chung (A7) */
     'mx.ab.name': 'Ma trận Cảm nhận – Rủi ro', 'mx.ac.name': 'Ma trận Truy nguyên rủi ro',
@@ -198,7 +198,7 @@ var I18N = {
     'sc.processed': 'Deal bị xử lý trong chuỗi này: #{ids}.',
     'sc.state': 'Giá {p}, cọc ngoài Deal {f} triệu, {n}.',
     'sc.cube': 'Khối A × B × C',
-    'sc.face.auto': 'Theo màu', 'sc.face.ab': 'Mặt A × B', 'sc.face.ac': 'Mặt A × C',
+    'sc.face.auto': 'Theo màu', 'sc.face.ab': 'Mặt A × B', 'sc.face.ac': 'Mặt A × C', 'sc.face.3d': 'Xoay 3D',
     'sc.cube.note': 'Kéo để xoay khối. Mỗi hình cầu là một Deal, cỡ theo tỷ trọng cọc của Deal. Khi điểm chuyển đỏ, khối xoay sang mặt Truy nguyên rủi ro (A × C).',
     'sc.foot': 'Mọi lối thoát hiện ngang nhau. Không có nút “làm theo”.',
 
@@ -241,7 +241,7 @@ var I18N = {
     'pt.i.more': 'Tổng cộng {n} bị xử lý trong giai đoạn này.',
 
     /* Khối 3D */
-    'cube.a': 'A · Đóng góp rủi ro →', 'cube.b': 'B · Lãi lỗ ↑', 'cube.c': 'C · Hút dự phòng', 'cube.hint': 'Kéo để xoay',
+    'cube.a': 'A · Đóng góp rủi ro →', 'cube.b': 'B · Lãi lỗ ↑', 'cube.c': 'C · Hút dự phòng', 'cube.hint': 'Kéo để xoay · bấm đúp để về góc nhìn 3D', 'cube.flathint': 'Kéo để xoay thành khối 3D',
     'cube.title': '#{id}: A {a}, B {b}, C {c}',
 
     /* Chân trang */
@@ -329,7 +329,7 @@ var I18N = {
     'st2.ac.focus': 'Primary driver: a Deal that has already drawn the reserve and will keep consuming buffer.',
     'st2.story': 'While the demo portfolio is green, Deal #1 sits in Exposed loss: it holds only 25% of the margin but carries 61% of the risk. After one more long contract, the account turns red and Shield switches to the Attribution Matrix: Deal #1 becomes the Primary driver (it has already drawn 81% of the reserve), and the new Deal #4 appears as an Emerging driver.',
     'st2.cells': 'Cell names describe position on the two axes only. They are not advice.',
-    'st2.sep': 'Does the matrix actually tell Deals apart? Across 479 simulated snapshots with two or more Deals (Simulation 2 [M]), the Deals fell into different cells 29% of the time on the Perception–Risk Matrix and 99% of the time on the Attribution Matrix. A Deal counts as \'high\' when it carries more than an equal share (1/n) of the total; this boundary is a design choice [A].',
+    'st2.sep': 'Does the matrix actually tell Deals apart? Across 479 simulated snapshots with two or more Deals (Simulation 2 [M]), the Deals fell into different cells 29% of the time on the Perception–Risk Matrix and 94% of the time on the Attribution Matrix. A Deal counts as \'high\' when it carries more than an equal share (1/n) of the total; this boundary is a design choice [A].',
 
     'mx.ab.name': 'Perception–Risk Matrix', 'mx.ac.name': 'Attribution Matrix',
     'mx.ax.a': 'A · Risk contribution →', 'mx.ax.b': 'B · P&L since opening ↑', 'mx.ax.c': 'C · Reserve draw ↑',
@@ -430,7 +430,7 @@ var I18N = {
     'sc.processed': 'Deals force-closed in this chain: #{ids}.',
     'sc.state': 'Price {p}, {f} million VND of unallocated margin, {n}.',
     'sc.cube': 'The A × B × C cube',
-    'sc.face.auto': 'Follow colour', 'sc.face.ab': 'A × B face', 'sc.face.ac': 'A × C face',
+    'sc.face.auto': 'Follow colour', 'sc.face.ab': 'A × B face', 'sc.face.ac': 'A × C face', 'sc.face.3d': 'Free 3D',
     'sc.cube.note': 'Drag to rotate. Each sphere is a Deal, sized by its share of Deal margin. When the score turns red (danger), the cube rotates to the Attribution (A × C) face.',
     'sc.foot': 'Every way out is shown on equal terms. There is no “do this” button.',
 
@@ -471,7 +471,7 @@ var I18N = {
     'pt.i.none': 'No Deal was force-closed in this period.',
     'pt.i.more': 'In total, {n} were force-closed in this period.',
 
-    'cube.a': 'A · Risk contribution →', 'cube.b': 'B · P&L ↑', 'cube.c': 'C · Reserve draw', 'cube.hint': 'Drag to rotate',
+    'cube.a': 'A · Risk contribution →', 'cube.b': 'B · P&L ↑', 'cube.c': 'C · Reserve draw', 'cube.hint': 'Drag to rotate · double-click to reset', 'cube.flathint': 'Drag to turn it into the 3D cube',
     'cube.title': '#{id}: A {a}, B {b}, C {c}',
 
     'ft.disc': 'A concept by an FBA 2026 competition team. Not a DNSE product or official DNSE interface. Figures labelled [M] are simulated.',
