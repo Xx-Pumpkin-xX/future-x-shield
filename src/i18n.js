@@ -246,7 +246,9 @@ var I18N = {
 
     /* Chân trang */
     'ft.disc': 'Concept của đội thi FBA 2026. Không phải sản phẩm hay giao diện chính thức của DNSE. Số có nhãn [M] là mô phỏng.',
-    'ft.src': 'Nguồn: brief sản phẩm của team (bàn giao 16/10/2026), FAQ phái sinh DNSE, báo cáo thường niên DNSE 2025.',
+    'ft.proj.t': 'Dự án', 'ft.proj.1': 'DNSE Future X · phái sinh VN30F', 'ft.proj.2': 'Future Business Analyst 2026', 'ft.proj.3': 'Vòng 3',
+    'ft.src.t': 'Nguồn', 'ft.src.1': 'Brief sản phẩm của team (bàn giao 16/10/2026)', 'ft.src.2': 'FAQ phái sinh DNSE', 'ft.src.3': 'Báo cáo thường niên DNSE 2025',
+    'ft.copy': '© 2026 Future X Shield · Concept dự thi FBA 2026',
     'ft.build': 'Bản build'
   },
 
@@ -475,7 +477,9 @@ var I18N = {
     'cube.title': '#{id}: A {a}, B {b}, C {c}',
 
     'ft.disc': 'A concept by an FBA 2026 competition team. Not a DNSE product or official DNSE interface. Figures labelled [M] are simulated.',
-    'ft.src': 'Sources: the team’s product brief (handover 16 Oct 2026), DNSE derivatives FAQ, DNSE annual report 2025.',
+    'ft.proj.t': 'Project', 'ft.proj.1': 'DNSE Future X · VN30F futures', 'ft.proj.2': 'Future Business Analyst 2026', 'ft.proj.3': 'Round 3',
+    'ft.src.t': 'Sources', 'ft.src.1': 'Team product brief (handover 16 Oct 2026)', 'ft.src.2': 'DNSE derivatives FAQ', 'ft.src.3': 'DNSE annual report 2025',
+    'ft.copy': '© 2026 Future X Shield · FBA 2026 competition concept',
     'ft.build': 'Build'
   }
 };
