@@ -41,7 +41,7 @@ npm ci                          # cài playwright (chỉ để chạy e2e)
 npm test                        # "51 pass", "17 pass", "18 pass", rồi "59 pass", đều 0 fail
 node build.js                   # ra dist/index.html và dist/_headers, in commit đã đóng dấu
 npx playwright install chromium # lần đầu; không tải được thì đặt E2E_CHANNEL=msedge
-npm run e2e                     # "144 pass, 0 fail"
+npm run e2e                     # "146 pass, 0 fail"
 ```
 
 Mở `dist/index.html` bằng trình duyệt là xem được, không cần máy chủ.

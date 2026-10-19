@@ -194,7 +194,19 @@
     });
     return h + '</div><div class="mx-foot"><span class="m-lab v">' + t('mx.eq', { n: n }) + '</span><span class="mx-title x">' + t('mx.ax.a') + '</span></div>';
   }
-  function drawMatrix(host, ax, pair) { host.innerHTML = matrixHTML(ax, pair); host.setAttribute('data-pair', pair); }
+  function drawMatrix(host, ax, pair) {
+    var old = {};
+    $$('.dot', host).forEach(function (d) { var r = d.getBoundingClientRect(); old[d.dataset.id] = [r.left, r.top]; });
+    host.innerHTML = matrixHTML(ax, pair); host.setAttribute('data-pair', pair);
+    if (reducedMotion()) return;
+    $$('.dot', host).forEach(function (d) {
+      var o = old[d.dataset.id]; if (!o) { d.classList.add('dot-in'); return; }
+      var r = d.getBoundingClientRect(), dx = o[0] - r.left, dy = o[1] - r.top;
+      if (Math.abs(dx) + Math.abs(dy) < 1) return;
+      d.style.transform = 'translate(' + dx + 'px,' + dy + 'px)'; d.style.transition = 'none';
+      requestAnimationFrame(function () { requestAnimationFrame(function () { d.style.transition = ''; d.style.transform = ''; }); });
+    });
+  }
 
   /* ---------- Demo: Shield hai chiều ---------- */
   var sh = { view: 'now' };
@@ -234,8 +246,23 @@
       axNow: SE.axes(demo, sDemo.dir || 1), axAfter: SE.axes(demo1, sDemo1.dir || 1) };
   });
   function bar(label, w0, w1) {
-    return '<div class="hbar"><p>' + label + '</p><div class="hb-track"><span class="hb0" style="width:' + (w0 * 100).toFixed(1) + '%"></span>' +
-      '<span class="hb1" style="width:' + (w1 * 100).toFixed(1) + '%"></span></div></div>';
+    return '<div class="hbar"><p>' + label + '</p><div class="hb-track" style="--w0:' + (w0 * 100).toFixed(1) + '%;--w1:' + (w1 * 100).toFixed(1) + '%">' +
+      '<span class="hb0"></span><span class="hb1"></span></div></div>';
+  }
+  function reducedMotion() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return true; } }
+  /* Khoảnh khắc chính của trang: lần đầu phần Vấn đề vào khung nhìn, vệt đỏ (sau lệnh) rút từ mức trước lệnh
+     về mức sau lệnh: cọc chung 80 → 6 triệu. Chỉ chạy một lần; giảm chuyển động hoặc trình duyệt cũ thì hiện ngay kết quả. */
+  var barsPlayed = false;
+  function armBars() {
+    var el = $('#pb-bars');
+    if (barsPlayed || reducedMotion() || !('IntersectionObserver' in window)) return;
+    el.classList.add('pending');
+    var io = new IntersectionObserver(function (es) {
+      if (!es.some(function (e) { return e.isIntersecting; })) return;
+      io.disconnect(); barsPlayed = true;
+      requestAnimationFrame(function () { el.classList.remove('pending'); });
+    }, { threshold: 0.6 });
+    io.observe(el);
   }
   function renderOverview() {
     var c = ovCalc('x'), dep = SE.depositFor(1, 2000);
@@ -245,6 +272,7 @@
     $('#pb-bars').innerHTML =
       bar(t('pb.bar.f', { a: fmt(c.atlA.F, 0), b: fmt(c.atlR.F, 0) }), 1, c.atlR.F / c.atlA.F) +
       bar(t('pb.bar.x', { a: pct(c.s0.down), b: pct(c.s1.down) }), c.s0.down / SCALE, c.s1.down / SCALE);
+    armBars();
     $('#pb-real-cap').textContent = t('pb.real.cap', { dep: fmt(dep, 2) });
     updateRuler($('[data-ruler="ov"]'), c.sDemo);
     var d1 = c.axNow[0];
@@ -570,6 +598,7 @@
   function onScroll() {
     var onOverview = document.body.getAttribute('data-route') === 'overview';
     $('.bar').classList.toggle('clear', onOverview && window.scrollY < 8);
+    $('.bar').classList.toggle('scrolled', window.scrollY >= 8);
     if (!onOverview) return;
     var line = window.innerHeight * 0.35, cur = 'overview';
     $$('[data-section]').forEach(function (s) { if (s.getBoundingClientRect().top <= line) cur = s.dataset.section; });

@@ -197,7 +197,7 @@ var I18N = {
     'sc.processed': 'Deal bị xử lý trong chuỗi này: #{ids}.',
     'sc.state': 'Giá {p}, cọc ngoài Deal {f} triệu, {n}.',
     'sc.cube': 'Khối A × B × C',
-    'sc.face.auto': 'Theo màu', 'sc.face.ab': 'Mặt A × B', 'sc.face.ac': 'Mặt A × C', 'sc.face.3d': 'Xoay 3D',
+    'sc.face.auto': 'Theo màu', 'sc.face.ab': 'Ma trận Cảm nhận – Rủi ro', 'sc.face.ac': 'Ma trận Truy nguyên rủi ro', 'sc.face.3d': 'Xoay 3D',
     'sc.cube.note': 'Kéo để xoay khối. Mỗi hình cầu là một Deal, cỡ theo tỷ trọng cọc của Deal. Khi điểm chuyển đỏ, khối xoay sang mặt Truy nguyên rủi ro (A × C).',
     'sc.foot': 'Mọi lối thoát hiện ngang nhau. Không có nút “làm theo”.',
 
@@ -431,7 +431,7 @@ var I18N = {
     'sc.processed': 'Deals force-closed in this chain: #{ids}.',
     'sc.state': 'Price {p}, {f} million VND of unallocated margin, {n}.',
     'sc.cube': 'The A × B × C cube',
-    'sc.face.auto': 'Follow colour', 'sc.face.ab': 'A × B face', 'sc.face.ac': 'A × C face', 'sc.face.3d': 'Free 3D',
+    'sc.face.auto': 'Follow colour', 'sc.face.ab': 'Perception–Risk Matrix', 'sc.face.ac': 'Attribution Matrix', 'sc.face.3d': 'Free 3D',
     'sc.cube.note': 'Drag to rotate. Each sphere is a Deal, sized by its share of Deal margin. When the score turns red (danger), the cube rotates to the Attribution (A × C) face.',
     'sc.foot': 'Every way out is shown on equal terms. There is no “do this” button.',
 

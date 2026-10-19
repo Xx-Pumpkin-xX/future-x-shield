@@ -14,7 +14,8 @@
   --red: #D23B3B;   --red-bg: #FADCDC;   --red-ink: #8A1C1C;
   --bar-h: 68px;
   --brand: #8C1D22; --brand-600: #A3262C; --brand-50: #FBF1F1; --brand-100: #F6E1E2;
-  --wide: 1120px;
+  --wide: 1280px;
+  --prose: 46rem; /* một độ rộng cột chữ cho mọi đoạn văn trên trang Tổng quan */
   --measure: 68ch;
 }
 *, *::before, *::after { box-sizing: border-box; }
@@ -169,6 +170,10 @@ ol.years li { padding: 14px 18px 4px 0; font-size: 15px; }
 .seg button { min-height: 44px; padding: 0 16px; border: 0; border-right: 1px solid var(--rule); background: transparent; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink2); }
 .seg button:last-child { border-right: 0; }
 .seg button[aria-pressed="true"] { background: var(--brand); color: #fff; }
+/* nút chọn mặt khối: tên ma trận dài, xếp lưới 2 × 2 cho gọn, không gãy viền khi xuống dòng */
+.cube-box .seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-self: stretch; }
+.cube-box .seg button { border-bottom: 1px solid var(--rule); padding: 6px 12px; line-height: 1.3; }
+.cube-box .seg button:nth-child(2n) { border-right: 0; } .cube-box .seg button:nth-child(n+3) { border-bottom: 0; }
 
 /* ---------- thước giá hai chiều ---------- */
 .ruler { display: flex; flex-direction: column; gap: 8px; }
@@ -412,7 +417,10 @@ body[data-route="overview"] { background: #FFFFFF; }
 .view[data-view="overview"] { gap: 0; }
 .band { margin: 0 calc(50% - 50vw); padding: 64px max(24px, calc(50vw - 50% + 0px)); display: flex; flex-direction: column; gap: 20px; scroll-margin-top: var(--bar-h); background: #FFFFFF; }
 .band.tint { background: #FDF0F0; }
-.band .sec-title { color: var(--ink); max-width: 30ch; }
+/* tiêu đề phần: một dòng trên máy tính (góp ý 19/10), xuống dòng cân đối trên điện thoại */
+.band .sec-title { color: var(--ink); max-width: none; font-size: clamp(24px, 2.5vw, 34px); text-wrap: balance; }
+.band .measure, .band .pull, .band .punch, .band > p.note, .step > p { max-width: var(--prose); }
+.band .pull { font-size: 18px; }
 .kicker { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--brand); }
 .hero .kicker { display: block; }
 .hero .lede.lede-1 { font-size: 19px; font-weight: 600; color: var(--ink); line-height: 1.45; }
@@ -429,7 +437,9 @@ body[data-route="overview"] { background: #FFFFFF; }
 .hbar p { font-size: 15px; font-weight: 600; color: var(--ink); }
 .hb-track { position: relative; height: 16px; background: #EEEEEE; border-radius: 8px; overflow: hidden; }
 .hb0, .hb1 { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 8px; }
-.hb0 { background: #BDBDBD; } .hb1 { background: var(--brand); }
+.hb0 { background: #BDBDBD; width: var(--w0); } .hb1 { background: var(--brand); width: var(--w1); transition: width 1.6s cubic-bezier(.45, 0, .2, 1) .35s; }
+.bars.pending .hb1 { width: var(--w0); transition: none; }
+.hbar + .hbar .hb1 { transition-delay: .6s; }
 .bars-key .k0 { color: #BDBDBD; } .bars-key .k1 { color: var(--brand); }
 .punch { font-size: 18px; font-weight: 700; line-height: 1.45; color: var(--ink); max-width: 70ch; }
 .fold { background: #FFFFFF; border: 1px solid #E8D5D5; border-radius: 12px; }
@@ -449,7 +459,8 @@ body[data-route="overview"] { background: #FFFFFF; }
 .ex { font-size: 14px; color: var(--ink2); margin-top: auto; }
 .ex b { font-size: 18px; color: var(--ink); }
 .step { display: flex; flex-direction: column; gap: 14px; }
-.step-t { font-size: 22px; color: var(--ink); }
+.step-t { font-size: clamp(21px, 2vw, 26px); font-weight: 800; letter-spacing: -0.015em; color: var(--ink); text-wrap: balance; }
+.band > .step-t { margin-top: -4px; }
 .gauge { margin: 0; }
 .gauge .ruler-slot { border: 0; padding: 0; }
 .focus { font-size: 14px; font-weight: 600; color: var(--ink); border-left: 3px solid var(--brand); padding-left: 10px; }
@@ -467,4 +478,17 @@ dl.rules > div.card2 { padding: 20px; }
   .band { padding-top: 40px; padding-bottom: 40px; }
   .card2 { padding: 18px; }
   .mx-plot { height: 260px; }
+}
+
+/* ---------- chuyển động theo thao tác (tắt khi người xem chọn giảm chuyển động) ---------- */
+.dot { transition: transform .5s cubic-bezier(.3, .1, .2, 1), box-shadow .2s; }
+.dot.dot-in { animation: dotIn .35s ease-out both; }
+@keyframes dotIn { from { opacity: 0; transform: scale(.6); } }
+.view:not([hidden]) { animation: viewIn .24s ease-out both; }
+@keyframes viewIn { from { opacity: 0; transform: translateY(6px); } }
+.bar.scrolled:not(.clear) { box-shadow: 0 10px 24px -18px rgba(14, 26, 43, .45); }
+.btn, .seg button, .steps-grid button, .subbar a { transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s; }
+.steps-grid button:active, .seg button:active, .btn:not(:disabled):active { transform: translateY(1px); }
+@media (prefers-reduced-motion: reduce) {
+  .dot, .hb1, .view:not([hidden]) { transition: none !important; animation: none !important; }
 }

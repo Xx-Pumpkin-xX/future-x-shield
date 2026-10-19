@@ -72,7 +72,7 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   ok('Tổng quan: 8 phần sau hero, đúng thứ tự R3_11', (await pg.$$eval('[data-section]', e => e.map(x => x.id).join(','))) === 'van-de,bang-chung,san-pham,buoc-2,buoc-3,ai-dung,luat,du-lieu');
   const bgs = await pg.$$eval('.band', e => e.map(x => getComputedStyle(x).backgroundColor));
   ok('Tổng quan: nền đỏ nhạt / trắng xen kẽ (bắt đầu bằng đỏ nhạt ở Vấn đề)', bgs.every((c, i) => c === (i % 2 === 0 ? 'rgb(253, 240, 240)' : 'rgb(255, 255, 255)')), bgs.join(' | '));
-  ok('Tổng quan: phần nào cũng mở đầu bằng nhãn hoặc tiêu đề Bước', (await pg.$$eval('.band', e => e.filter(x => !x.querySelector(':scope > .kicker, :scope > .sec-title')).length)) === 0);
+  ok('Tổng quan: phần nào cũng mở đầu bằng nhãn hoặc tiêu đề Bước', (await pg.$$eval('.band', e => e.filter(x => !x.querySelector(':scope > .kicker, :scope > .sec-title, :scope > .step-t')).length)) === 0);
   ok('Tổng quan: chú giải [F] [A] [M] nằm ở hero, khối "Ba nhãn" đã xoá', /\[F\][\s\S]*\[A\][\s\S]*\[M\]/.test(await text(pg, '.hero-note')) && (await pg.$$('.chips')).length === 0);
   const pbBars = await text(pg, '#pb-bars');
   ok('Vấn đề: hai thanh lấy số từ engine (80 → 6 triệu; 25,4% → 2,3%)', pbBars.includes('80 → 6 triệu') && pbBars.includes('25,4% → 2,3%'), pbBars);
@@ -236,7 +236,9 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
 
   /* 5c. Ma trận kiểu BCG: mỗi thẻ Deal nằm đúng góc phần tư của ô nó thuộc (đo trên màn hình so với 2 trục), không thẻ nào chồng thẻ nào */
   const QUAD = { safe: 'TL', double: 'TR', dead: 'BL', bomb: 'BR', old: 'TL', main: 'TR', out: 'BL', next: 'BR' };
-  const checkMx = (root) => pg.$$eval(root + ' .mx-plot', (plots, Q) => plots.filter(p => p.offsetParent).map(p => {
+  /* chờ thẻ trượt xong (hiệu ứng 0,5 s) rồi mới đo */
+  const checkMx = async (root) => { await pg.waitForTimeout(700); return checkMxNow(root); };
+  const checkMxNow = (root) => pg.$$eval(root + ' .mx-plot', (plots, Q) => plots.filter(p => p.offsetParent).map(p => {
     const v = p.querySelector('.mx-axis.v').getBoundingClientRect(), h = p.querySelector('.mx-axis.h').getBoundingClientRect();
     const ax = v.left + v.width / 2, ay = h.top + h.height / 2, ds = [...p.querySelectorAll('.dot')].map(d => ({ id: d.dataset.id, cell: d.dataset.cell, r: d.getBoundingClientRect() }));
     const wrong = ds.filter(d => { const cx = d.r.left + d.r.width / 2, cy = d.r.top + d.r.height / 2; return (cx > ax ? 'R' : 'L') !== Q[d.cell][1] || (cy < ay ? 'T' : 'B') !== Q[d.cell][0]; }).map(d => '#' + d.id + ' ' + d.cell);
@@ -262,6 +264,19 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   ok('Ma trận: ' + mxTags + ' thẻ Deal trên ' + mxRes.length + ' hình, thẻ nào cũng nằm đúng góc của ô mình', mxRes.length >= 20 && mxWrong.length === 0, mxWrong.slice(0, 5).join(', '));
   ok('Ma trận: không thẻ Deal nào chồng lên thẻ khác', mxOver === 0, mxOver + ' cặp chồng');
   ok('Ma trận: không còn dòng "Cỡ chấm"', !(await (async () => { pg = await openPage(1280, '#/'); const t = await pg.evaluate(() => document.body.innerText); await pg.context().close(); return /Cỡ chấm|Dot size/.test(t); })()));
+
+  /* 5d. Đi qua mọi tab liên tiếp như người xem thật (lỗi 19/10: mở Viễn cảnh rồi sang Danh mục thật thì hình cầu mất màu
+     vì 2 khối dùng chung id gradient): không id nào trùng, hình cầu nào cũng tô bằng gradient nằm trong chính khối của nó */
+  pg = await openPage(1280, '#/');
+  for (const [hash] of ROUTES) { await pg.evaluate(h => { location.hash = h; }, hash); await pg.waitForTimeout(250); }
+  await pg.evaluate(() => { location.hash = '#/demo/vien-canh'; }); await pg.waitForTimeout(300);
+  await pg.evaluate(() => { location.hash = '#/demo/danh-muc'; }); await pg.waitForTimeout(300);
+  await pg.click('[data-pface="3d"]'); await pg.waitForTimeout(1000);
+  const dupIds = await pg.evaluate(() => { const c = {}; document.querySelectorAll('[id]').forEach(e => { c[e.id] = (c[e.id] || 0) + 1; }); return Object.keys(c).filter(k => c[k] > 1); });
+  ok('đi hết các tab: không id nào trùng trong trang', dupIds.length === 0, dupIds.join(', '));
+  const ballFill = await pg.$$eval('#pt-cube .c3-ball', bs => bs.map(b => { const m = (b.getAttribute('fill') || '').match(/url\(#(.+)\)/); const g = m && document.getElementById(m[1]); return !!g && b.ownerSVGElement.contains(g); }));
+  ok('Danh mục thật sau Viễn cảnh: ' + ballFill.length + ' hình cầu đều tô bằng gradient trong chính khối đó', ballFill.length === 5 && ballFill.every(Boolean), JSON.stringify(ballFill));
+  await pg.context().close();
 
   /* 6. Song ngữ */
   pg = await openPage(1280, '#/demo/atl');

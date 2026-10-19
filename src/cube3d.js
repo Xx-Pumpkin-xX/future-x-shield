@@ -20,11 +20,14 @@ var Cube3D = (function () {
     if (parent) parent.appendChild(e);
     return e;
   }
+  var seq = 0; /* mỗi khối một tiền tố id riêng: trang có 2 khối (Viễn cảnh, Danh mục thật); id gradient trùng nhau thì
+                  trình duyệt lấy gradient của khối đang ẩn và hình cầu mất màu */
   function reducedMotion() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
   function clampPitch(p) { return Math.max(PITCH_MIN, Math.min(PITCH_MAX, p)); }
 
   function mount(host, opts) {
     opts = opts || {};
+    var uid = 'c3g' + (++seq) + '-';
     var W = 420, H = 380, CAM = 6;
     /* Cỡ và tâm cố định, tính một lần: với CAM = 6, mọi góc trong giới hạn nghiêng thì 8 đỉnh khối nằm trong
        ±1,70 (ngang) và ±1,81 (dọc) đơn vị, nên S = 91 vừa khung 420 × 380 còn chừa lề cho nhãn trục. */
@@ -40,7 +43,7 @@ var Cube3D = (function () {
     host.appendChild(flat);
     var defs = el('defs', {}, svg);
     [['hot', '#F4B4B7', '#A3262C'], ['cool', '#DCE4F0', '#6A7F9E'], ['sel', '#9FB9F0', '#1F4FB8']].forEach(function (g) {
-      var rg = el('radialGradient', { id: 'cg-' + g[0], cx: '35%', cy: '30%', r: '70%' }, defs);
+      var rg = el('radialGradient', { id: uid + g[0], cx: '35%', cy: '30%', r: '70%' }, defs);
       el('stop', { offset: '0%', 'stop-color': '#FFFFFF' }, rg);
       el('stop', { offset: '35%', 'stop-color': g[1] }, rg);
       el('stop', { offset: '100%', 'stop-color': g[2] }, rg);
@@ -111,7 +114,7 @@ var Cube3D = (function () {
       });
       items.forEach(function (it) {
         var r = it.p.r * it.q.k, g = el('g', { class: 'c3-pt' + (st.sel === it.p.id ? ' sel' : ''), 'data-id': it.p.id }, gPts);
-        el('circle', { cx: it.q.x.toFixed(1), cy: it.q.y.toFixed(1), r: r.toFixed(1), fill: 'url(#cg-' + (st.sel === it.p.id ? 'sel' : it.p.heat) + ')', class: 'c3-ball' }, g);
+        el('circle', { cx: it.q.x.toFixed(1), cy: it.q.y.toFixed(1), r: r.toFixed(1), fill: 'url(#' + uid + (st.sel === it.p.id ? 'sel' : it.p.heat) + ')', class: 'c3-ball' }, g);
         var tx = el('text', { x: it.q.x.toFixed(1), y: (it.q.y + 4).toFixed(1), 'text-anchor': 'middle', class: 'c3-id' }, g);
         tx.textContent = it.p.id;
         var ti = el('title', {}, g); ti.textContent = it.p.title || ('#' + it.p.id);
