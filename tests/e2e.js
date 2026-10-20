@@ -200,6 +200,59 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   ok('Khối: nút Mặt A × C trải phẳng ma trận A × C', (await modeNow()) === 'flat' && (await faceNow()) === 'AC' && /Primary driver/.test(await text(pg, '#sc-cube .c3-flat')));
   await pg.context().close();
 
+  /* Khối kiểu mô hình Bohr: phóng to, rê để xem số, chọn Deal bằng hàng nút, tự xoay khi để yên */
+  pg = await openPage(1280, '#/demo/danh-muc');
+  await pg.click('[data-pface="3d"]'); await pg.waitForTimeout(900);
+  await pg.$eval('#pt-cube', h => h.scrollIntoView({ block: 'center' }));
+  const zoomNow = () => pg.$eval('#pt-cube', h => +h.dataset.zoom);
+  const ballAt = id => pg.$eval('#pt-cube .c3-pt[data-id="' + id + '"] circle', c => { const r = c.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, d: r.width }; });
+  ok('Khối Bohr: có hàng nút chọn Deal, đủ 5 Deal', (await pg.$$('#pt-cube .c3-chip')).length === 5);
+  const d0 = (await ballAt(1)).d;
+  await pg.click('#pt-cube [data-c3="in"]'); await pg.click('#pt-cube [data-c3="in"]'); await pg.mouse.move(5, 5); await pg.waitForTimeout(200);
+  const z2 = await zoomNow(), d2 = (await ballAt(1)).d;
+  ok('Khối Bohr: nút + phóng to (' + z2 + '×), hình cầu to lên chậm hơn khối (' + d0.toFixed(0) + ' → ' + d2.toFixed(0) + ' px)', z2 > 1.4 && d2 > d0 && d2 / d0 < z2);
+  const waitHome = () => pg.waitForFunction(() => document.querySelector('#pt-cube').dataset.zoom === '1.00', null, { timeout: 3000 }).then(() => pg.waitForTimeout(150)).catch(() => {});
+  await pg.click('#pt-cube [data-c3="reset"]'); await pg.mouse.move(5, 5); await waitHome();
+  ok('Khối Bohr: nút về góc nhìn ban đầu đưa độ phóng về 1×', (await zoomNow()) === 1);
+  const mid = await pg.$eval('#pt-cube svg', s => { const r = s.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+  await pg.mouse.move(mid.x, mid.y); const sy0 = await pg.evaluate(() => scrollY);
+  await pg.mouse.wheel(0, 200); await pg.waitForTimeout(250);
+  const toastTxt = await pg.$eval('#pt-cube .c3-toast', t => t.hidden ? '' : t.textContent);
+  ok('Khối Bohr: cuộn thường không phóng, trang vẫn cuộn, có nhắc giữ Ctrl', (await zoomNow()) === 1 && (await pg.evaluate(() => scrollY)) > sy0 && /Ctrl/.test(toastTxt), toastTxt);
+  await pg.$eval('#pt-cube', h => h.scrollIntoView({ block: 'center' }));
+  const m2 = await pg.$eval('#pt-cube svg', s => { const r = s.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
+  await pg.mouse.move(m2.x, m2.y); await pg.keyboard.down('Control'); await pg.mouse.wheel(0, -300); await pg.keyboard.up('Control'); await pg.waitForTimeout(150);
+  ok('Khối Bohr: Ctrl + cuộn thì phóng to (' + (await zoomNow()) + '×)', (await zoomNow()) > 1.3);
+  await pg.click('#pt-cube [data-c3="reset"]'); await waitHome();
+  const b4 = await ballAt(4); await pg.mouse.move(b4.x, b4.y); await pg.waitForTimeout(200);
+  const tip = await pg.$eval('#pt-cube .c3-tip', t => t.hidden ? '' : t.innerText);
+  ok('Khối Bohr: rê vào Deal #4 hiện thẻ số A, B, C và tên ô', /#4/.test(tip) && /A \d/.test(tip) && /B [+−-]/.test(tip) && /C \d/.test(tip) && /Exposed gain/.test(tip), tip.replace(/\n/g, ' | '));
+  ok('Khối Bohr: rê vào thì có đường dóng về 3 trục', (await pg.$$('#pt-cube .c3-dash')).length >= 3);
+  await pg.mouse.move(5, 5);
+  await pg.click('#pt-cube .c3-chip[data-id="2"]'); await pg.waitForTimeout(150);
+  ok('Khối Bohr: bấm nút #2 thì chọn Deal #2 ở cả khối và bảng', (await pg.$eval('#pt-cube .c3-chip[data-id="2"]', b => b.getAttribute('aria-pressed'))) === 'true' && (await pg.$eval('#pt-table tr.sel', r => r.dataset.deal).catch(() => '')) === '2');
+  await pg.click('#pt-cube .c3-chip[data-id="2"]'); await pg.mouse.move(5, 5);
+  await pg.click('#pt-cube [data-c3="reset"]'); await pg.mouse.move(5, 5);
+  const ya = +(await pg.$eval('#pt-cube svg', s => s.dataset.yaw)); await pg.waitForTimeout(4200);
+  const yb = +(await pg.$eval('#pt-cube svg', s => s.dataset.yaw));
+  ok('Khối Bohr: để yên vài giây thì tự xoay chậm (' + ya + '° → ' + yb + '°)', yb !== ya);
+  ok('Khối Bohr: máy có chuột thì gợi ý nói Ctrl + cuộn', /Ctrl/.test(await text(pg, '#pt-cube .c3-hint')));
+  await pg.context().close();
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
+    const p3 = await ctx.newPage(); p3.on('pageerror', e => errors.push('reduce pageerror: ' + e.message));
+    await p3.goto(BASE + '#/demo/danh-muc'); await p3.waitForSelector('body[data-ready="1"]');
+    await p3.click('[data-pface="3d"]'); await p3.waitForTimeout(900); await p3.mouse.move(5, 5);
+    const r0 = await p3.$eval('#pt-cube svg', s => s.dataset.yaw); await p3.waitForTimeout(4200);
+    ok('Khối Bohr: người dùng tắt hiệu ứng chuyển động thì không tự xoay', r0 === (await p3.$eval('#pt-cube svg', s => s.dataset.yaw)));
+    await ctx.close();
+    const ctx2 = await browser.newContext({ viewport: { width: 390, height: 860 }, hasTouch: true, isMobile: true });
+    const p4 = await ctx2.newPage(); await p4.goto(BASE + '#/demo/danh-muc'); await p4.waitForSelector('body[data-ready="1"]');
+    await p4.click('[data-pface="3d"]'); await p4.waitForTimeout(600);
+    ok('Khối Bohr: điện thoại thì gợi ý nói chụm hai ngón, không nói Ctrl', /chụm|pinch/.test(await p4.$eval('#pt-cube .c3-hint', h => h.textContent)) && !/Ctrl/.test(await p4.$eval('#pt-cube .c3-hint', h => h.textContent)));
+    await ctx2.close();
+  }
+
   /* 5b. Danh mục thật: khách mẫu trên giá VN30F1M thật */
   pg = await openPage(1280, '#/demo/danh-muc');
   const sec = () => pg.$eval('.view[data-view="demo/port"]', s => Object.assign({}, s.dataset));
@@ -274,7 +327,7 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   await pg.click('[data-pface="3d"]'); await pg.waitForTimeout(1000);
   const dupIds = await pg.evaluate(() => { const c = {}; document.querySelectorAll('[id]').forEach(e => { c[e.id] = (c[e.id] || 0) + 1; }); return Object.keys(c).filter(k => c[k] > 1); });
   ok('đi hết các tab: không id nào trùng trong trang', dupIds.length === 0, dupIds.join(', '));
-  const ballFill = await pg.$$eval('#pt-cube .c3-ball', bs => bs.map(b => { const m = (b.getAttribute('fill') || '').match(/url\(#(.+)\)/); const g = m && document.getElementById(m[1]); return !!g && b.ownerSVGElement.contains(g); }));
+  const ballFill = await pg.evaluate(() => [...document.querySelectorAll('#pt-cube .c3-ball')].map(b => { const m = (b.getAttribute('fill') || '').match(/url\(#(.+)\)/); const g = m && document.getElementById(m[1]); return !!g && b.ownerSVGElement.contains(g); })); /* đọc trong cùng một lượt: khối tự xoay vẽ lại mỗi khung */
   ok('Danh mục thật sau Viễn cảnh: ' + ballFill.length + ' hình cầu đều tô bằng gradient trong chính khối đó', ballFill.length === 5 && ballFill.every(Boolean), JSON.stringify(ballFill));
   await pg.context().close();
 

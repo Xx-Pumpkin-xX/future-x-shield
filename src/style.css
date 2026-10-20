@@ -364,20 +364,54 @@ legend { font-size: 13px; color: var(--ink2); padding: 0; margin-bottom: 6px; }
 .dot.sel { box-shadow: 0 0 0 3px var(--blue); }
 .cube3d { display: block; width: 100%; height: auto; max-height: 380px; }
 .cube3d:focus-visible { outline: 3px solid var(--blue); outline-offset: -3px; }
-.c3-edge { stroke: var(--ink2); stroke-width: 1.2; }
-.c3-edge.back { stroke: var(--far); stroke-dasharray: 3 4; }
+.c3-edge { stroke: #7C8796; stroke-width: 1.1; }
+.c3-edge.back { stroke: #B9C2CE; stroke-dasharray: 3 4; }
 .c3-plane { stroke: none; }
-.c3-plane.pa { fill: rgba(140, 29, 34, .07); } .c3-plane.pb { fill: rgba(75, 90, 110, .06); } .c3-plane.pc { fill: rgba(75, 90, 110, .06); }
-.c3-lab { font: 600 11px 'Be Vietnam Pro', system-ui, sans-serif; fill: var(--ink2); }
-.c3-lab.axis { font-size: 13px; fill: var(--ink); font-weight: 800; }
-.c3-lab.cell { font-size: 10px; fill: var(--ink2); opacity: .85; }
-.c3-stem { stroke: var(--ink2); stroke-width: 1; stroke-dasharray: 2 3; opacity: .55; }
-.c3-floor { fill: rgba(14, 26, 43, .12); }
-.c3-ball { stroke: rgba(14, 26, 43, .55); stroke-width: 1; }
-.c3-pt { cursor: pointer; }
-.c3-pt.sel .c3-ball { stroke: var(--blue); stroke-width: 3; }
-.c3-id { font: 800 11px 'Be Vietnam Pro', system-ui, sans-serif; fill: var(--ink); pointer-events: none; }
-.c3-hint { font: 400 11px 'Be Vietnam Pro', system-ui, sans-serif; fill: var(--ink2); }
+.c3-plane.pa { fill: rgba(140, 29, 34, .06); } .c3-plane.pb { fill: rgba(75, 90, 110, .05); } .c3-plane.pc { fill: rgba(75, 90, 110, .05); }
+/* chữ trong khối: cùng Be Vietnam Pro với trang nhưng nhẹ hơn, số đều cột, có viền trắng để đọc được trên nền và trên hình cầu */
+.c3-lab, .c3-id, .c3-val { font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: #F7F9FB; stroke-width: 3px; stroke-linejoin: round; }
+.c3-lab { font-size: 11px; font-weight: 500; fill: #4B5A6E; }
+.c3-lab.axis { font-size: 12px; font-weight: 700; fill: #1A2433; }
+.c3-lab.cell { font-size: 10.5px; fill: #6A7788; }
+.c3-lab.axis { transition: opacity .2s; } .stage3d.has-focus .c3-lab.axis { opacity: .25; } /* đang xem một Deal: số dóng trục nổi lên trên tên trục */
+.c3-stem { stroke: #1F4FB8; stroke-width: 1.2; stroke-dasharray: 2 3; }
+.c3-floor { fill: rgba(14, 26, 43, .10); } .c3-floor.on { fill: rgba(31, 79, 184, .25); }
+.c3-dash { stroke: #1F4FB8; stroke-width: 1; stroke-dasharray: 3 3; opacity: .7; }
+.c3-tick { fill: #1F4FB8; stroke: #FFFFFF; stroke-width: 1.5; }
+.c3-val { font-size: 10.5px; font-weight: 700; fill: #1F4FB8; }
+.c3-ball { stroke: rgba(14, 26, 43, .45); stroke-width: .8; transition: stroke-width .15s; }
+.c3-pt { cursor: pointer; transition: opacity .2s; }
+.c3-pt.focus .c3-ball { stroke: #1F4FB8; stroke-width: 2.2; }
+.c3-pt.sel .c3-ball { stroke: #1F4FB8; stroke-width: 3; }
+.c3-id { font-size: 11px; font-weight: 700; fill: #111418; pointer-events: none; stroke: rgba(255, 255, 255, .85); stroke-width: 2.5px; }
+.stage3d.over-pt { cursor: pointer; }
+/* nút phóng to / thu nhỏ / về ban đầu / toàn màn hình */
+.c3-ctl { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; flex-direction: column; gap: 6px; }
+.c3-btn { width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border: 1px solid var(--rule); border-radius: 8px; background: rgba(255, 255, 255, .92);
+  color: #1A2433; font: 600 18px/1 'Be Vietnam Pro', system-ui, sans-serif; cursor: pointer; box-shadow: 0 1px 2px rgba(14, 26, 43, .08); }
+.c3-btn svg { width: 16px; height: 16px; }
+.c3-btn:hover:not(:disabled) { border-color: #7C8796; } .c3-btn:disabled { opacity: .35; cursor: default; }
+.is-flat .c3-ctl .zin, .is-flat .c3-ctl .zout { display: none; }
+/* thẻ thông tin Deal */
+.c3-tip { position: absolute; z-index: 4; pointer-events: none; display: flex; flex-direction: column; gap: 2px; max-width: 230px; padding: 8px 10px; border-radius: 8px;
+  background: #111418; color: #FFFFFF; font-size: 12px; line-height: 1.35; font-variant-numeric: tabular-nums; box-shadow: 0 8px 24px -10px rgba(14, 26, 43, .6); }
+.c3-tip b { font-weight: 700; } .c3-tip span { color: rgba(255, 255, 255, .78); }
+.c3-tip em { align-self: flex-start; margin-top: 3px; font-style: normal; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .5); }
+.c3-tip em.hot { border-color: #F4A9AD; color: #F4A9AD; }
+.c3-toast { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); z-index: 4; padding: 5px 12px; border-radius: 999px; background: rgba(17, 20, 24, .86); color: #FFFFFF; font-size: 12px; pointer-events: none; white-space: nowrap; }
+.c3-hint { position: absolute; left: 12px; bottom: 50px; z-index: 2; font-size: 11px; color: var(--ink2); pointer-events: none; }
+/* hàng nút chọn Deal (dùng được cả khi các Deal trùng chỗ) */
+.c3-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; min-height: 42px; border-top: 1px solid var(--rule); background: #FFFFFF; position: relative; z-index: 2; }
+.c3-chip { min-width: 40px; height: 26px; padding: 0 9px; border-radius: 6px; border: 1.5px solid #4B5A6E; background: #FFFFFF; color: #1A2433; font: 700 12px 'Be Vietnam Pro', system-ui, sans-serif; cursor: pointer; font-variant-numeric: tabular-nums; }
+.c3-chip.hot { border-color: var(--brand); color: var(--brand); }
+.c3-chip.focus { box-shadow: 0 0 0 2px rgba(31, 79, 184, .35); }
+.c3-chip[aria-pressed="true"] { background: #1F4FB8; border-color: #1F4FB8; color: #FFFFFF; }
+.is-flat .c3-chips, .is-flat .c3-hint { visibility: hidden; }
+.stage3d.has-focus .c3-hint { visibility: hidden; }
+/* toàn màn hình: khối chiếm hết màn hình, nền sáng, cuộn chuột là phóng to */
+.stage3d.is-full { display: flex; flex-direction: column; background: #F7F9FB; border-radius: 0; }
+.stage3d.is-full .cube3d { flex: 1; max-height: none; height: 100%; }
+@media (prefers-reduced-motion: reduce) { .c3-pt, .c3-ball { transition: none; } }
 
 /* ---------- danh mục thật ---------- */
 .pt-chart { margin: 0; background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 8px; }

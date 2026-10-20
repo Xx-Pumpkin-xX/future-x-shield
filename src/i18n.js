@@ -241,7 +241,7 @@ var I18N = {
     'pt.i.more': 'Tổng cộng {n} bị xử lý trong giai đoạn này.',
 
     /* Khối 3D */
-    'cube.a': 'A · Đóng góp rủi ro →', 'cube.b': 'B · Lãi lỗ ↑', 'cube.c': 'C · Hút dự phòng', 'cube.hint': 'Kéo để xoay · bấm đúp để về góc nhìn 3D', 'cube.flathint': 'Kéo để xoay thành khối 3D',
+    'cube.a': 'A · Đóng góp rủi ro →', 'cube.b': 'B · Lãi lỗ ↑', 'cube.c': 'C · Hút dự phòng', 'cube.hint': 'Kéo để xoay · Ctrl + cuộn để phóng to · rê vào Deal để xem số', 'cube.zin': 'Phóng to', 'cube.zout': 'Thu nhỏ', 'cube.reset': 'Về góc nhìn ban đầu', 'cube.full': 'Toàn màn hình', 'cube.exitfull': 'Thoát toàn màn hình', 'cube.wheel': 'Giữ Ctrl (⌘) rồi cuộn để phóng to', 'cube.chips': 'Chọn Deal', 'cube.hinttouch': 'Kéo để xoay · chụm hai ngón để phóng to · chạm vào Deal để xem số', 'cube.flathint': 'Kéo để xoay thành khối 3D',
     'cube.title': '#{id}: A {a}, B {b}, C {c}',
 
     /* Chân trang */
@@ -473,7 +473,7 @@ var I18N = {
     'pt.i.none': 'No Deal was force-closed in this period.',
     'pt.i.more': 'In total, {n} were force-closed in this period.',
 
-    'cube.a': 'A · Risk contribution →', 'cube.b': 'B · P&L ↑', 'cube.c': 'C · Reserve draw', 'cube.hint': 'Drag to rotate · double-click to reset', 'cube.flathint': 'Drag to turn it into the 3D cube',
+    'cube.a': 'A · Risk contribution →', 'cube.b': 'B · P&L ↑', 'cube.c': 'C · Reserve draw', 'cube.hint': 'Drag to rotate · Ctrl + scroll to zoom · hover a Deal for its numbers', 'cube.zin': 'Zoom in', 'cube.zout': 'Zoom out', 'cube.reset': 'Reset view', 'cube.full': 'Full screen', 'cube.exitfull': 'Exit full screen', 'cube.wheel': 'Hold Ctrl (⌘) and scroll to zoom', 'cube.chips': 'Choose a Deal', 'cube.hinttouch': 'Drag to rotate · pinch to zoom · tap a Deal for its numbers', 'cube.flathint': 'Drag to turn it into the 3D cube',
     'cube.title': '#{id}: A {a}, B {b}, C {c}',
 
     'ft.disc': 'A concept by an FBA 2026 competition team. Not a DNSE product or official DNSE interface. Figures labelled [M] are simulated.',

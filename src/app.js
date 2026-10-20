@@ -340,7 +340,8 @@
 
   /* ---------- khối 3D dùng chung ---------- */
   function cubeLabels() {
-    return { a: t('cube.a'), b: t('cube.b'), c: t('cube.c'), hint: t('cube.hint'), flatHint: t('cube.flathint'),
+    return { a: t('cube.a'), b: t('cube.b'), c: t('cube.c'), hint: t('cube.hint'), hintTouch: t('cube.hinttouch'), flatHint: t('cube.flathint'),
+      zin: t('cube.zin'), zout: t('cube.zout'), reset: t('cube.reset'), full: t('cube.full'), exitFull: t('cube.exitfull'), wheel: t('cube.wheel'), chips: t('cube.chips'),
       cells: ['Két sắt', 'Dao hai lưỡi', 'Món chết', 'Quả bom'].map(cellName),
       cellsAC: ['Vết thương cũ', 'Thủ phạm chính', 'Đứng ngoài', 'Mối nguy kế tiếp'].map(cellName) };
   }
@@ -349,8 +350,13 @@
     var ax = SE.axes(acc, dir || 1), n = ax.length;
     var bMax = Math.max(0.02, Math.max.apply(null, ax.map(function (r) { return Math.abs(r.B); }).concat([0])) * 1.3);
     /* hai mặt phẳng 2D (cùng hình vẽ với ma trận ở Tổng quan và Shield hai chiều) */
-    return { n: n, bMax: bMax, flat: { AB: matrixHTML(ax, 'AB'), AC: matrixHTML(ax, 'AC') }, pts: ax.map(function (r) {
+    return { n: n, bMax: bMax, flat: { AB: matrixHTML(ax, 'AB'), AC: matrixHTML(ax, 'AC') }, pts: ax.map(function (r, i) {
+      /* số hiển thị trong thẻ thông tin và trên vạch dóng của khối 3D */
+      var d = acc.deals[i], va = r.A == null ? '—' : fmt(r.A * 100, 1) + '%', vb = (r.B >= 0 ? '+' : '−') + fmt(Math.abs(r.B) * 100, 2) + '%',
+        vc = r.C == null ? t('sh.c.none') : fmt(r.C * 100, 0) + '%';
       return { id: r.id, A: posA(r.A, n) * 2 - 1, B: r.B, C: posC(r.C, n), w: r.w, heat: hiOf(r.A, n) ? 'hot' : 'cool',
+        label: '#' + r.id + ' · ' + d.code + ' ' + sideTxt(d.s) + ' · ' + ct(d.n), vals: 'A ' + va + ' · B ' + vb + ' · C ' + vc,
+        va: 'A ' + va, vb: 'B ' + vb, vc: 'C ' + vc, cellAB: cellName(SE.cell(r, 'AB', n)), cellAC: cellName(SE.cell(r, 'AC', n)),
         title: t('cube.title', { id: r.id, a: r.A == null ? '—' : fmt(r.A * 100, 1) + '%',
           b: (r.B >= 0 ? '+' : '−') + fmt(Math.abs(r.B) * 100, 2) + '%', c: r.C == null ? t('sh.c.none') : fmt(r.C * 100, 0) + '%' }) };
     }) };
