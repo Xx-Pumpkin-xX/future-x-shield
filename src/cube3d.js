@@ -150,7 +150,7 @@ var Cube3D = (function () {
         el('circle', { cx: it.q.x.toFixed(1), cy: it.q.y.toFixed(1), r: it.r.toFixed(1), fill: 'url(#' + uid + (st.sel === it.p.id ? 'sel' : it.p.heat) + ')', class: 'c3-ball' }, g);
         var tx = el('text', { x: it.q.x.toFixed(1), y: (it.q.y + 3.8).toFixed(1), 'text-anchor': 'middle', class: 'c3-id' }, g);
         tx.textContent = it.p.id;
-        var ti = el('title', {}, g); ti.textContent = it.p.title || ('#' + it.p.id);
+        g.setAttribute('role', 'img'); g.setAttribute('aria-label', it.p.title || ('#' + it.p.id)); /* không dùng <title>: trình duyệt sẽ bật thêm khung chú thích riêng đè lên thẻ số */
       });
       svg.setAttribute('data-yaw', Math.round(st.yaw));
       svg.setAttribute('data-pitch', Math.round(st.pitch));
@@ -192,7 +192,7 @@ var Cube3D = (function () {
     function renderChips() {
       var fid = focusId();
       chips.innerHTML = st.pts.slice().sort(function (a, b) { return a.id - b.id; }).map(function (p) {
-        return '<button type="button" class="c3-chip ' + p.heat + (p.id === fid ? ' focus' : '') + '" data-id="' + p.id + '" aria-pressed="' + (st.sel === p.id) + '" title="' +
+        return '<button type="button" class="c3-chip ' + p.heat + (p.id === fid ? ' focus' : '') + '" data-id="' + p.id + '" aria-pressed="' + (st.sel === p.id) + '" aria-label="' +
           (p.label || '#' + p.id).replace(/"/g, '&quot;') + '">#' + p.id + '</button>';
       }).join('');
       chips.setAttribute('aria-label', (st.labels && st.labels.chips) || 'Deals');

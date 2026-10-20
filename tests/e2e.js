@@ -227,6 +227,8 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   const b4 = await ballAt(4); await pg.mouse.move(b4.x, b4.y); await pg.waitForTimeout(200);
   const tip = await pg.$eval('#pt-cube .c3-tip', t => t.hidden ? '' : t.innerText);
   ok('Khối Bohr: rê vào Deal #4 hiện thẻ số A, B, C và tên ô', /#4/.test(tip) && /A \d/.test(tip) && /B [+−-]/.test(tip) && /C \d/.test(tip) && /Exposed gain/.test(tip), tip.replace(/\n/g, ' | '));
+  ok('Khối Bohr: chỉ một khung chú thích khi rê (không có <title> hay title= để trình duyệt bật thêm khung riêng)',
+    (await pg.$$('#pt-cube .c3-pt title, #pt-cube .c3-chip[title]')).length === 0 && (await pg.$$('#pt-cube .c3-pt[aria-label]')).length === 5);
   ok('Khối Bohr: rê vào thì có đường dóng về 3 trục', (await pg.$$('#pt-cube .c3-dash')).length >= 3);
   await pg.mouse.move(5, 5);
   await pg.click('#pt-cube .c3-chip[data-id="2"]'); await pg.waitForTimeout(150);
