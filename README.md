@@ -13,7 +13,7 @@ Trang Tổng quan là một trang dài 9 phần (hero, Vấn đề, Bằng chứ
 | `data/vn30f1m.csv` | Giá VN30F1M theo ngày, 411 phiên (02/01/2025–28/08/2026), từ `VN30F.xlsx` của team mô phỏng; tạo lại bằng `tools/vn30f_xlsx_to_csv.py`. |
 | `src/index.html` | Khung trang, có 7 chỗ chèn script, 2 chỗ chèn CSS. |
 | `src/app.js` | Hiển thị: định tuyến tab, ngôn ngữ, 4 demo. Không tự tính số. |
-| `src/cube3d.js` | Khối A × B × C 3D vẽ bằng SVG, xoay kiểu bàn xoay (tâm và cỡ cố định, trục B luôn đứng, có quán tính). Mặt A × B và A × C là ma trận 2D phẳng; kéo trên ma trận thì nổi lại thành 3D. Mỗi Deal là một hình cầu theo tỷ trọng cọc. Tương tác kiểu mô hình nguyên tử 3D của Google: để yên thì tự xoay chậm (tắt khi người dùng chọn giảm chuyển động), phóng to bằng nút +/−, Ctrl + cuộn hoặc chụm hai ngón (cuộn thường vẫn cuộn trang), rê hay chạm vào Deal thì hiện thẻ số A, B, C kèm đường dóng về 3 trục, hàng nút #1 #2… để chọn Deal khi nhiều hình cầu chồng nhau, nút toàn màn hình. |
+| `src/cube3d.js` | Khối viễn cảnh (trục A × B × C) vẽ bằng SVG, xoay kiểu bàn xoay (tâm và cỡ cố định, trục B luôn đứng, có quán tính). Mặt A × B và A × C là ma trận 2D phẳng; kéo trên ma trận thì nổi lại thành 3D. Mỗi Deal là một hình cầu theo tỷ trọng cọc. Tương tác kiểu mô hình nguyên tử 3D của Google: để yên thì tự xoay chậm (tắt khi người dùng chọn giảm chuyển động), phóng to bằng nút +/−, Ctrl + cuộn hoặc chụm hai ngón (cuộn thường vẫn cuộn trang), rê hay chạm vào Deal thì hiện thẻ số A, B, C kèm đường dóng về 3 trục, hàng nút #1 #2… để chọn Deal khi nhiều hình cầu chồng nhau, nút toàn màn hình. Tên gọi theo R3_11: nhãn góc khối ghi tên ma trận đang nhìn thẳng (Ma trận Cảm nhận – Rủi ro / Ma trận Truy nguyên rủi ro), xoay tự do thì ghi "Khối viễn cảnh"; thẻ số ghi ô của Deal trên cả hai ma trận. |
 | `assets/logo-icon.png` | Logo khiên ở đầu trang. |
 | `assets/favicon.png` | Cùng logo, cắt vuông 64×64, làm biểu tượng tab trình duyệt. Cả hai được nhúng thẳng vào file build. |
 | `src/i18n.js` | Toàn bộ chữ trên trang, mỗi khoá có cả `vi` và `en`. |
@@ -42,7 +42,7 @@ npm ci                          # cài playwright (chỉ để chạy e2e)
 npm test                        # "51 pass", "17 pass", "18 pass", rồi "59 pass", đều 0 fail
 node build.js                   # ra dist/index.html và dist/_headers, in commit đã đóng dấu
 npx playwright install chromium # lần đầu; không tải được thì đặt E2E_CHANNEL=msedge
-npm run e2e                     # "161 pass, 0 fail"
+npm run e2e                     # "165 pass, 0 fail"
 ```
 
 Mở `dist/index.html` bằng trình duyệt là xem được, không cần máy chủ.

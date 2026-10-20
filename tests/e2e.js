@@ -230,6 +230,7 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   ok('Khối Bohr: rê vào Deal #4 hiện thẻ số A, B, C và tên ô', /#4/.test(tip) && /A \d/.test(tip) && /B [+−-]/.test(tip) && /C \d/.test(tip) && /Exposed gain/.test(tip), tip.replace(/\n/g, ' | '));
   ok('Khối Bohr: chỉ một khung chú thích khi rê (không có <title> hay title= để trình duyệt bật thêm khung riêng)',
     (await pg.$$('#pt-cube .c3-pt title, #pt-cube .c3-chip[title]')).length === 0 && (await pg.$$('#pt-cube .c3-pt[aria-label]')).length === 5);
+  ok('Tên gọi: thẻ số ghi ô của Deal trên cả hai ma trận, theo tên ma trận', /Cảm nhận – Rủi ro\s+Exposed gain/.test(tip) && /Truy nguyên rủi ro\s+\S/.test(tip), tip.replace(/\n/g, ' | '));
   ok('Khối Bohr: rê vào thì có đường dóng về 3 trục', (await pg.$$('#pt-cube .c3-dash')).length >= 3);
   await pg.mouse.move(5, 5);
   await pg.click('#pt-cube .c3-chip[data-id="2"]'); await pg.waitForTimeout(150);
@@ -239,6 +240,8 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   const ya = +(await pg.$eval('#pt-cube svg', s => s.dataset.yaw)); await pg.waitForTimeout(4200);
   const yb = +(await pg.$eval('#pt-cube svg', s => s.dataset.yaw));
   ok('Khối Bohr: để yên vài giây thì tự xoay chậm (' + ya + '° → ' + yb + '°)', yb !== ya);
+  await pg.click('#pt-cube [data-c3="reset"]'); await pg.mouse.move(5, 5); await waitHome();
+  ok('Tên gọi: xoay tự do thì nhãn mặt và tiêu đề gọi là "Khối viễn cảnh" như R3_11, không còn "Khối A × B × C"', (await pg.$eval('#pt-cube .c3-face', e => e.dataset.on + '|' + e.textContent)) === 'free|Khối viễn cảnh · A × B × C' && (await text(pg, '[data-i18n="pt.cube"]')) === 'Khối viễn cảnh cuối phiên');
   ok('Khối Bohr: máy có chuột thì gợi ý nói Ctrl + cuộn', /Ctrl/.test(await text(pg, '#pt-cube .c3-hint')));
   await pg.context().close();
   {
@@ -333,6 +336,22 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   const ballFill = await pg.evaluate(() => [...document.querySelectorAll('#pt-cube .c3-ball')].map(b => { const m = (b.getAttribute('fill') || '').match(/url\(#(.+)\)/); const g = m && document.getElementById(m[1]); return !!g && b.ownerSVGElement.contains(g); })); /* đọc trong cùng một lượt: khối tự xoay vẽ lại mỗi khung */
   ok('Danh mục thật sau Viễn cảnh: ' + ballFill.length + ' hình cầu đều tô bằng gradient trong chính khối đó', ballFill.length === 5 && ballFill.every(Boolean), JSON.stringify(ballFill));
   await pg.context().close();
+
+  /* 5f. Thẻ đặt cạnh nhau: số lớn và các dòng cùng loại thẳng hàng giữa các thẻ, dù câu hỏi dài ngắn khác nhau */
+  {
+    const off = [];
+    for (const lang of ['vi', 'en']) for (const width of [1903, 1280]) {
+      pg = await openPage(width, '#/', lang);
+      const rows = await pg.evaluate(() => ['#bang-chung .flow3', '.map3', '.abc', '.pair.rows5'].map(sel => {
+        const cards = [...document.querySelector(sel).children];
+        return [sel, cards[0].children.length, [...cards[0].children].map((_, i) => Math.max(...cards.map(c => c.children[i].getBoundingClientRect().top)) - Math.min(...cards.map(c => c.children[i].getBoundingClientRect().top)))];
+      }));
+      rows.forEach(([sel, , d]) => { if (Math.max(...d) > 1) off.push(lang + ' ' + width + ' ' + sel + ' lệch ' + d.map(Math.round).join('/')); });
+      if (lang === 'en' && width === 1903) ok('Bằng chứng: "vs" nhỏ hơn hai con số hai bên', await pg.$eval('#bang-chung .big .vs', v => parseFloat(getComputedStyle(v).fontSize) < parseFloat(getComputedStyle(v.parentElement).fontSize) * 0.6));
+      await pg.context().close();
+    }
+    ok('Thẻ đặt cạnh nhau (Bằng chứng, 3 câu hỏi, A/B/C, hai ma trận): mọi hàng thẳng nhau', off.length === 0, off.join(' | '));
+  }
 
   /* 5e. Xuống dòng: không khối chữ nào để dòng cuối chỉ còn một hai chữ (tools/wrapscan.js) */
   {

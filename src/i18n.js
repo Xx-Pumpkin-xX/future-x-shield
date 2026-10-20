@@ -196,7 +196,7 @@ var I18N = {
     'sc.s.skip': ' (không đủ cọc ngoài Deal, bỏ qua)',
     'sc.processed': 'Deal bị xử lý trong chuỗi này: #{ids}.',
     'sc.state': 'Giá {p}, cọc ngoài Deal {f} triệu, {n}.',
-    'sc.cube': 'Khối A × B × C',
+    'sc.cube': 'Khối viễn cảnh',
     'sc.face.auto': 'Theo màu', 'sc.face.ab': 'Ma trận Cảm nhận – Rủi ro', 'sc.face.ac': 'Ma trận Truy nguyên rủi ro', 'sc.face.3d': 'Xoay 3D',
     'sc.cube.note': 'Kéo để xoay khối. Mỗi hình cầu là một Deal, cỡ theo tỷ trọng cọc của Deal. Khi điểm chuyển đỏ, khối xoay sang mặt Truy nguyên rủi ro (A × C).',
     'sc.foot': 'Mọi lối thoát hiện ngang nhau. Không có nút “làm theo”.',
@@ -221,7 +221,7 @@ var I18N = {
     'pt.none': 'Không còn Deal nào.',
     'pt.gone': 'Đã bị xử lý trước đó: {list}.',
     'pt.same.a': 'Sau thanh toán cuối ngày, mọi Deal cùng chiều có chung một giá tham chiếu nên có cùng giá trị A; chúng chỉ khác nhau ở B và C.',
-    'pt.cube': 'Khối A × B × C cuối phiên',
+    'pt.cube': 'Khối viễn cảnh cuối phiên',
     'pt.decide': 'Quyết định của bạn sau phiên {d}', 'pt.decide.note': 'Khớp ở giá mở cửa phiên {d2} (mô phỏng).', 'pt.decide.last': 'Đây là phiên cuối của khoảng mô phỏng, không đặt thêm quyết định được.',
     'pt.b.close': 'Đóng Deal #{id}', 'pt.b.long': 'Mở 1 HĐ long VN30F1M', 'pt.b.short': 'Mở 1 HĐ short VN30F2M', 'pt.b.dep': 'Nạp 20 triệu',
     'pt.b.autoOff': 'Tắt tự tăng tỷ lệ Deal', 'pt.b.autoOn': 'Bật tự tăng tỷ lệ Deal',
@@ -241,7 +241,7 @@ var I18N = {
     'pt.i.more': 'Tổng cộng {n} bị xử lý trong giai đoạn này.',
 
     /* Khối 3D */
-    'cube.a': 'A · Đóng góp rủi ro →', 'cube.b': 'B · Lãi lỗ ↑', 'cube.c': 'C · Hút dự phòng', 'cube.hint': 'Kéo để xoay · Ctrl + cuộn để phóng to · rê vào Deal để xem số', 'cube.zin': 'Phóng to', 'cube.zout': 'Thu nhỏ', 'cube.reset': 'Về góc nhìn ban đầu', 'cube.full': 'Toàn màn hình', 'cube.exitfull': 'Thoát toàn màn hình', 'cube.wheel': 'Giữ Ctrl (⌘) rồi cuộn để phóng to', 'cube.chips': 'Chọn Deal', 'cube.hinttouch': 'Kéo để xoay · chụm hai ngón để phóng to · chạm vào Deal để xem số', 'cube.flathint': 'Kéo để xoay thành khối 3D',
+    'cube.a': 'A · Đóng góp rủi ro →', 'cube.b': 'B · Lãi lỗ từ lúc mở ↑', 'cube.c': 'C · Mức hút cọc dự phòng', 'cube.hint': 'Kéo để xoay · Ctrl + cuộn để phóng to · rê vào Deal để xem số', 'cube.zin': 'Phóng to', 'cube.zout': 'Thu nhỏ', 'cube.reset': 'Về góc nhìn ban đầu', 'cube.full': 'Toàn màn hình', 'cube.exitfull': 'Thoát toàn màn hình', 'cube.wheel': 'Giữ Ctrl (⌘) rồi cuộn để phóng to', 'cube.chips': 'Chọn Deal', 'cube.hinttouch': 'Kéo để xoay · chụm hai ngón để phóng to · chạm vào Deal để xem số', 'cube.flathint': 'Kéo để dựng lại khối viễn cảnh', 'cube.free': 'Khối viễn cảnh · A × B × C', 'mx.ab.short': 'Cảm nhận – Rủi ro', 'mx.ac.short': 'Truy nguyên rủi ro',
     'cube.title': '#{id}: A {a}, B {b}, C {c}',
 
     /* Chân trang */
@@ -430,7 +430,7 @@ var I18N = {
     'sc.s.skip': ' (not enough unallocated margin, skipped)',
     'sc.processed': 'Deals force-closed in this chain: #{ids}.',
     'sc.state': 'Price {p}, {f} million VND of unallocated margin, {n}.',
-    'sc.cube': 'The A × B × C cube',
+    'sc.cube': 'The scenario cube',
     'sc.face.auto': 'Follow colour', 'sc.face.ab': 'Perception–Risk Matrix', 'sc.face.ac': 'Attribution Matrix', 'sc.face.3d': 'Free 3D',
     'sc.cube.note': 'Drag to rotate. Each sphere is a Deal, sized by its share of Deal margin. When the score turns red (danger), the cube rotates to the Attribution (A × C) face.',
     'sc.foot': 'Every way out is shown on equal terms. There is no “do this” button.',
@@ -454,7 +454,7 @@ var I18N = {
     'pt.none': 'No Deals left.',
     'pt.gone': 'Already force-closed: {list}.',
     'pt.same.a': 'After end-of-day settlement, all Deals on the same side share one reference price, so their A values are equal; they differ only on B and C.',
-    'pt.cube': 'The A × B × C cube at the close',
+    'pt.cube': 'The scenario cube at the close',
     'pt.decide': 'Your decision after the {d} close', 'pt.decide.note': 'Executed at the opening price on {d2} (simulated).', 'pt.decide.last': 'This is the last session in the simulated period; no more decisions can be added.',
     'pt.b.close': 'Close Deal #{id}', 'pt.b.long': 'Open 1 long VN30F1M', 'pt.b.short': 'Open 1 short VN30F2M', 'pt.b.dep': 'Deposit 20 million',
     'pt.b.autoOff': 'Turn Auto Deal Top-up off', 'pt.b.autoOn': 'Turn Auto Deal Top-up on',
@@ -473,7 +473,7 @@ var I18N = {
     'pt.i.none': 'No Deal was force-closed in this period.',
     'pt.i.more': 'In total, {n} were force-closed in this period.',
 
-    'cube.a': 'A · Risk contribution →', 'cube.b': 'B · P&L ↑', 'cube.c': 'C · Reserve draw', 'cube.hint': 'Drag to rotate · Ctrl + scroll to zoom · hover a Deal for its numbers', 'cube.zin': 'Zoom in', 'cube.zout': 'Zoom out', 'cube.reset': 'Reset view', 'cube.full': 'Full screen', 'cube.exitfull': 'Exit full screen', 'cube.wheel': 'Hold Ctrl (⌘) and scroll to zoom', 'cube.chips': 'Choose a Deal', 'cube.hinttouch': 'Drag to rotate · pinch to zoom · tap a Deal for its numbers', 'cube.flathint': 'Drag to turn it into the 3D cube',
+    'cube.a': 'A · Risk contribution →', 'cube.b': 'B · P&L since opening ↑', 'cube.c': 'C · Reserve draw', 'cube.hint': 'Drag to rotate · Ctrl + scroll to zoom · hover a Deal for its numbers', 'cube.zin': 'Zoom in', 'cube.zout': 'Zoom out', 'cube.reset': 'Reset view', 'cube.full': 'Full screen', 'cube.exitfull': 'Exit full screen', 'cube.wheel': 'Hold Ctrl (⌘) and scroll to zoom', 'cube.chips': 'Choose a Deal', 'cube.hinttouch': 'Drag to rotate · pinch to zoom · tap a Deal for its numbers', 'cube.flathint': 'Drag to lift it back into the scenario cube', 'cube.free': 'Scenario cube · A × B × C', 'mx.ab.short': 'Perception–Risk', 'mx.ac.short': 'Attribution',
     'cube.title': '#{id}: A {a}, B {b}, C {c}',
 
     'ft.disc': 'A concept by an FBA 2026 competition team. Not a DNSE product or official DNSE interface. Figures labelled [M] are simulated.',

@@ -342,6 +342,7 @@
   function cubeLabels() {
     return { a: t('cube.a'), b: t('cube.b'), c: t('cube.c'), hint: t('cube.hint'), hintTouch: t('cube.hinttouch'), flatHint: t('cube.flathint'),
       zin: t('cube.zin'), zout: t('cube.zout'), reset: t('cube.reset'), full: t('cube.full'), exitFull: t('cube.exitfull'), wheel: t('cube.wheel'), chips: t('cube.chips'),
+      faceAB: t('mx.ab.name'), faceAC: t('mx.ac.name'), faceFree: t('cube.free'), shortAB: t('mx.ab.short'), shortAC: t('mx.ac.short'),
       cells: ['Két sắt', 'Dao hai lưỡi', 'Món chết', 'Quả bom'].map(cellName),
       cellsAC: ['Vết thương cũ', 'Thủ phạm chính', 'Đứng ngoài', 'Mối nguy kế tiếp'].map(cellName) };
   }
@@ -640,6 +641,8 @@
   function applyLang() {
     document.documentElement.lang = lang;
     $$('[data-i18n]').forEach(function (el) { el.innerHTML = t(el.dataset.i18n); });
+    /* số lớn kiểu "38 vs 0": chữ nối nhỏ và nhạt hơn để hai con số nổi lên */
+    $$('.big').forEach(function (el) { el.innerHTML = el.innerHTML.replace(/ (vs|so với) /, ' <span class="vs">$1</span> '); });
     $$('[data-i18n-attr]').forEach(function (el) {
       var p = el.dataset.i18nAttr.split(':'); el.setAttribute(p[0], t(p[1]));
     });

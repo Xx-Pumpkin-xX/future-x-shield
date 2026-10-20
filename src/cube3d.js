@@ -59,6 +59,7 @@ var Cube3D = (function () {
     var canFull = !!(document.fullscreenEnabled && host.requestFullscreen);
     var bFull = canFull ? btn('zfull', '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'full') : null;
     var tip = div('c3-tip', host); tip.hidden = true;
+    var faceTag = div('c3-face', host); /* đang nhìn mặt nào: tên ma trận, hoặc tên khối khi đang xoay tự do */
     var toast = div('c3-toast', host); toast.hidden = true;
     var hint = div('c3-hint', host);
     var chips = div('c3-chips', host); chips.setAttribute('role', 'group');
@@ -107,10 +108,18 @@ var Cube3D = (function () {
         var q = proj(p), t = el('text', { x: q.x.toFixed(1), y: q.y.toFixed(1), class: 'c3-lab ' + (cls || ''), 'text-anchor': anchor || 'middle' }, gLabels);
         t.textContent = text; return q;
       }
-      lab([1.06, -1.1, 1.16], L.a || 'A →', 'axis', 'end');
-      lab([-1, 1.14, 1], L.b || 'B ↑', 'axis');
-      lab([-1.02, -1.12, 1.18], L.c || 'C', 'axis', 'start');
+      /* trục nào đang chĩa thẳng vào người xem (hình chiếu ngắn) thì ẩn tên trục, tránh chữ chồng lên nhau */
+      function span(a, b) { var p = proj(a), q = proj(b); return Math.hypot(p.x - q.x, p.y - q.y); }
+      var sA = span([-1, -1, 1], [1, -1, 1]), sB = span([-1, -1, 1], [-1, 1, 1]), sC = span([-1, -1, -1], [-1, -1, 1]), sMax = Math.max(sA, sB, sC);
+      function axisCls(v) { return 'axis' + (v < sMax * 0.45 ? ' off' : ''); }
+      lab([1.06, -1.1, 1.16], L.a || 'A →', axisCls(sA), 'end');
+      lab([-1, 1.14, 1], L.b || 'B ↑', axisCls(sB));
+      lab([-1.02, -1.12, 1.18], L.c || 'C', axisCls(sC), 'start');
       var yw = ((st.yaw % 360) + 540) % 360 - 180, nearAB = Math.abs(yw) < 30 && st.pitch > -30, nearAC = st.pitch < -62;
+      /* nhãn mặt chỉ gọi tên ma trận khi nhìn gần như thẳng vào mặt đó; còn lại là tên khối */
+      var onAB = Math.abs(yw) < 18 && st.pitch > -18, onAC = st.pitch < -70, fname = onAC ? L.faceAC : onAB ? L.faceAB : L.faceFree;
+      if (faceTag.textContent !== (fname || '')) faceTag.textContent = fname || '';
+      faceTag.setAttribute('data-on', onAC ? 'AC' : onAB ? 'AB' : 'free');
       if (L.cells && (nearAB || nearAC)) {
         var face = currentFace();
         var spots = face === 'AC' ? [[-0.5, -1, 0.5], [0.5, -1, 0.5], [-0.5, -1, -0.5], [0.5, -1, -0.5]] : [[-0.5, 0.5, 1], [0.5, 0.5, 1], [-0.5, -0.5, 1], [0.5, -0.5, 1]];
@@ -173,8 +182,12 @@ var Cube3D = (function () {
       host.classList.toggle('has-focus', !!it && !st.flat);
       if (!it || st.flat) { tip.hidden = true; return; }
       var p = it.p, face = currentFace();
+      var L = st.labels || {};
+      /* ô của Deal trên cả hai ma trận; ma trận của mặt đang nhìn đứng trước và tô nổi */
+      var rows = [['AB', L.shortAB, p.cellAB], ['AC', L.shortAC, p.cellAC]];
+      if (face === 'AC') rows.reverse();
       tip.innerHTML = '<b>' + (p.label || '#' + p.id) + '</b><span>' + (p.vals || '') + '</span>' +
-        '<em class="' + p.heat + '">' + ((face === 'AC' ? p.cellAC : p.cellAB) || '') + '</em>';
+        rows.map(function (r, i) { return r[2] ? '<i class="c3-cellrow' + (i === 0 ? ' on ' + p.heat : '') + '"><small>' + (r[1] || r[0]) + '</small> ' + r[2] + '</i>' : ''; }).join('');
       tip.hidden = false;
       var bw = svg.getBoundingClientRect(), hw = host.getBoundingClientRect(), sx = bw.width / W, sy = bw.height / H;
       var x = bw.left - hw.left + it.q.x * sx, y = bw.top - hw.top + it.q.y * sy, r = it.r * sx;
