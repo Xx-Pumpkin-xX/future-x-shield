@@ -22,6 +22,7 @@ Trang Tổng quan là một trang dài 9 phần (hero, Vấn đề, Bằng chứ
 | `build.js` | Ghép tất cả thành `dist/index.html`. |
 | `tests/` | `test_engine.js` (51 kiểm: số vàng và ranh giới ô 1/n), `test_timeline.js` (mô phỏng nhiều phiên, 17 kiểm), `test_sim.js` (chạy lại Mô phỏng 1 và 2 của team, so từng dòng với kết quả gốc và với số trên trang, 18 kiểm), `test_build.js` (build, nội dung, cấu hình), `e2e.js` (trình duyệt thật). |
 | `tools/l10_sim.js` | Bản JS dòng-theo-dòng của `l10b_sim.py`, `l10c_sim.py`, `check_ma_tran_1n.py` (gói mô phỏng team gửi 19/10/2026). Mọi số ở phần Bằng chứng trên trang ra từ đây: 38 so với 0, 0,96–1,08×, 16% (6/38), 35 so với 38, 479 phiên, 29% và 94%. `node tools/l10_sim.js` in tóm tắt. |
+| `tools/wrapscan.js` | Dò chỗ xuống dòng xấu: khối chữ mà dòng cuối chỉ còn một hai chữ. e2e chạy nó trên 5 trang × 3 bề ngang × 2 thứ tiếng; chạy riêng: `node tools/wrapscan.js`. |
 | `data/sim/` | Kết quả gốc của team (`l10b_ket_qua.csv`, `l10c_ket_qua.csv`, `l10c_truc.csv`, chạy bằng Python 3.10.12 ngày 19/10). `tests/test_sim.js` so từng dòng. |
 | `wrangler.jsonc` | Cấu hình Cloudflare Workers: chỉ phát thư mục `dist`. |
 | `.github/workflows/pages.yml` | Chạy test và e2e ở mỗi lần push (phần đưa lên GitHub Pages bị tắt khi dùng Cloudflare). Trên máy Phong, file đang chờ ở `ci/pages.yml`: RUNBOOK bước 2 chuyển nó vào đúng chỗ. |
@@ -41,7 +42,7 @@ npm ci                          # cài playwright (chỉ để chạy e2e)
 npm test                        # "51 pass", "17 pass", "18 pass", rồi "59 pass", đều 0 fail
 node build.js                   # ra dist/index.html và dist/_headers, in commit đã đóng dấu
 npx playwright install chromium # lần đầu; không tải được thì đặt E2E_CHANNEL=msedge
-npm run e2e                     # "159 pass, 0 fail"
+npm run e2e                     # "161 pass, 0 fail"
 ```
 
 Mở `dist/index.html` bằng trình duyệt là xem được, không cần máy chủ.

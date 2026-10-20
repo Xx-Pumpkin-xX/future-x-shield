@@ -32,7 +32,7 @@ $env:E2E_CHANNEL = "msedge"
 node tests/e2e.js
 Remove-Item Env:E2E_CHANNEL
 ```
-Phải thấy `159 pass, 0 fail`.
+Phải thấy `161 pass, 0 fail`.
 
 ## 2. Đẩy lên GitHub
 
@@ -79,7 +79,7 @@ $env:EXPECT_COMMIT = (git rev-parse HEAD)
 node tests/e2e.js
 Remove-Item Env:E2E_CHANNEL, Env:E2E_URL, Env:EXPECT_COMMIT
 ```
-Phải thấy `PASS bản build: đúng commit vừa đẩy (…)` và `160 pass, 0 fail`. Nếu commit không khớp: Cloudflare chưa build xong, hoặc Worker chưa nối Git (bước 3).
+Phải thấy `PASS bản build: đúng commit vừa đẩy (…)` và `162 pass, 0 fail`. Nếu commit không khớp: Cloudflare chưa build xong, hoặc Worker chưa nối Git (bước 3).
 
 Trên điện thoại:
 1. Mở địa chỉ trên.

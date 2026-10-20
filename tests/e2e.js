@@ -10,6 +10,7 @@ let chromium;
 try { ({ chromium } = require('playwright')); }
 catch (e) { console.error('E2E KHÔNG CHẠY: chưa cài playwright. Chạy: npm ci && npx playwright install chromium'); process.exit(2); }
 const SE = require('../engine/engine.js');
+const { scanInPage } = require('../tools/wrapscan.js');
 
 const FILE = path.join(__dirname, '..', 'dist', 'index.html');
 /* pathToFileURL: đúng cả trên Windows (ổ đĩa, dấu \\), không tự nối chuỗi file:// */
@@ -332,6 +333,25 @@ const ROUTES = [['#/', 'overview'], ['#/van-de', 'overview'], ['#/san-pham', 'ov
   const ballFill = await pg.evaluate(() => [...document.querySelectorAll('#pt-cube .c3-ball')].map(b => { const m = (b.getAttribute('fill') || '').match(/url\(#(.+)\)/); const g = m && document.getElementById(m[1]); return !!g && b.ownerSVGElement.contains(g); })); /* đọc trong cùng một lượt: khối tự xoay vẽ lại mỗi khung */
   ok('Danh mục thật sau Viễn cảnh: ' + ballFill.length + ' hình cầu đều tô bằng gradient trong chính khối đó', ballFill.length === 5 && ballFill.every(Boolean), JSON.stringify(ballFill));
   await pg.context().close();
+
+  /* 5e. Xuống dòng: không khối chữ nào để dòng cuối chỉ còn một hai chữ (tools/wrapscan.js) */
+  {
+    const bad = [];
+    for (const lang of ['vi', 'en']) for (const width of [1903, 1280, 390]) {
+      for (const hash of ['#/', '#/demo/atl', '#/demo/shield', '#/demo/vien-canh', '#/demo/danh-muc']) {
+        pg = await openPage(width, hash, lang); await pg.waitForTimeout(300);
+        (await pg.evaluate(scanInPage)).forEach(x => bad.push(lang + ' ' + width + ' ' + hash + ' ' + x.sel + ' "' + x.text.slice(-30) + '"'));
+        if (lang === 'en' && width === 1903 && hash === '#/') {
+          const ctl = await pg.evaluate(() => { document.querySelectorAll('span.nw').forEach(s => s.replaceWith(...s.childNodes));
+            const st = document.createElement('style'); st.textContent = '* { text-wrap: wrap !important; }'; document.head.appendChild(st); return 0; })
+            .then(() => pg.evaluate(scanInPage));
+          ok('đối chứng âm: tắt cách xuống dòng mới thì bộ dò bắt được ' + ctl.length + ' chỗ dòng cuối lẻ loi', ctl.length > 5);
+        }
+        await pg.context().close();
+      }
+    }
+    ok('Xuống dòng: 2 thứ tiếng × 3 bề ngang × 5 trang, không đoạn nào dòng cuối chỉ còn một hai chữ', bad.length === 0, bad.slice(0, 5).join(' | '));
+  }
 
   /* 6. Song ngữ */
   pg = await openPage(1280, '#/demo/atl');

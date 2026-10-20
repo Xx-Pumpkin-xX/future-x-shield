@@ -614,7 +614,27 @@
   window.addEventListener('scroll', function () {
     if (!scrollT) scrollT = requestAnimationFrame(function () { scrollT = 0; onScroll(); });
   }, { passive: true });
-  window.addEventListener('resize', function () { measureBar(); onScroll(); });
+  window.addEventListener('resize', function () { measureBar(); onScroll(); scheduleWrap(); });
+
+  /* Xuống dòng: CSS chia đều dòng (text-wrap: balance), nhưng trình duyệt chỉ làm vậy với đoạn ≤ 6 dòng.
+     Đoạn dài hơn: giữ vài chữ cuối đi liền nhau (span không ngắt dòng) để dòng cuối không còn một hai chữ lẻ loi.
+     Chữ và khoảng trắng giữ nguyên, chỉ thêm một thẻ span bọc ngoài. */
+  var wrapT = 0;
+  function scheduleWrap() { cancelAnimationFrame(wrapT); wrapT = requestAnimationFrame(fixWrap); }
+  function fixWrap() {
+    $$('span.nw').forEach(function (sp) { var par = sp.parentNode; if (!par) return; while (sp.firstChild) par.insertBefore(sp.firstChild, sp); par.removeChild(sp); par.normalize(); });
+    var long = $$('p, li, dd').filter(function (e) {
+      if (!e.offsetParent) return false;
+      var lh = parseFloat(getComputedStyle(e).lineHeight); return lh > 0 && e.clientHeight / lh > 6.5;
+    });
+    long.forEach(function (e) {
+      var tn = e.lastChild; if (!tn || tn.nodeType !== 3) return;
+      var n = lang === 'vi' ? 5 : 3; /* tiếng Việt mỗi âm tiết một chữ nên cần giữ nhiều chữ hơn */
+      var m = tn.textContent.match(new RegExp('((?:\\S+\\s+){' + (n - 1) + '}\\S+\\s*)$')); if (!m) return;
+      var tail = tn.splitText(tn.textContent.length - m[1].length), sp = document.createElement('span');
+      sp.className = 'nw'; e.insertBefore(sp, tail); sp.appendChild(tail);
+    });
+  }
 
   /* ---------- ngôn ngữ ---------- */
   function applyLang() {
@@ -645,7 +665,7 @@
     if (!b) return;
     var ds = b.dataset;
     if (b.id === 'lang-toggle') { setLangMenu($('#lang-menu').hidden); }
-    else if (ds.lang) { setLangMenu(false); lang = ds.lang; try { localStorage.setItem('fxs-lang', lang); } catch (err) { /* bỏ qua */ } applyLang(); show(false); }
+    else if (ds.lang) { setLangMenu(false); lang = ds.lang; try { localStorage.setItem('fxs-lang', lang); } catch (err) { /* bỏ qua */ } applyLang(); show(false); scheduleWrap(); }
     else if (ds.code) { atl.code = ds.code; renderATL(); }
     else if (ds.side) { atl.side = +ds.side; renderATL(); }
     else if (ds.step) { atl.qty = Math.max(1, Math.min(6, atl.qty + +ds.step)); renderATL(); }
@@ -667,7 +687,7 @@
     else if (b.id === 'sc-undo') { scn.steps = scn.steps.slice(0, -1); renderScenario(); }
     else if (b.id === 'sc-reset') { scn.steps = []; renderScenario(); }
   });
-  window.addEventListener('hashchange', function () { show(true); });
+  window.addEventListener('hashchange', function () { show(true); scheduleWrap(); });
 
   /* ---------- bản build ---------- */
   var B = window.__BUILD__ || {};
@@ -677,5 +697,6 @@
 
   applyLang();
   show('init');
+  scheduleWrap();
   document.body.setAttribute('data-ready', '1');
 })();

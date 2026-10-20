@@ -30,6 +30,10 @@ button { font: inherit; color: inherit; }
 :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 [hidden] { display: none !important; }
 h1, h2, h3 { line-height: 1.2; margin: 0; letter-spacing: -0.01em; }
+/* Xuống dòng: tiêu đề và câu ngắn chia đều các dòng; đoạn văn dài tránh dòng cuối chỉ còn một hai chữ */
+h1, h2, h3, h4, p, li, dt, dd, small, figcaption, button, .note, .c3-hint { text-wrap: balance; }
+@supports not (text-wrap: balance) { p, li, dd { text-wrap: pretty; } }
+.nw { white-space: nowrap; }
 h1 { font-size: clamp(26px, 3.6vw, 38px); font-weight: 800; max-width: 30ch; letter-spacing: -0.02em; }
 h2 { font-size: 20px; font-weight: 700; color: var(--brand); }
 h3 { font-size: 16px; font-weight: 700; color: var(--brand); }
