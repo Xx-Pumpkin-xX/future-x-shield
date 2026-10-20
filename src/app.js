@@ -623,20 +623,96 @@
   var wrapT = 0;
   function scheduleWrap() { cancelAnimationFrame(wrapT); wrapT = requestAnimationFrame(fixWrap); }
   function fixWrap() {
-    $$('span.nw').forEach(function (sp) { var par = sp.parentNode; if (!par) return; while (sp.firstChild) par.insertBefore(sp.firstChild, sp); par.removeChild(sp); par.normalize(); });
+    glueBusy = true;
+    $$('span.nw, span.vw').forEach(function (sp) { var par = sp.parentNode; if (!par) return; while (sp.firstChild) par.insertBefore(sp.firstChild, sp); par.removeChild(sp); par.normalize(); });
+    glueText(); glueBusy = true; /* đo số dòng sau khi đã ghép từ, vì ghép từ có thể làm đoạn dài thêm một dòng */
     var long = $$('p, li, dd').filter(function (e) {
       if (!e.offsetParent) return false;
       var lh = parseFloat(getComputedStyle(e).lineHeight); return lh > 0 && e.clientHeight / lh > 6.5;
     });
     long.forEach(function (e) {
+      $$('span.vw', e).forEach(function (sp) { sp.replaceWith.apply(sp, [].slice.call(sp.childNodes)); }); e.normalize();
       var tn = e.lastChild; if (!tn || tn.nodeType !== 3) return;
       var n = lang === 'vi' ? 5 : 3; /* tiếng Việt mỗi âm tiết một chữ nên cần giữ nhiều chữ hơn */
       var m = tn.textContent.match(new RegExp('((?:\\S+\\s+){' + (n - 1) + '}\\S+\\s*)$')); if (!m) return;
       var tail = tn.splitText(tn.textContent.length - m[1].length), sp = document.createElement('span');
       sp.className = 'nw'; e.insertBefore(sp, tail); sp.appendChild(tail);
     });
+     glueText();
   }
 
+     /* Không cắt đôi từ tiếng Việt: trình duyệt ngắt dòng ở mọi khoảng trắng, mà tiếng Việt mỗi âm tiết cách nhau một
+     khoảng trắng, nên "bất kỳ", "rủi ro", "tài khoản" có thể bị tách ra hai dòng. Bọc các từ ghép (và "Mô phỏng 3",
+     "Deal #4", "3,4–3,6 lần", "… [M]") trong span không ngắt dòng. Chữ giữ nguyên, innerText không đổi.
+     Tự chạy lại khi nội dung đổi (demo vẽ lại), không đụng SVG, ô nhập, chú thích nổi. */
+  var VI_WORDS = ('an toàn|ban đầu|bao nhiêu|biến động|báo cáo|bây giờ|bên phải|bên trái|bắt đầu|bắt kịp|bằng chứng|bất kỳ|' +
+    'bỏ qua|chia đều|chính thức|chú ý|chấm điểm|chế độ|chứng khoán|con số|cảm nhận|cảnh báo|căn cứ|cổ phiếu|cùng lúc|' +
+    'cả hai|danh mục|di chuyển|diễn ra|duy nhất|dành cho|dữ liệu|dự phòng|dự thi|dự án|ghi nhận|giai đoạn|thời gian thực|' +
+    'thời gian|giao diện|giao dịch|giá trị|giả lập|giả định|giải chấp|giải pháp|giữ nguyên|góc nhìn|đóng góp|gần như|' +
+    'gần nhất|gắn cứng|gây ra|hai chiều|hiện tại|hoạt động|hòa vốn|hạn mức|hệ thống|hợp đồng|khoản vay|khoảng trống|' +
+    'khuyến nghị|khác nhau|khảo sát|khối lượng|kiểm chứng|ký quỹ|kết quả|kể cả|làm việc|lãi lỗ|lý do|lựa chọn|lời khuyên|' +
+    'lối thoát|ma trận|màn hình|mô hình|mô phỏng|mô tả|mục đích|mức giá|ngang nhau|nghĩa là|nghị định|nguy hiểm|nguyên tắc|' +
+    'nguyên văn|ngôn ngữ|nội dung|phái sinh|pháp luật|pháp lý|phát sinh|phép tính|phía trước|phóng to|thu nhỏ|phạm vi|' +
+    'phụ thuộc|quyết định|quá khứ|ranh giới|rủi ro|sau khi|sau đó|so với|sản phẩm|sự kiện|tham chiếu|thanh toán|thiết kế|' +
+    'thuật toán|thông báo|thông thường|thước đo|thường niên|thật sự|thế nào|thị trường|thời điểm|thứ tự|thực tế|tiêu hao|' +
+    'tiếp theo|tiếp tục|triển khai|trình duyệt|trước khi|trước đó|trả lời|trả về|trở lên|truy nguyên|tài khoản|tài sản|' +
+    'tích hợp|tích lũy|tín hiệu|tính năng|tổng cộng|tổng quan|tổng số|tỷ lệ|tỷ trọng|từ chối|tối đa|tối thiểu|vi phạm|' +
+    'viễn cảnh|ví dụ|văn bản|vượt quá|vấn đề|vị thế|vị trí|xuống còn|xác nhận|xếp hạng|xử lý|yếu nhất|âm thầm|ý nghĩa|' +
+    'đám đông|đây là|đòn bẩy|đóng cửa|mở cửa|đăng nhập|đầu tiên|đầu tư|đầu vào|đặt lệnh|đề xuất|đồng thời|đồng ý|đội thi|' +
+    'điểm số|cuối ngày|cuối phiên|đầu phiên|nạp tiền|nạp thêm|mua thêm|bán thêm|lượt xem|trục dọc|trục ngang|dải màu|' +
+    'hình cầu|cọc chung|cọc riêng|hai ngón|tự động|người xem|người dùng|khách hàng|cá nhân|thông tin|thao tác|biểu đồ|' +
+    'chú thích|kịch bản|nhà đầu tư|công ty|đối chứng|tổng hợp|lệnh mới|sinh viên|tự tăng|theo ngày|trong phiên').split('|');
+  /* hư từ đứng cuối dòng trông lửng ("… âm thầm vì / tự tăng"): cho nó xuống dòng cùng từ (hoặc từ ghép) đi sau */
+  var VI_LEAD = 'vì|và|của|cho|là|ở|với|nên|thì|mà|các|những|mỗi|từ|theo|khi|nếu|trong|trên|dưới|sau|trước|bị|được|rồi|hoặc|hay|nhưng';
+  var GLUE_ANY = ['Future X Shield', 'Future X', 'Business Analyst', 'machine learning', 'DNSE Future'];
+  var S = '[ \\u00a0]+', NB = '(?![\\p{L}\\p{N}])', PB = '(?<![\\p{L}\\p{N}])';
+  function esc(w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/ /g, S); }
+  var RAW_VI = [
+    '(?:Năm|Mô' + S + 'phỏng|Bước|Deal|Q|Trader)' + S + '#?\\d+',                    /* Mô phỏng 3, Deal #4, Năm 1 */
+    '[\\d][\\d.,%–\\-]*' + S + '(?:lần|triệu|tỷ|phiên|ngày|tháng|năm|hđ|điểm|lệnh|bước|Deal|giây|phút)' + NB
+  ];
+  var RAW_EN = ['(?:Simulation|Step|Year|Deal|Q|Trader)' + S + '#?\\d+'];
+  var CITE = '\\S+' + S + '\\[[A-Z]\\]';                                                 /* chữ cuối + [M] đi liền */
+  function mkRe(raw, words, lead) {
+    var list = words.slice().sort(function (a, b) { return b.length - a.length; }).map(esc), alt = raw.concat(list).join('|');
+    var head = lead ? PB + '(?:' + lead + ')' + S + '(?:' + alt + '|[\\p{L}\\p{N}#]+(?:' + S + '\\[[A-Z]\\])?)' + NB + '|' : '';
+    return new RegExp(CITE + '|' + head + PB + '(?:' + alt + ')' + NB, 'giu');
+  }
+  var GLUE_RE = { vi: mkRe(RAW_VI, VI_WORDS.concat(GLUE_ANY), VI_LEAD), en: mkRe(RAW_EN, GLUE_ANY) };
+  var GLUE_SKIP = 'svg, script, style, textarea, input, select, code, pre, .vw, .c3-tip, .c3-toast, .mx-title, .m-lab, [contenteditable]';
+  var glueT = 0, glueBusy = false;
+  function glueText(root) {
+    var re = GLUE_RE[lang] || GLUE_RE.en, nodes = [];
+    var w = document.createTreeWalker(root || document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        if (n.nodeValue.indexOf(' ') < 0 && n.nodeValue.indexOf('\u00a0') < 0) return NodeFilter.FILTER_REJECT;
+        var p = n.parentElement; if (!p || p.closest(GLUE_SKIP)) return NodeFilter.FILTER_REJECT;
+        var ws = getComputedStyle(p).whiteSpace; if (ws === 'nowrap' || ws === 'pre') return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    for (var n; (n = w.nextNode());) nodes.push(n);
+    glueBusy = true;
+    nodes.forEach(function (n) {
+      var s = n.nodeValue, m, last = 0, frag = null; re.lastIndex = 0;
+      while ((m = re.exec(s))) {
+        if (!/[ \u00a0]/.test(m[0])) continue;
+        frag = frag || document.createDocumentFragment();
+        if (m.index > last) frag.appendChild(document.createTextNode(s.slice(last, m.index)));
+        var sp = document.createElement('span'); sp.className = 'vw'; sp.textContent = m[0]; frag.appendChild(sp);
+        last = m.index + m[0].length;
+      }
+      if (!frag) return;
+      if (last < s.length) frag.appendChild(document.createTextNode(s.slice(last)));
+      n.parentNode.replaceChild(frag, n);
+    });
+    glueObs.takeRecords(); glueBusy = false;
+  }
+  var glueObs = new MutationObserver(function () {
+    if (glueBusy) return;
+    cancelAnimationFrame(glueT); glueT = requestAnimationFrame(function () { glueText(); });
+  }); 
+   
   /* ---------- ngôn ngữ ---------- */
   function applyLang() {
     document.documentElement.lang = lang;
@@ -701,5 +777,7 @@
   applyLang();
   show('init');
   scheduleWrap();
+  glueText();
+  glueObs.observe(document.body, { childList: true, subtree: true, characterData: true });
   document.body.setAttribute('data-ready', '1');
 })();
