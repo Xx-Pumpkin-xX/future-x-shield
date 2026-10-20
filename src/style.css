@@ -501,7 +501,7 @@ body[data-route="overview"] { background: #FFFFFF; }
 .big { font-variant-numeric: tabular-nums; }
 .big .vs { font-size: .46em; font-weight: 600; color: var(--ink2); letter-spacing: 0; margin: 0 .12em; }
 /* Thẻ đặt cạnh nhau: câu hỏi, số lớn, lời giải… của mọi thẻ nằm trên cùng một hàng, dù câu hỏi dài ngắn khác nhau */
-.flow3 > li { --rows: 3; } .map3 > li, .abc > li { --rows: 4; } .pair.rows5 > .card2 { --rows: 5; }
+.flow3 > li { --rows: 3; } .flow3.who > li, .map3 > li, .abc > li { --rows: 4; } .pair.rows5 > .card2 { --rows: 5; }
 @media (min-width: 861px) { @supports (grid-template-rows: subgrid) {
   .flow3 > li, .map3 > li, .abc > li, .pair.rows5 > .card2 { display: grid; grid-row: span var(--rows); grid-template-rows: subgrid; row-gap: 10px; align-content: start; }
   .flow3 .big { align-self: end; }
